@@ -1,0 +1,239 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "$id": "https://argos-suite.local/schemas/report.schema.json",
+    "title": "Argos Suite Security Report",
+    "description": "Unified security report schema for Argos, Hephaestus, Pythia, and Asterion",
+    "type": "object",
+    "required": ["tool", "version", "target", "date", "mode", "summary", "findings"],
+    "properties": {
+        "tool": {
+            "type": "string",
+            "enum": ["argus", "hephaestus", "pythia", "asterion"],
+            "description": "Tool that generated this report"
+        },
+        "version": {
+            "type": "string",
+            "pattern": "^\\d+\\.\\d+\\.\\d+$",
+            "description": "Tool version (semantic versioning)"
+        },
+        "target": {
+            "type": "string",
+            "description": "Target URL, IP, CIDR range, or domain scanned"
+        },
+        "date": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Scan completion timestamp (ISO 8601 UTC)"
+        },
+        "mode": {
+            "type": "string",
+            "enum": ["safe", "aggressive"],
+            "description": "Scan mode: safe (non-intrusive) or aggressive (requires consent)"
+        },
+        "summary": {
+            "type": "object",
+            "required": ["critical", "high", "medium", "low", "info"],
+            "properties": {
+                "critical": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "description": "Count of critical severity findings"
+                },
+                "high": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "description": "Count of high severity findings"
+                },
+                "medium": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "description": "Count of medium severity findings"
+                },
+                "low": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "description": "Count of low severity findings"
+                },
+                "info": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "description": "Count of informational findings"
+                }
+            },
+            "description": "Count of findings by severity level"
+        },
+        "findings": {
+            "type": "array",
+            "items": {
+                "$ref": "#/definitions/finding"
+            },
+            "description": "List of security findings/vulnerabilities detected"
+        },
+        "notes": {
+            "type": "object",
+            "properties": {
+                "scan_duration_seconds": {
+                    "type": "number",
+                    "minimum": 0,
+                    "description": "Total scan duration in seconds"
+                },
+                "requests_sent": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "description": "Number of network requests/checks performed"
+                },
+                "rate_limit_applied": {
+                    "type": "boolean",
+                    "description": "Whether rate limiting was applied"
+                },
+                "scope_limitations": {
+                    "type": "string",
+                    "description": "Any scope restrictions or assumptions made"
+                },
+                "false_positive_disclaimer": {
+                    "type": "string",
+                    "description": "Disclaimer about manual verification"
+                }
+            },
+            "description": "Additional scan metadata"
+        },
+        "consent": {
+            "type": "object",
+            "required": ["method", "token", "verified_at"],
+            "properties": {
+                "method": {
+                    "type": "string",
+                    "enum": ["http", "dns", "ssh"],
+                    "description": "Consent verification method used"
+                },
+                "token": {
+                    "type": "string",
+                    "pattern": "^verify-[a-f0-9]{16}$",
+                    "description": "Consent token that was verified"
+                },
+                "verified_at": {
+                    "type": "string",
+                    "format": "date-time",
+                    "description": "Timestamp of consent verification"
+                },
+                "proof": {
+                    "type": "string",
+                    "description": "Verification proof (URL, DNS record, or file path)"
+                }
+            },
+            "description": "Ownership verification details (if aggressive mode used)"
+        },
+        "aiAnalysis": {
+            "type": "object",
+            "properties": {
+                "executiveSummary": {
+                    "type": "string",
+                    "description": "Non-technical summary for stakeholders (markdown)"
+                },
+                "technicalRemediation": {
+                    "type": "string",
+                    "description": "Step-by-step technical guidance for engineers (markdown)"
+                },
+                "generatedAt": {
+                    "type": "string",
+                    "format": "date-time",
+                    "description": "AI generation timestamp"
+                },
+                "modelUsed": {
+                    "type": "string",
+                    "description": "AI model identifier (e.g., gpt-4-turbo, claude-opus)"
+                }
+            },
+            "description": "AI-generated summaries (if --use-ai enabled)"
+        }
+    },
+    "definitions": {
+        "finding": {
+            "type": "object",
+            "required": ["id", "title", "severity", "confidence", "recommendation"],
+            "properties": {
+                "id": {
+                    "type": "string",
+                    "pattern": "^[A-Z]{3,4}-[A-Z]{2,5}-\\d{3}$",
+                    "description": "Unique finding identifier (e.g., AST-SMB-001, ARG-XSS-003)"
+                },
+                "title": {
+                    "type": "string",
+                    "minLength": 5,
+                    "maxLength": 200,
+                    "description": "Brief finding title"
+                },
+                "description": {
+                    "type": "string",
+                    "description": "Detailed explanation of the vulnerability"
+                },
+                "severity": {
+                    "type": "string",
+                    "enum": ["critical", "high", "medium", "low", "info"],
+                    "description": "Severity level"
+                },
+                "confidence": {
+                    "type": "string",
+                    "enum": ["high", "medium", "low"],
+                    "description": "Confidence in the finding (likelihood of false positive)"
+                },
+                "evidence": {
+                    "type": "object",
+                    "required": ["type", "value"],
+                    "properties": {
+                        "type": {
+                            "type": "string",
+                            "enum": [
+                                "url",
+                                "header",
+                                "body",
+                                "path",
+                                "port",
+                                "share",
+                                "service",
+                                "config",
+                                "screenshot",
+                                "other"
+                            ],
+                            "description": "Type of evidence"
+                        },
+                        "value": {
+                            "type": "string",
+                            "description": "The actual evidence data"
+                        },
+                        "context": {
+                            "type": "string",
+                            "description": "Additional context or explanation"
+                        }
+                    },
+                    "description": "Supporting evidence for the finding"
+                },
+                "recommendation": {
+                    "type": "string",
+                    "minLength": 10,
+                    "description": "Actionable remediation guidance"
+                },
+                "references": {
+                    "type": "array",
+                    "items": {
+                        "type": "string",
+                        "format": "uri"
+                    },
+                    "description": "External reference URLs (documentation, advisories)"
+                },
+                "cve": {
+                    "type": "array",
+                    "items": {
+                        "type": "string",
+                        "pattern": "^CVE-\\d{4}-\\d{4,}$"
+                    },
+                    "description": "Related CVE identifiers"
+                },
+                "affectedComponent": {
+                    "type": "string",
+                    "description": "Specific component, service, or host affected"
+                }
+            }
+        }
+    }
+}

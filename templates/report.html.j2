@@ -1,0 +1,1060 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="Asterion {{ report.version }}">
+    <title>Asterion Security Report — {{ report.target }}</title>
+    <style>
+        /* ============================================================================
+           ASTERION NETWORK SECURITY AUDITOR — LABYRINTH THEME
+           Colors: Stone Gray → Terracotta → Golden Bronze
+           Inspired by ancient Cretan labyrinths and the Minotaur legend
+           ============================================================================ */
+        
+        :root {
+            --maze-stone: #5a5a5a;          /* Stone walls */
+            --maze-terracotta: #c1440e;     /* Terracotta red */
+            --maze-bronze: #cd7f32;         /* Bronze accents */
+            --maze-gold: #d4af37;           /* Golden highlights */
+            --maze-dark: #2c2416;           /* Deep shadow */
+            --critical: #b91c1c;            /* Deep red */
+            --high: #ea580c;                /* Orange */
+            --medium: #f59e0b;              /* Amber */
+            --low: #3b82f6;                 /* Blue */
+            --info: #6b7280;                /* Gray */
+            --bg-light: #faf8f3;            /* Parchment */
+            --text-dark: #1f1f1f;
+            --text-light: #6b6b6b;
+            --border: #d4c5b9;              /* Sand */
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            line-height: 1.6;
+            color: var(--text-dark);
+            background: var(--bg-light);
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+            border-radius: 8px;
+            overflow: hidden;
+            border: 2px solid var(--border);
+        }
+
+        /* ============================================================================
+           HEADER - MINOTAUR LABYRINTH
+           ============================================================================ */
+        header {
+            background: linear-gradient(135deg, var(--maze-dark) 0%, var(--maze-stone) 50%, var(--maze-terracotta) 100%);
+            color: white;
+            padding: 50px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Labyrinth pattern background */
+        header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-image: 
+                repeating-linear-gradient(90deg, transparent, transparent 20px, rgba(255,255,255,0.03) 20px, rgba(255,255,255,0.03) 40px),
+                repeating-linear-gradient(0deg, transparent, transparent 20px, rgba(255,255,255,0.03) 20px, rgba(255,255,255,0.03) 40px);
+            opacity: 0.3;
+        }
+
+        header::after {
+            content: '🐂';
+            position: absolute;
+            top: 20px;
+            right: 50px;
+            font-size: 80px;
+            opacity: 0.15;
+            transform: rotate(-15deg);
+        }
+
+        .logo {
+            font-size: 60px;
+            margin-bottom: 10px;
+            text-shadow: 3px 3px 8px rgba(0,0,0,0.4);
+            position: relative;
+            z-index: 1;
+        }
+
+        header h1 {
+            font-size: 42px;
+            margin-bottom: 15px;
+            font-weight: 800;
+            text-shadow: 2px 2px 6px rgba(0,0,0,0.3);
+            letter-spacing: 1px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .subtitle {
+            font-size: 18px;
+            opacity: 0.95;
+            font-weight: 400;
+            margin-bottom: 8px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .tagline {
+            font-size: 14px;
+            opacity: 0.85;
+            font-style: italic;
+            color: var(--maze-gold);
+            position: relative;
+            z-index: 1;
+        }
+
+        .meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 25px;
+            margin-top: 25px;
+            font-size: 14px;
+            opacity: 0.95;
+            position: relative;
+            z-index: 1;
+        }
+
+        .meta-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .meta-item strong {
+            font-weight: 600;
+        }
+
+        /* Summary Pills */
+        .summary-pills {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-top: 25px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .pill {
+            display: inline-flex;
+            align-items: center;
+            padding: 10px 18px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 700;
+            color: white;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.2);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .pill:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
+
+        .pill-critical { background: var(--critical); }
+        .pill-high { background: var(--high); }
+        .pill-medium { background: var(--medium); color: #333; }
+        .pill-low { background: var(--low); }
+        .pill-info { background: var(--info); }
+
+        /* ============================================================================
+           CONTENT
+           ============================================================================ */
+        .content {
+            padding: 50px;
+        }
+
+        section {
+            margin-bottom: 50px;
+        }
+
+        h2 {
+            font-size: 28px;
+            color: var(--maze-terracotta);
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 3px solid var(--border);
+            position: relative;
+        }
+
+        h2::before {
+            content: '';
+            position: absolute;
+            bottom: -3px;
+            left: 0;
+            width: 120px;
+            height: 3px;
+            background: var(--maze-terracotta);
+        }
+
+        /* ============================================================================
+           OVERVIEW SECTION
+           ============================================================================ */
+        .overview {
+            background: linear-gradient(135deg, #faf8f3 0%, #f5f0e8 100%);
+            border-radius: 8px;
+            padding: 30px;
+            margin-bottom: 40px;
+            border-left: 5px solid var(--maze-bronze);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+
+        .overview-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .overview-item {
+            background: white;
+            padding: 20px;
+            border-radius: 6px;
+            border-left: 3px solid var(--maze-bronze);
+            box-shadow: 0 1px 5px rgba(0,0,0,0.05);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .overview-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 3px 12px rgba(0,0,0,0.1);
+        }
+
+        .overview-item label {
+            font-size: 12px;
+            color: var(--text-light);
+            text-transform: uppercase;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+        }
+
+        .overview-item .value {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--maze-terracotta);
+            margin-top: 8px;
+        }
+
+        /* ============================================================================
+           AI ANALYSIS SECTION - WITH MARKDOWN SUPPORT
+           ============================================================================ */
+        .ai-analysis {
+            background: linear-gradient(135deg, #fff9f0 0%, #ffe8d6 100%);
+            border-radius: 8px;
+            padding: 35px;
+            margin-bottom: 40px;
+            border-left: 5px solid var(--maze-gold);
+            box-shadow: 0 2px 10px rgba(205, 127, 50, 0.15);
+        }
+
+        .ai-analysis h2 {
+            color: var(--maze-bronze);
+        }
+
+        .ai-tabs {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 25px;
+            border-bottom: 3px solid var(--border);
+        }
+
+        .ai-tab {
+            padding: 12px 24px;
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            font-weight: 700;
+            color: var(--text-light);
+            transition: all 0.3s;
+            border-bottom: 3px solid transparent;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .ai-tab:hover {
+            color: var(--maze-bronze);
+        }
+
+        .ai-tab.active {
+            color: var(--maze-bronze);
+            border-bottom-color: var(--maze-bronze);
+        }
+
+        .ai-content {
+            display: none;
+            padding: 25px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+
+        .ai-content.active {
+            display: block;
+        }
+
+        /* Markdown styling in AI content */
+        .ai-content h3 {
+            color: var(--maze-terracotta);
+            margin-top: 25px;
+            margin-bottom: 15px;
+            font-size: 20px;
+        }
+
+        .ai-content h4 {
+            color: var(--maze-bronze);
+            margin-top: 20px;
+            margin-bottom: 12px;
+            font-size: 17px;
+            font-weight: 600;
+        }
+
+        .ai-content h5 {
+            color: var(--maze-stone);
+            margin-top: 15px;
+            margin-bottom: 10px;
+            font-size: 15px;
+            font-weight: 600;
+        }
+
+        .ai-content p {
+            margin-bottom: 15px;
+            line-height: 1.8;
+        }
+
+        .ai-content ul,
+        .ai-content ol {
+            margin-left: 30px;
+            margin-top: 12px;
+            margin-bottom: 15px;
+        }
+
+        .ai-content li {
+            margin-bottom: 10px;
+            line-height: 1.7;
+        }
+
+        .ai-content strong {
+            color: var(--maze-terracotta);
+            font-weight: 700;
+        }
+
+        .ai-content code {
+            background: #f5f0e8;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            color: var(--maze-bronze);
+            border: 1px solid var(--border);
+        }
+
+        .ai-content pre {
+            background: var(--maze-dark);
+            color: #f9fafb;
+            padding: 20px;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin: 20px 0;
+            border-left: 4px solid var(--maze-bronze);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+        }
+
+        .ai-content pre code {
+            background: none;
+            color: #f9fafb;
+            padding: 0;
+            border: none;
+        }
+
+        .ai-content blockquote {
+            border-left: 4px solid var(--maze-gold);
+            padding-left: 20px;
+            margin: 20px 0;
+            color: var(--text-light);
+            font-style: italic;
+            background: #faf8f3;
+            padding: 15px 20px;
+            border-radius: 4px;
+        }
+
+        .ai-content table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+
+        .ai-content table th,
+        .ai-content table td {
+            border: 1px solid var(--border);
+            padding: 12px;
+            text-align: left;
+        }
+
+        .ai-content table th {
+            background: #f5f0e8;
+            font-weight: 700;
+            color: var(--maze-terracotta);
+        }
+
+        .ai-meta {
+            margin-top: 25px;
+            padding-top: 20px;
+            border-top: 2px solid var(--border);
+            font-size: 13px;
+            color: var(--text-light);
+            text-align: right;
+            font-style: italic;
+        }
+
+        /* ============================================================================
+           FINDINGS TABLE
+           ============================================================================ */
+        .findings {
+            background: white;
+            border-radius: 8px;
+            padding: 35px;
+            margin-bottom: 40px;
+            border: 1px solid var(--border);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 25px;
+            box-shadow: 0 2px 15px rgba(0,0,0,0.08);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        thead {
+            background: linear-gradient(135deg, var(--maze-dark) 0%, var(--maze-stone) 100%);
+            color: white;
+        }
+
+        th {
+            text-align: left;
+            padding: 18px 20px;
+            font-weight: 700;
+            font-size: 13px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        td {
+            padding: 18px 20px;
+            border-bottom: 1px solid var(--border);
+            vertical-align: top;
+            font-size: 14px;
+        }
+
+        tbody tr:hover {
+            background: #faf8f3;
+            transition: background 0.2s ease;
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        .severity-badge {
+            display: inline-block;
+            padding: 6px 14px;
+            border-radius: 16px;
+            font-size: 11px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: white;
+        }
+
+        .severity-badge.critical { background: var(--critical); }
+        .severity-badge.high { background: var(--high); }
+        .severity-badge.medium { background: var(--medium); color: #333; }
+        .severity-badge.low { background: var(--low); }
+        .severity-badge.info { background: var(--info); }
+
+        .confidence-badge {
+            display: inline-block;
+            padding: 5px 12px;
+            border-radius: 12px;
+            font-size: 11px;
+            background: #f5f0e8;
+            color: var(--text-dark);
+            border: 1px solid var(--border);
+            font-weight: 600;
+        }
+
+        /* ============================================================================
+           DETAILED FINDINGS - WITH MARKDOWN SUPPORT
+           ============================================================================ */
+        .finding-details {
+            margin-top: 30px;
+        }
+
+        .finding-card {
+            background: white;
+            border-radius: 8px;
+            padding: 30px;
+            margin-bottom: 25px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+            border-left: 5px solid;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .finding-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 20px rgba(0,0,0,0.12);
+        }
+
+        .finding-card.critical { border-left-color: var(--critical); }
+        .finding-card.high { border-left-color: var(--high); }
+        .finding-card.medium { border-left-color: var(--medium); }
+        .finding-card.low { border-left-color: var(--low); }
+        .finding-card.info { border-left-color: var(--info); }
+
+        .finding-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid var(--border);
+        }
+
+        .finding-title {
+            font-size: 22px;
+            font-weight: 700;
+            color: var(--maze-terracotta);
+            line-height: 1.3;
+        }
+
+        .finding-id {
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            color: var(--text-light);
+            background: #f5f0e8;
+            padding: 6px 12px;
+            border-radius: 6px;
+            border: 1px solid var(--border);
+        }
+
+        .finding-description {
+            margin-bottom: 20px;
+            color: var(--text-dark);
+            line-height: 1.8;
+        }
+
+        /* Markdown support in descriptions/recommendations */
+        .finding-description p,
+        .recommendation-box p {
+            margin-bottom: 12px;
+        }
+
+        .finding-description ul,
+        .finding-description ol,
+        .recommendation-box ul,
+        .recommendation-box ol {
+            margin-left: 25px;
+            margin-bottom: 12px;
+        }
+
+        .finding-description li,
+        .recommendation-box li {
+            margin-bottom: 8px;
+        }
+
+        .finding-description strong,
+        .recommendation-box strong {
+            color: var(--maze-terracotta);
+            font-weight: 700;
+        }
+
+        .finding-description code,
+        .recommendation-box code {
+            background: #f5f0e8;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            color: var(--maze-bronze);
+        }
+
+        .finding-section {
+            margin-bottom: 25px;
+        }
+
+        .finding-section h4 {
+            color: var(--maze-bronze);
+            margin-bottom: 12px;
+            font-size: 15px;
+            text-transform: uppercase;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+        }
+
+        .evidence-box {
+            background: #faf8f3;
+            border: 1px solid var(--border);
+            border-left: 4px solid var(--maze-bronze);
+            border-radius: 6px;
+            padding: 15px;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            overflow-x: auto;
+            white-space: pre-wrap;
+            word-break: break-all;
+        }
+
+        .recommendation-box {
+            background: linear-gradient(135deg, rgba(193, 68, 14, 0.05), rgba(205, 127, 50, 0.05));
+            border-left: 5px solid var(--maze-terracotta);
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 15px;
+            box-shadow: 0 1px 8px rgba(0,0,0,0.05);
+        }
+
+        .references-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .references-list li {
+            margin-bottom: 8px;
+        }
+
+        .references-list a {
+            color: var(--maze-bronze);
+            text-decoration: none;
+            font-weight: 600;
+            transition: color 0.2s;
+        }
+
+        .references-list a:hover {
+            color: var(--maze-terracotta);
+            text-decoration: underline;
+        }
+
+        .cve-tag {
+            display: inline-block;
+            background: var(--critical);
+            color: white;
+            padding: 5px 10px;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: 800;
+            margin-right: 8px;
+            margin-bottom: 8px;
+            letter-spacing: 0.5px;
+        }
+
+        /* ============================================================================
+           CONSENT SECTION
+           ============================================================================ */
+        .consent {
+            background: linear-gradient(135deg, var(--maze-terracotta), var(--maze-bronze));
+            color: white;
+            border-radius: 8px;
+            padding: 30px;
+            margin-bottom: 40px;
+            box-shadow: 0 3px 15px rgba(193, 68, 14, 0.3);
+        }
+
+        .consent h2 {
+            margin-bottom: 20px;
+            font-size: 24px;
+            border-bottom: none;
+            color: white;
+        }
+
+        .consent-details {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .consent-item {
+            background: rgba(255, 255, 255, 0.15);
+            padding: 18px;
+            border-radius: 8px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .consent-item label {
+            font-size: 12px;
+            opacity: 0.9;
+            text-transform: uppercase;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+        }
+
+        .consent-item .value {
+            font-size: 16px;
+            margin-top: 8px;
+            font-weight: 700;
+        }
+
+        /* ============================================================================
+           FOOTER
+           ============================================================================ */
+        footer {
+            background: var(--maze-dark);
+            color: #e0e0e0;
+            padding: 35px 50px;
+            border-top: 5px solid var(--maze-bronze);
+            font-size: 13px;
+        }
+
+        footer strong {
+            color: var(--maze-gold);
+            font-weight: 700;
+        }
+
+        footer a {
+            color: var(--maze-bronze);
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        footer a:hover {
+            color: var(--maze-gold);
+            text-decoration: underline;
+        }
+
+        /* ============================================================================
+           RESPONSIVE
+           ============================================================================ */
+        @media (max-width: 768px) {
+            header, .content, footer {
+                padding: 25px;
+            }
+
+            header h1 {
+                font-size: 32px;
+            }
+
+            .logo {
+                font-size: 50px;
+            }
+
+            h2 {
+                font-size: 22px;
+            }
+
+            table {
+                font-size: 12px;
+            }
+
+            th, td {
+                padding: 12px 10px;
+            }
+
+            .finding-card {
+                padding: 20px;
+            }
+
+            .finding-title {
+                font-size: 18px;
+            }
+        }
+
+        /* ============================================================================
+           PRINT STYLES
+           ============================================================================ */
+        @media print {
+            header {
+                background: var(--maze-terracotta);
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+
+            .finding-card {
+                page-break-inside: avoid;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- HEADER -->
+        <header>
+            <div class="logo">🐂</div>
+            <h1>ASTERION</h1>
+            <div class="subtitle">Network Security Auditor — Maze Navigator</div>
+            <div class="tagline">"He walks the maze — every flaw meets the horned end..."</div>
+
+            <div class="meta">
+                <div class="meta-item"><strong>🎯 Target:</strong> {{ report.target }}</div>
+                <div class="meta-item"><strong>📅 Date:</strong> {{ report.date | datetime }}</div>
+                <div class="meta-item"><strong>🔒 Mode:</strong> {{ report.mode | upper }}</div>
+                <div class="meta-item"><strong>⚙️ Version:</strong> {{ report.tool }} {{ report.version }}</div>
+                {% if report.notes %}
+                <div class="meta-item"><strong>⏱️ Duration:</strong> {{ "%.1f"|format(report.notes.scan_duration_seconds) }}s</div>
+                <div class="meta-item"><strong>📡 Requests:</strong> {{ report.notes.requests_sent }}</div>
+                {% endif %}
+            </div>
+
+            <div class="summary-pills">
+                <div class="pill pill-critical">Critical: {{ report.summary.critical }}</div>
+                <div class="pill pill-high">High: {{ report.summary.high }}</div>
+                <div class="pill pill-medium">Medium: {{ report.summary.medium }}</div>
+                <div class="pill pill-low">Low: {{ report.summary.low }}</div>
+                <div class="pill pill-info">Info: {{ report.summary.info }}</div>
+            </div>
+        </header>
+
+        <div class="content">
+            <!-- OVERVIEW -->
+            <div class="overview">
+                <h2>📊 Scan Overview</h2>
+                <div class="overview-grid">
+                    <div class="overview-item">
+                        <label>Total Findings</label>
+                        <div class="value">{{ report.findings | length }}</div>
+                    </div>
+                    <div class="overview-item">
+                        <label>Scan Mode</label>
+                        <div class="value">{{ report.mode | upper }}</div>
+                    </div>
+                    {% if report.notes %}
+                    <div class="overview-item">
+                        <label>Rate Limited</label>
+                        <div class="value">{{ 'YES' if report.notes.rate_limit_applied else 'NO' }}</div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- CONSENT -->
+            {% if report.consent %}
+            <div class="consent">
+                <h2>✅ Ownership Verified</h2>
+                <div class="consent-details">
+                    <div class="consent-item">
+                        <label>Method</label>
+                        <div class="value">{{ report.consent.method | upper }}</div>
+                    </div>
+                    <div class="consent-item">
+                        <label>Token</label>
+                        <div class="value">{{ report.consent.token }}</div>
+                    </div>
+                    <div class="consent-item">
+                        <label>Verified</label>
+                        <div class="value">{{ report.consent.verified_at | datetime }}</div>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- AI ANALYSIS -->
+            {% if report.aiAnalysis and (report.aiAnalysis.executiveSummary or report.aiAnalysis.technicalRemediation) %}
+            <div class="ai-analysis">
+                <h2>🤖 AI-Powered Security Analysis</h2>
+                {% set has_executive = report.aiAnalysis.executiveSummary and report.aiAnalysis.executiveSummary | length > 0 %}
+                {% set has_technical = report.aiAnalysis.technicalRemediation and report.aiAnalysis.technicalRemediation | length > 0 %}
+                
+                <!-- Show tabs only if both analyses exist -->
+                {% if has_executive and has_technical %}
+                <div class="ai-tabs">
+                    <button class="ai-tab active" onclick="showAiTab('executive')">Executive Summary</button>
+                    <button class="ai-tab" onclick="showAiTab('technical')">Technical Remediation</button>
+                </div>
+                {% endif %}
+                
+                <!-- Executive Summary Tab (show if present) -->
+                {% if has_executive %}
+                <div id="executive-tab" class="ai-content {% if not has_technical or has_executive %}active{% endif %}">
+                    {% if not has_technical %}
+                    <h3 style="color: var(--maze-bronze); margin-bottom: 20px;">📊 Executive Summary</h3>
+                    {% endif %}
+                    {{ report.aiAnalysis.executiveSummary | markdown | safe }}
+                </div>
+                {% endif %}
+                
+                <!-- Technical Remediation Tab (show if present) -->
+                {% if has_technical %}
+                <div id="technical-tab" class="ai-content {% if not has_executive %}active{% endif %}">
+                    {% if not has_executive %}
+                    <h3 style="color: var(--maze-bronze); margin-bottom: 20px;">🔧 Technical Remediation</h3>
+                    {% endif %}
+                    {{ report.aiAnalysis.technicalRemediation | markdown | safe }}
+                </div>
+                {% endif %}
+                
+                <!-- AI Metadata -->
+                <div class="ai-meta">
+                    Generated by <strong>{{ report.aiAnalysis.modelUsed }}</strong> at {{ report.aiAnalysis.generatedAt | datetime }}
+                    {% if report.aiAnalysis.tone %}
+                    | Tone: <strong>{{ report.aiAnalysis.tone }}</strong>
+                    {% endif %}
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- FINDINGS TABLE -->
+            <div class="findings">
+                <h2>🔍 Security Findings ({{ report.findings | length }})</h2>
+
+                {% if report.findings %}
+                <table style="table-layout: fixed;">
+                    <thead>
+                        <tr>
+                            <th style="width: 15%">ID</th>
+                            <th style="width: 30%">Title</th>
+                            <th style="width: 15%">Severity</th>
+                            <th style="width: 15%">Confidence</th>
+                            <th style="width: 25%">Component</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for finding in report.findings %}
+                        <tr>
+                            <td><code>{{ finding.id }}</code></td>
+                            <td><strong>{{ finding.title }}</strong></td>
+                            <td><span class="severity-badge {{ finding.severity }}">{{ finding.severity }}</span></td>
+                            <td><span class="confidence-badge">{{ finding.confidence }}</span></td>
+                            <td>{{ finding.affectedComponent or 'N/A' }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                {% else %}
+                <p style="text-align: center; color: var(--text-light); padding: 3rem; font-size: 16px;">
+                    ✅ No security findings detected. Target appears secure.
+                </p>
+                {% endif %}
+            </div>
+
+            <!-- DETAILED FINDINGS -->
+            {% if report.findings %}
+            <div class="finding-details">
+                <h2>📋 Detailed Findings</h2>
+
+                {% for finding in report.findings %}
+                <div class="finding-card {{ finding.severity }}">
+                    <div class="finding-header">
+                        <div>
+                            <div class="finding-title">{{ finding.title }}</div>
+                            <div style="margin-top: 10px;">
+                                <span class="severity-badge {{ finding.severity }}">{{ finding.severity }}</span>
+                                <span class="confidence-badge">{{ finding.confidence }} confidence</span>
+                            </div>
+                        </div>
+                        <div class="finding-id">{{ finding.id }}</div>
+                    </div>
+
+                    {% if finding.description %}
+                    <div class="finding-description">
+                        {{ finding.description | markdown | safe }}
+                    </div>
+                    {% endif %}
+
+                    {% if finding.affectedComponent %}
+                    <div class="finding-section">
+                        <h4>🎯 Affected Component</h4>
+                        <p><code>{{ finding.affectedComponent }}</code></p>
+                    </div>
+                    {% endif %}
+
+                    {% if finding.evidence %}
+                    <div class="finding-section">
+                        <h4>🔬 Evidence</h4>
+                        <div class="evidence-box">{{ finding.evidence.value }}</div>
+                    </div>
+                    {% endif %}
+
+                    {% if finding.recommendation %}
+                    <div class="finding-section">
+                        <h4>💡 Recommendation</h4>
+                        <div class="recommendation-box">
+                            {{ finding.recommendation | markdown | safe }}
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    {% if finding.cve %}
+                    <div class="finding-section">
+                        <h4>🛡️ Related CVEs</h4>
+                        <div>
+                            {% for cve in finding.cve %}
+                            <span class="cve-tag">{{ cve }}</span>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    {% if finding.references %}
+                    <div class="finding-section">
+                        <h4>📚 References</h4>
+                        <ul class="references-list">
+                            {% for ref in finding.references %}
+                            <li><a href="{{ ref }}" target="_blank">{{ ref }}</a></li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                    {% endif %}
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- FOOTER -->
+        <footer>
+            <p><strong>Asterion Network Security Auditor</strong> — Navigating the Network Labyrinth 🐂</p>
+            <p style="margin-top: 12px;">
+                Part of the <strong>Argos Security Suite</strong> | Generated on {{ report.date | datetime }}
+            </p>
+            <p style="margin-top: 20px; font-size: 12px; opacity: 0.8;">
+                © 2025 <a href="https://rodhnin.com">Rodney Dhavid Jimenez Chacin (rodhnin)</a> — MIT License<br>
+                <a href="https://github.com/rodhnin/asterion-network-minotaur" target="_blank">GitHub: asterion-network-minotaur</a>
+            </p>
+            <p style="margin-top: 15px; font-size: 12px;">
+                ⚠️ {{ report.notes.false_positive_disclaimer if report.notes else 'Manual verification recommended for all findings before remediation.' }}
+            </p>
+        </footer>
+    </div>
+
+    <!-- JAVASCRIPT -->
+    <script>
+        function showAiTab(tab) {
+            document.querySelectorAll('.ai-content').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.ai-tab').forEach(el => el.classList.remove('active'));
+            document.getElementById(tab + '-tab').classList.add('active');
+            event.target.classList.add('active');
+        }
+
+        window.addEventListener('keydown', function(e) {
+            if ((e.ctrlKey || e.metaKey) && e.key === 'p') {
+                window.print();
+            }
+        });
+    </script>
+</body>
+</html>

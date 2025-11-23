@@ -1,0 +1,86 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <AssemblyName>ast</AssemblyName>
+    <RootNamespace>Asterion</RootNamespace>
+    <Version>0.1.0</Version>
+    <Authors>Rodney Dhavid Jimenez Chacin (rodhnin)</Authors>
+    <Company>Argos Suite</Company>
+    <Product>Asterion Network Security Auditor</Product>
+    <Description>Cross-platform network, system, and domain auditor - The Minotaur of the Argos Suite</Description>
+    <Copyright>Copyright © 2025 Rodney Dhavid Jimenez Chacin</Copyright>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <RepositoryUrl>https://github.com/rodhnin/asterion-network-minotaur</RepositoryUrl>
+    <!-- Suppress CA1416: Windows-specific checks are properly guarded by #if WINDOWS and directory structure -->
+    <NoWarn>$(NoWarn);CA1416</NoWarn>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(OS)' == 'Windows_NT'">
+    <DefineConstants>WINDOWS;$(DefineConstants)</DefineConstants>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- CLI -->
+    <PackageReference Include="System.CommandLine" Version="2.0.0-beta4.22272.1" />
+    
+    <!-- Network & Protocols -->
+    <PackageReference Include="SMBLibrary" Version="1.5.5" />
+    <PackageReference Include="DnsClient" Version="1.7.0" />
+    <PackageReference Include="Lextm.SharpSnmpLib" Version="12.5.7" />
+    <PackageReference Include="SSH.NET" Version="2023.0.0" />
+
+    <!-- LDAP (necesario para LdapConnection, SearchRequest, etc.) -->
+    <PackageReference Include="System.DirectoryServices.Protocols" Version="8.0.0" />
+    
+    <!-- Database -->
+    <PackageReference Include="Microsoft.Data.Sqlite" Version="8.0.0" />
+    
+    <!-- JSON & YAML -->
+    <PackageReference Include="System.Text.Json" Version="8.0.5" />
+    <PackageReference Include="YamlDotNet" Version="13.7.1" />
+    
+    <!-- Logging -->
+    <PackageReference Include="Serilog" Version="3.1.1" />
+    <PackageReference Include="Serilog.Sinks.Console" Version="5.0.1" />
+    <PackageReference Include="Serilog.Sinks.File" Version="5.0.0" />
+
+    <!-- JSON Schema Validation -->
+    <PackageReference Include="JsonSchema.Net" Version="5.5.1" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(OS)' == 'Windows_NT'">
+    <PackageReference Include="System.Management" Version="8.0.0" />
+  </ItemGroup>
+  <ItemGroup Condition="'$(OS)' != 'Windows_NT'">
+    <Compile Remove="**/Windows/**/*.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Config files -->
+    <None Update="config\defaults.yaml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="schema\report.schema.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="templates\report.html.j2">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    
+    <!-- ASCII art -->
+    <None Update="..\..\assets\ascii.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <Link>assets\ascii.txt</Link>
+    </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Include="..\Program.cs" Link="Program.cs" />
+    <Compile Include="..\Cli.cs" Link="Cli.cs" />
+  </ItemGroup>
+
+</Project>

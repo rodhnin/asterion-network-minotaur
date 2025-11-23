@@ -1,0 +1,320 @@
+# Asterion - Default Configuration
+# Override via environment variables or command-line flags
+
+# ============================================================================
+# GENERAL SETTINGS
+# ============================================================================
+general:
+    version: "0.1.0"
+    author: "Rodney Dhavid Jimenez Chacin (rodhnin)"
+    github: "https://github.com/rodhnin/asterion-network-minotaur"
+    contact: "https://rodhnin.com"
+
+# ============================================================================
+# PATHS & STORAGE
+# ============================================================================
+paths:
+    # Reports output directory (auto-created if doesn't exist)
+    report_dir: "~/.asterion/reports"
+
+    # SQLite database (shared across Argus, Hephaestus, Pythia, Asterion)
+    database: "~/.argos/argos.db"
+
+    # Log file location (set to null to disable file logging)
+    log_file: "~/.asterion/asterion.log"
+
+    # Consent token verification evidence storage
+    consent_proofs_dir: "~/.asterion/consent-proofs"
+
+# ============================================================================
+# SCAN BEHAVIOR
+# ============================================================================
+scan:
+    # Default scan mode (safe = non-intrusive, aggressive = requires consent)
+    default_mode: "safe"
+
+    # Request rate limiting (requests per second)
+    rate_limit:
+        safe_mode: 5.0 # Conservative rate for safe scanning
+        aggressive_mode: 10.0 # Higher rate when authorized
+
+    # HTTP timeouts (seconds)
+    timeout:
+        connect: 10
+        read: 30
+
+    # User-Agent string for HTTP requests
+    user_agent: "Asterion/0.1.0 (Network Security Auditor)"
+
+    # Follow redirects
+    follow_redirects: true
+    max_redirects: 5
+
+    # Verify SSL certificates (set to false for testing self-signed certs)
+    verify_ssl: true
+
+# ============================================================================
+# NETWORK SCANNING
+# ============================================================================
+network:
+    # Default ports to scan (common infrastructure ports)
+    default_ports:
+        - 21 # FTP
+        - 22 # SSH
+        - 23 # Telnet
+        - 25 # SMTP
+        - 53 # DNS
+        - 80 # HTTP
+        - 88 # Kerberos
+        - 111 # RPCbind
+        - 135 # RPC
+        - 139 # NetBIOS
+        - 161 # SNMP
+        - 389 # LDAP
+        - 443 # HTTPS
+        - 445 # SMB
+        - 631 # CUPS
+        - 636 # LDAPS
+        - 1433 # MSSQL
+        - 1521 # Oracle
+        - 2049 # NFS
+        - 3306 # MySQL
+        - 3389 # RDP
+        - 5432 # PostgreSQL
+        - 5985 # WinRM HTTP
+        - 5986 # WinRM HTTPS
+        - 8080 # HTTP Alt
+        - 8443 # HTTPS Alt
+
+    # Port scanning settings
+    port_scan:
+        method: "tcp_connect" # tcp_connect, syn (requires root)
+        timeout_ms: 2000
+        retry_count: 1
+
+    # Host discovery settings
+    discovery:
+        ping_timeout_ms: 1000
+        skip_ping: false # Skip ping and just scan ports
+
+# ============================================================================
+# PROTOCOL-SPECIFIC SETTINGS
+# ============================================================================
+
+# SMB/CIFS settings
+smb:
+    check_guest_access: true
+    check_signing: true
+    check_smb_versions: true
+    check_shares: true
+    max_shares_to_enumerate: 50
+
+# RDP settings
+rdp:
+    check_nla: true
+    check_encryption: true
+    check_certificate: true
+
+# LDAP/Active Directory settings
+ldap:
+    check_anonymous_bind: true
+    check_signing: true
+    check_channel_binding: true
+    timeout_seconds: 10
+
+# Kerberos settings
+kerberos:
+    check_asrep_roasting: true
+    check_ticket_lifetime: true
+    realm_default: null # Auto-detect from domain
+
+# SNMP settings
+snmp:
+    check_default_communities: true
+    default_communities:
+        - "public"
+        - "private"
+        - "community"
+    timeout_seconds: 3
+    retries: 2
+
+# DNS settings
+dns:
+    check_zone_transfer: true
+    check_llmnr: true
+    check_mdns: true
+    dns_servers: [] # Empty = use system default
+
+# SSH settings
+ssh:
+    check_root_login: true
+    check_password_auth: true
+    check_weak_ciphers: true
+    timeout_seconds: 10
+
+# NFS settings
+nfs:
+    check_exports: true
+    check_no_root_squash: true
+
+# ============================================================================
+# CONSENT TOKEN SETTINGS
+# ============================================================================
+consent:
+    # Token expiration time (hours)
+    token_expiry_hours: 48
+
+    # Token generation (hex length)
+    token_hex_length: 16
+
+    # HTTP verification path
+    http_verification_path: "/.well-known/"
+
+    # DNS TXT record prefix
+    dns_txt_prefix: "asterion-verify="
+
+    # Retry settings for verification
+    verification_retries: 3
+    verification_retry_delay: 2 # seconds
+
+# ============================================================================
+# REPORTING
+# ============================================================================
+reporting:
+    # Report format options
+    format:
+        json: true # Always generate JSON
+        html: false # Generate HTML only if --html flag or this is true
+
+    # JSON output formatting
+    json_indent: 2 # Pretty-print with 2-space indentation
+
+    # HTML template customization
+    html:
+        include_evidence: true
+        include_raw_requests: false # Don't include full HTTP dumps by default
+        css_inline: true # Embed CSS in HTML (self-contained)
+
+# ============================================================================
+# LOGGING
+# ============================================================================
+logging:
+    # Log level (DEBUG, INFO, WARNING, ERROR, CRITICAL)
+    level: "INFO"
+
+    # Log format
+    format: "%(asctime)s [%(levelname)s] %(name)s: %(message)s"
+    date_format: "%Y-%m-%d %H:%M:%S"
+
+    # Structured JSON logging (for parsing/analysis)
+    json_format: false
+
+    # Redaction settings (remove sensitive data from logs)
+    redact:
+        enabled: true
+        patterns:
+            - "password"
+            - "token"
+            - "api_key"
+            - "secret"
+            - "authorization"
+            - "cookie"
+
+    # Console output colors (disable in CI/piped environments)
+    colors: true
+
+# ============================================================================
+# AI INTEGRATION (LangChain)
+# ============================================================================
+ai:
+    # Enable AI features (requires --use-ai flag AND verified consent)
+    enabled: false
+
+    # LangChain settings
+    langchain:
+        # LLM provider (openai, anthropic, ollama)
+        provider: "openai"
+
+        # Model selection
+        model: "gpt-4-turbo-preview"
+
+        # Temperature (0.0 = deterministic, 1.0 = creative)
+        temperature: 0.3
+
+        # Max tokens for response
+        max_tokens: 2000
+
+        # Agent type (zero-shot-react-description, conversational, etc.)
+        agent_type: "zero-shot-react-description"
+
+        # Ollama Server (if using local models)
+        ollama_base_url: "http://localhost:11434"
+
+        # Memory configuration
+        memory:
+            enabled: true
+            type: "buffer" # buffer, summary, or conversation
+            max_history: 10
+
+    # API key source (environment variable name)
+    api_key_env: "AI_API_KEY"
+
+    # Prompt templates directory
+    prompts_dir: "config/prompts"
+
+    # Sanitization settings
+    sanitization:
+        remove_urls: false # Keep URLs for context
+        remove_tokens: true # Always strip tokens
+        remove_credentials: true # Always strip passwords/keys
+        max_evidence_length: 500 # Truncate long evidence snippets
+
+# ============================================================================
+# ADVANCED / EXPERIMENTAL
+# ============================================================================
+advanced:
+    # Concurrent requests (use with caution)
+    max_workers: 5
+
+    # Cache HTTP responses (for development/testing)
+    cache_responses: false
+    cache_ttl_seconds: 3600
+
+    # Custom headers to add to all requests
+    custom_headers: {}
+
+    # Proxy settings (leave empty for no proxy)
+    proxy:
+        http: null
+        https: null
+
+# ============================================================================
+# PLATFORM-SPECIFIC SETTINGS
+# ============================================================================
+
+# Windows-specific settings
+windows:
+    # Enable Windows-specific checks (only when running on Windows)
+    check_firewall: true
+    check_registry: true
+    check_ad_policies: true
+    check_services: true
+    check_wmi: true
+
+# Linux-specific settings
+linux:
+    # Enable Linux-specific checks (only when running on Linux)
+    check_firewall: true
+    check_samba_config: true
+    check_nfs_exports: true
+    check_ssh_config: true
+    check_suid_binaries: true
+
+# ============================================================================
+# DOCKER / CONTAINER SETTINGS
+# ============================================================================
+docker:
+    # Adjust paths when running in container
+    in_container: false
+    container_report_dir: "/reports"
+    container_db_path: "/data/argos.db"

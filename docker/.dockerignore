@@ -1,0 +1,71 @@
+# Git
+.git/
+.gitignore
+.gitattributes
+
+# Build artifacts
+**/bin/
+**/obj/
+**/publish/
+**/Debug/
+**/Release/
+
+# IDE
+.vs/
+.vscode/
+.idea/
+*.user
+*.suo
+*.DotSettings.user
+
+# Reports and data (mounted as volumes)
+reports/
+data/
+logs/
+consent-proofs/
+workspace/
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.pytest_cache/
+*.egg-info/
+dist/
+build/
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Documentation (not needed in image)
+docs/**/*.md
+examples/
+*.md
+!README.md
+
+# Docker files (don't copy to image)
+docker/
+Dockerfile
+docker-compose.yml
+.dockerignore
+
+# Tests
+tests/
+*.test.cs
+*.spec.py
+
+# Temporary files
+*.tmp
+*.temp
+*.log
+*.swp
+*.swo
+*~
+
+# Large files
+*.iso
+*.ova
+*.vmdk

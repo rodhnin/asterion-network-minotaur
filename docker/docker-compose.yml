@@ -1,0 +1,108 @@
+# ============================================================================
+# Asterion Network Security Auditor - Production Deployment
+# Base path: /docker/
+# Usage: docker compose up -d
+# ============================================================================
+
+services:
+    # ============================================================================
+    # ASTERION SCANNER (Production)
+    # ============================================================================
+    asterion:
+        build:
+            context: ..
+            dockerfile: docker/Dockerfile
+        image: asterion:0.1.0
+        container_name: asterion-scanner
+        hostname: asterion
+
+        # Network mode
+        # - host: For scanning local network (Linux only)
+        # - bridge: For scanning external networks or Windows/Mac
+        network_mode: ${NETWORK_MODE:-bridge}
+
+        # Capabilities for network operations (safer than privileged mode)
+        cap_add:
+            - NET_ADMIN
+            - NET_RAW
+
+        # Volumes for persistent data
+        volumes:
+            # Reports output (owned by root)
+            - ./reports:/reports
+
+            # Shared Argos Suite database
+            - ./data:/data
+
+            # Logs
+            - ./logs:/logs
+
+            # Consent proofs
+            - ./consent-proofs:/root/.asterion/consent-proofs
+
+            # Workspace for scans
+            - ./workspace:/workspace
+
+            # Optional: Custom config override
+            # - ./custom-config.yaml:/app/config/defaults.yaml:ro
+
+        # Environment variables
+        environment:
+            # Docker detection
+            - ASTERION_IN_DOCKER=true
+
+            # AI Analysis API keys (configure in .env file)
+            - OPENAI_API_KEY=${OPENAI_API_KEY:-}
+            - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY:-}
+
+            # Asterion paths (Docker optimized)
+            - ASTERION_DB_PATH=/data/argos.db
+            - ASTERION_REPORTS_DIR=/reports
+            - ASTERION_LOG_FILE=/logs/asterion.log
+
+            # Logging
+            - ASTERION_LOG_LEVEL=${LOG_LEVEL:-INFO}
+
+            # Timezone
+            - TZ=${TIMEZONE:-UTC}
+
+        # Restart policy
+        restart: unless-stopped
+
+        # Resource limits
+        deploy:
+            resources:
+                limits:
+                    cpus: "${CPU_LIMIT:-2.0}"
+                    memory: ${MEMORY_LIMIT:-2G}
+                reservations:
+                    cpus: "0.5"
+                    memory: 512M
+
+        # Keep container running for interactive use
+        stdin_open: true
+        tty: true
+
+        # Keep container alive (entrypoint.sh will initialize DB, then exec this command)
+        command: ["sleep", "infinity"]
+
+        # Health check (simple check that dotnet is responsive)
+        healthcheck:
+            test: ["CMD-SHELL", "test -f /app/ast.dll && echo 'OK' || exit 1"]
+            interval: 30s
+            timeout: 10s
+            start_period: 10s
+            retries: 3
+
+# ============================================================================
+# VOLUMES
+# ============================================================================
+volumes:
+    reports:
+        driver: local
+    data:
+        driver: local
+    logs:
+        driver: local
+    workspace:
+        driver: local
