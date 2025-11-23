@@ -8,10 +8,9 @@ Thank you for your interest in contributing to **Asterion**! This project is par
 
 By participating in this project, you agree to:
 
-- **Be respectful**: Treat all contributors with respect and professionalism
-- **Be ethical**: Only contribute security checks that follow ethical hacking principles
-- **Be transparent**: Clearly document any changes to security checks or scanning behavior
-- **Follow responsible disclosure**: Report security vulnerabilities privately (see [SECURITY.md](SECURITY.md))
+-   **Be respectful**: Treat all contributors with respect and professionalism
+-   **Be ethical**: Only contribute security checks that follow ethical hacking principles
+-   **Be transparent**: Clearly document any changes to security checks or scanning behavior
 
 ---
 
@@ -21,13 +20,14 @@ By participating in this project, you agree to:
 
 Found a bug? Please open an issue with:
 
-- **Description**: Clear explanation of the problem
-- **Reproduction steps**: How to reproduce the issue
-- **Environment**: OS, .NET version, Docker version (if applicable)
-- **Expected vs Actual behavior**
-- **Logs**: Include relevant error messages or stack traces
+-   **Description**: Clear explanation of the problem
+-   **Reproduction steps**: How to reproduce the issue
+-   **Environment**: OS, .NET version, Docker version (if applicable)
+-   **Expected vs Actual behavior**
+-   **Logs**: Include relevant error messages or stack traces
 
 **Template:**
+
 ```
 **Bug Description:**
 [Brief description]
@@ -45,8 +45,11 @@ Found a bug? Please open an issue with:
 
 **Logs:**
 ```
+
 [paste relevant logs]
+
 ```
+
 ```
 
 ---
@@ -58,12 +61,13 @@ We're always looking for new security checks! To suggest one:
 1. **Check the [ROADMAP.md](docs/ROADMAP.md)** to see if it's already planned
 2. **Open an issue** with the `enhancement` label
 3. **Provide details**:
-   - What vulnerability/misconfiguration does it detect?
-   - Why is it important for network security?
-   - What protocols/services does it target?
-   - How should it be detected (passive vs aggressive)?
+    - What vulnerability/misconfiguration does it detect?
+    - Why is it important for network security?
+    - What protocols/services does it target?
+    - How should it be detected (passive vs aggressive)?
 
 **Example:**
+
 ```
 **Check Name:** AST-SSH-004 - Weak SSH Key Exchange Algorithms
 
@@ -95,36 +99,38 @@ KexAlgorithms curve25519-sha256,ecdh-sha2-nistp521,...
 Before contributing code:
 
 1. **Read the documentation**:
-   - [README.md](README.md) - Project overview
-   - [ETHICS.md](docs/ETHICS.md) - Ethical guidelines
-   - [NETWORK_CHECKS.md](docs/NETWORK_CHECKS.md) - Check structure
+
+    - [README.md](README.md) - Project overview
+    - [ETHICS.md](docs/ETHICS.md) - Ethical guidelines
+    - [NETWORK_CHECKS.md](docs/NETWORK_CHECKS.md) - Check structure
 
 2. **Set up your development environment**:
-   ```bash
-   # Clone the repository
-   git clone https://github.com/rodhnin/asterion-network-minotaur.git
-   cd asterion-network-minotaur
 
-   # Install .NET 8.0 SDK
-   # https://dotnet.microsoft.com/download/dotnet/8.0
+    ```bash
+    # Clone the repository
+    git clone https://github.com/rodhnin/asterion-network-minotaur.git
+    cd asterion-network-minotaur
 
-   # Build the project
-   dotnet build src/Asterion.sln
+    # Install .NET 8.0 SDK
+    # https://dotnet.microsoft.com/download/dotnet/8.0
 
-   # Run tests (if available)
-   dotnet test
-   ```
+    # Build the project
+    dotnet build src/Asterion.sln
+
+    # Run tests (if available)
+    dotnet test
+    ```
 
 3. **Understand the project structure**:
-   ```
-   src/Asterion/
-   ├── Checks/              # Security checks organized by protocol
-   │   ├── CrossPlatform/   # Windows + Linux checks
-   │   ├── Windows/         # Windows-specific checks
-   │   └── Linux/           # Linux-specific checks
-   ├── Core/                # Core engine (Config, Scanner, Reports)
-   └── Cli.cs               # Command-line interface
-   ```
+    ```
+    src/Asterion/
+    ├── Checks/              # Security checks organized by protocol
+    │   ├── CrossPlatform/   # Windows + Linux checks
+    │   ├── Windows/         # Windows-specific checks
+    │   └── Linux/           # Linux-specific checks
+    ├── Core/                # Core engine (Config, Scanner, Reports)
+    └── Cli.cs               # Command-line interface
+    ```
 
 ---
 
@@ -133,67 +139,76 @@ Before contributing code:
 1. **Fork the repository** on GitHub
 
 2. **Create a feature branch**:
-   ```bash
-   git checkout -b feature/ast-protocol-check-name
-   # Example: feature/ast-ssh-004-weak-kex
-   ```
+
+    ```bash
+    git checkout -b feature/ast-protocol-check-name
+    # Example: feature/ast-ssh-004-weak-kex
+    ```
 
 3. **Write your code**:
-   - Follow C# coding conventions (see below)
-   - Add XML documentation comments to public methods
-   - Implement proper error handling
-   - Use structured logging (Serilog)
+
+    - Follow C# coding conventions (see below)
+    - Add XML documentation comments to public methods
+    - Implement proper error handling
+    - Use structured logging (Serilog)
 
 4. **Test your changes**:
-   ```bash
-   # Build and test locally
-   dotnet build
-   ./scripts/setup.py  # Install locally
-   ast scan --target <test-target>
-   ```
+
+    ```bash
+    # Build and test locally
+    dotnet build
+    ./scripts/setup.py  # Install locally
+    ast scan --target <test-target>
+    ```
 
 5. **Commit with clear messages**:
-   ```bash
-   git commit -m "feat: add AST-SSH-004 weak KEX algorithm detection"
-   ```
 
-   **Commit message format:**
-   - `feat:` - New feature/check
-   - `fix:` - Bug fix
-   - `docs:` - Documentation changes
-   - `refactor:` - Code refactoring
-   - `test:` - Test additions/changes
+    ```bash
+    git commit -m "feat: add AST-SSH-004 weak KEX algorithm detection"
+    ```
+
+    **Commit message format:**
+
+    - `feat:` - New feature/check
+    - `fix:` - Bug fix
+    - `docs:` - Documentation changes
+    - `refactor:` - Code refactoring
+    - `test:` - Test additions/changes
 
 6. **Push and create a Pull Request**:
-   ```bash
-   git push origin feature/ast-ssh-004-weak-kex
-   ```
 
-   Then open a PR on GitHub with:
-   - **Clear title**: `feat: AST-SSH-004 - Weak SSH Key Exchange Detection`
-   - **Description**: What does this PR add/fix?
-   - **Testing**: How did you test it?
-   - **Screenshots**: Include terminal output or reports if applicable
+    ```bash
+    git push origin feature/ast-ssh-004-weak-kex
+    ```
+
+    Then open a PR on GitHub with:
+
+    - **Clear title**: `feat: AST-SSH-004 - Weak SSH Key Exchange Detection`
+    - **Description**: What does this PR add/fix?
+    - **Testing**: How did you test it?
+    - **Screenshots**: Include terminal output or reports if applicable
 
 ---
 
 #### Code Style Guidelines
 
 **C# Conventions:**
-- Use **PascalCase** for classes, methods, properties
-- Use **camelCase** for local variables
-- Use **UPPER_SNAKE_CASE** for constants
-- Add XML doc comments to public APIs:
-  ```csharp
-  /// <summary>
-  /// Detects weak SSH key exchange algorithms.
-  /// </summary>
-  /// <param name="target">Target host to scan</param>
-  /// <returns>List of findings</returns>
-  public async Task<List<Finding>> CheckWeakKex(string target)
-  ```
+
+-   Use **PascalCase** for classes, methods, properties
+-   Use **camelCase** for local variables
+-   Use **UPPER_SNAKE_CASE** for constants
+-   Add XML doc comments to public APIs:
+    ```csharp
+    /// <summary>
+    /// Detects weak SSH key exchange algorithms.
+    /// </summary>
+    /// <param name="target">Target host to scan</param>
+    /// <returns>List of findings</returns>
+    public async Task<List<Finding>> CheckWeakKex(string target)
+    ```
 
 **Security Check Structure:**
+
 ```csharp
 namespace Asterion.Checks.CrossPlatform;
 
@@ -218,6 +233,7 @@ public class SshWeakKexCheck : ISecurityCheck
 ```
 
 **Logging:**
+
 ```csharp
 using Serilog;
 
@@ -232,19 +248,20 @@ Log.Warning("SSH connection failed: {Error}", ex.Message);
 
 Documentation contributions are highly valued! You can:
 
-- Fix typos or unclear explanations
-- Add examples or use cases
-- Improve installation instructions
-- Add translations (future)
-- Create tutorials or blog posts (link them in issues!)
+-   Fix typos or unclear explanations
+-   Add examples or use cases
+-   Improve installation instructions
+-   Add translations (future)
+-   Create tutorials or blog posts (link them in issues!)
 
 **Documentation files:**
-- `README.md` - Main project documentation
-- `docs/NETWORK_CHECKS.md` - Security checks reference
-- `docs/AI_INTEGRATION.md` - AI analysis guide
-- `docs/DATABASE_GUIDE.md` - Database schema
-- `docs/ETHICS.md` - Ethical guidelines
-- `docker/README.md` - Docker deployment
+
+-   `README.md` - Main project documentation
+-   `docs/NETWORK_CHECKS.md` - Security checks reference
+-   `docs/AI_INTEGRATION.md` - AI analysis guide
+-   `docs/DATABASE_GUIDE.md` - Database schema
+-   `docs/ETHICS.md` - Ethical guidelines
+-   `docker/README.md` - Docker deployment
 
 ---
 
@@ -252,21 +269,23 @@ Documentation contributions are highly valued! You can:
 
 We need visual content! Contribute:
 
-- **Demo GIF/video**: Record Asterion scanning a vulnerable lab (30-60 seconds)
-- **Screenshots**: HTML report examples, terminal output, findings tables
-- **Tutorial videos**: Installation, first scan, Docker deployment
+-   **Demo GIF/video**: Record Asterion scanning a vulnerable lab (30-60 seconds)
+-   **Screenshots**: HTML report examples, terminal output, findings tables
+-   **Tutorial videos**: Installation, first scan, Docker deployment
 
 **Where to add:**
-- Place media files in `assets/` directory
-- Update README.md sections:
-  - `## 🎬 Demo` - Add demo GIF/video
-  - `## 📸 Screenshots` - Add report screenshots
+
+-   Place media files in `assets/` directory
+-   Update README.md sections:
+    -   `## 🎬 Demo` - Add demo GIF/video
+    -   `## 📸 Screenshots` - Add report screenshots
 
 **Requirements:**
-- Use a **safe test environment** (VulnHub VMs, HackTheBox, your own lab)
-- **Blur/redact** any sensitive information (real IPs, domains, credentials)
-- Use **high-quality** screenshots (PNG format, 1920x1080 or higher)
-- Add **captions** explaining what's shown
+
+-   Use a **safe test environment** (VulnHub VMs, HackTheBox, your own lab)
+-   **Blur/redact** any sensitive information (real IPs, domains, credentials)
+-   Use **high-quality** screenshots (PNG format, 1920x1080 or higher)
+-   Add **captions** explaining what's shown
 
 ---
 
@@ -275,6 +294,7 @@ We need visual content! Contribute:
 ### Setting Up a Test Environment
 
 **Option 1: Docker Vulnerable Lab**
+
 ```bash
 cd docker
 docker compose -f compose.testing.yml up -d
@@ -282,12 +302,14 @@ ast scan --target 172.20.0.0/24  # Scan lab network
 ```
 
 **Option 2: Local VMs**
-- Use VirtualBox/VMware with vulnerable VMs
-- Popular options: Metasploitable, VulnHub VMs, DVWA
+
+-   Use VirtualBox/VMware with vulnerable VMs
+-   Popular options: Metasploitable, VulnHub VMs, DVWA
 
 **Option 3: Cloud Test Lab**
-- Deploy test infrastructure in AWS/Azure/GCP
-- **IMPORTANT**: Ensure it's isolated and properly configured for testing
+
+-   Deploy test infrastructure in AWS/Azure/GCP
+-   **IMPORTANT**: Ensure it's isolated and properly configured for testing
 
 ### What to Test
 
@@ -304,16 +326,9 @@ Before submitting a PR, verify:
 
 ## 🐛 Security Vulnerability Disclosure
 
-**Found a security vulnerability in Asterion itself?**
+**DO NOT** open public issues for security vulnerabilities!
 
-Please **DO NOT** open a public issue. Instead:
-
-1. **Email**: Send details to the security contact listed in [SECURITY.md](SECURITY.md)
-2. **Include**: Description, reproduction steps, potential impact
-3. **Wait**: Give us reasonable time to fix (typically 90 days)
-4. **Coordinate**: We'll work with you on disclosure timeline
-
-See [SECURITY.md](SECURITY.md) for full responsible disclosure policy.
+Contact me on [https://rodhnin.com](https://rodhnin.com).
 
 ---
 
@@ -321,15 +336,15 @@ See [SECURITY.md](SECURITY.md) for full responsible disclosure policy.
 
 Before submitting your PR, ensure:
 
-- [ ] Code builds without errors (`dotnet build`)
-- [ ] New checks include XML documentation
-- [ ] Check ID follows convention (`AST-XXX-###`)
-- [ ] Severity levels are appropriate (Critical/High/Medium/Low/Info)
-- [ ] Remediation guidance is clear and actionable
-- [ ] Changes are tested against real vulnerable/secure targets
-- [ ] Commit messages follow convention (`feat:`, `fix:`, etc.)
-- [ ] PR description explains what/why/how
-- [ ] No sensitive data in code/logs/screenshots
+-   [ ] Code builds without errors (`dotnet build`)
+-   [ ] New checks include XML documentation
+-   [ ] Check ID follows convention (`AST-XXX-###`)
+-   [ ] Severity levels are appropriate (Critical/High/Medium/Low/Info)
+-   [ ] Remediation guidance is clear and actionable
+-   [ ] Changes are tested against real vulnerable/secure targets
+-   [ ] Commit messages follow convention (`feat:`, `fix:`, etc.)
+-   [ ] PR description explains what/why/how
+-   [ ] No sensitive data in code/logs/screenshots
 
 ---
 
@@ -338,26 +353,28 @@ Before submitting your PR, ensure:
 New to C# or network security? Here are helpful resources:
 
 **C# / .NET:**
-- [Microsoft C# Documentation](https://learn.microsoft.com/en-us/dotnet/csharp/)
-- [.NET 8.0 API Reference](https://learn.microsoft.com/en-us/dotnet/api/)
+
+-   [Microsoft C# Documentation](https://learn.microsoft.com/en-us/dotnet/csharp/)
+-   [.NET 8.0 API Reference](https://learn.microsoft.com/en-us/dotnet/api/)
 
 **Network Security:**
-- [OWASP Testing Guide](https://owasp.org/www-project-web-security-testing-guide/)
-- [NIST Cybersecurity Framework](https://www.nist.gov/cyberframework)
-- [CIS Benchmarks](https://www.cisecurity.org/cis-benchmarks/)
+
+-   [OWASP Testing Guide](https://owasp.org/www-project-web-security-testing-guide/)
+-   [NIST Cybersecurity Framework](https://www.nist.gov/cyberframework)
+-   [CIS Benchmarks](https://www.cisecurity.org/cis-benchmarks/)
 
 **Ethical Hacking:**
-- [SANS Penetration Testing](https://www.sans.org/cyber-security-courses/penetration-testing-ethical-hacking/)
-- [Hack The Box Academy](https://academy.hackthebox.com/)
+
+-   [SANS Penetration Testing](https://www.sans.org/cyber-security-courses/penetration-testing-ethical-hacking/)
+-   [Hack The Box Academy](https://academy.hackthebox.com/)
 
 ---
 
 ## 📞 Questions?
 
-- **General questions**: Open a GitHub Discussion
-- **Bug reports**: Open a GitHub Issue
-- **Security issues**: See [SECURITY.md](SECURITY.md)
-- **Project maintainer**: [rodhnin](https://github.com/rodhnin) | [https://rodhnin.com](https://rodhnin.com)
+-   **General questions**: Open a GitHub Discussion
+-   **Bug reports**: Open a GitHub Issue
+-   **Project maintainer**: [rodhnin](https://github.com/rodhnin) | [https://rodhnin.com](https://rodhnin.com)
 
 ---
 
@@ -370,7 +387,8 @@ By contributing to Asterion, you agree that your contributions will be licensed 
 **Thank you for helping make network security auditing more accessible!** 🛡️
 
 Part of the **Argos Security Suite**:
-- 🐺 [Argus](https://github.com/rodhnin/argus-suite) - WordPress Security Scanner
-- 🔥 [Hephaestus](https://github.com/rodhnin/argus-suite) - Vulnerability Database Manager
-- 🔮 [Pythia](https://github.com/rodhnin/argus-suite) - Security Intelligence Aggregator
-- 🐂 **Asterion** - Network Security Auditor (this project)
+
+-   👁️ [Argus](https://github.com/rodhnin/argus-wp-watcher) - WordPress Security Scanner
+-   🔥 [Hephaestus](https://github.com/rodhnin/hephaestus-server-forger) - Vulnerability Server Scanner
+-   🔮 [Pythia](https://github.com/rodhnin/pythia-sql-clairvoyance) - SQL Injection Detection Scanner
+-   🐂 **Asterion** - Network Security Auditor (this project)
