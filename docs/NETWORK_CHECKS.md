@@ -1,45 +1,46 @@
 # Network Security Checks Catalog
 
-> **Comprehensive Security Check Reference**: Asterion implements 99 security checks across network protocols, Windows systems, and Linux systems. This document catalogs every check with detection criteria, severity levels, and remediation guidance.
+> **Comprehensive Security Check Reference**: Asterion v0.2.0 implements 130+ security checks across network protocols, Windows systems (local + WinRM remote), and Linux systems (local + SSH remote). This document catalogs every check with detection criteria, severity levels, and remediation guidance.
 
 ## Table of Contents
 
--   [Overview](#overview)
--   [Severity Levels](#severity-levels)
--   [CrossPlatform Network Checks](#crossplatform-network-checks)
-    -   [SMB/CIFS Scanner](#smbcifs-scanner)
-    -   [RDP Scanner](#rdp-scanner)
-    -   [LDAP/Active Directory Scanner](#ldapactive-directory-scanner)
-    -   [Kerberos Scanner](#kerberos-scanner)
-    -   [DNS/LLMNR/mDNS Scanner](#dnsllmnrmdns-scanner)
-    -   [SNMP Scanner](#snmp-scanner)
-    -   [FTP Scanner](#ftp-scanner)
-    -   [Port Scanner](#port-scanner)
--   [Windows Security Checks](#windows-security-checks)
-    -   [Windows Firewall](#windows-firewall)
-    -   [Windows Registry](#windows-registry)
-    -   [Active Directory Policy](#active-directory-policy)
-    -   [Windows Services](#windows-services)
-    -   [Windows Privilege Escalation](#windows-privilege-escalation)
--   [Linux Security Checks](#linux-security-checks)
-    -   [Linux Firewall](#linux-firewall)
-    -   [SSH Configuration](#ssh-configuration)
-    -   [Samba/NFS Configuration](#sambanfs-configuration)
-    -   [Linux Privilege Escalation](#linux-privilege-escalation)
--   [Statistics](#statistics)
--   [Check Implementation](#check-implementation)
+- [Overview](#overview)
+- [Severity Levels](#severity-levels)
+- [CrossPlatform Network Checks](#crossplatform-network-checks)
+    - [SMB/CIFS Scanner](#smbcifs-scanner)
+    - [RDP Scanner](#rdp-scanner)
+    - [LDAP/Active Directory Scanner](#ldapactive-directory-scanner)
+    - [Kerberos Scanner](#kerberos-scanner)
+    - [DNS/LLMNR/mDNS Scanner](#dnsllmnrmdns-scanner)
+    - [SNMP Scanner](#snmp-scanner)
+    - [FTP Scanner](#ftp-scanner)
+    - [Port Scanner](#port-scanner)
+- [Windows Security Checks](#windows-security-checks)
+    - [Windows Firewall](#windows-firewall)
+    - [Windows Registry](#windows-registry)
+    - [Active Directory Policy](#active-directory-policy)
+    - [Windows Services](#windows-services)
+    - [Windows Privilege Escalation](#windows-privilege-escalation)
+- [Linux Security Checks](#linux-security-checks)
+    - [Linux Firewall](#linux-firewall)
+    - [SSH Configuration](#ssh-configuration)
+    - [Samba/NFS Configuration](#sambanfs-configuration)
+    - [Linux Privilege Escalation](#linux-privilege-escalation)
+- [Statistics](#statistics)
+- [Check Implementation](#check-implementation)
 
 ---
 
 ## Overview
 
-**Total Security Checks:** 99
+**Total Security Checks:** 130+ (v0.2.0)
 **Code Location:** `src/Asterion/Checks/`
 **Categories:**
 
--   **CrossPlatform Network:** 31 checks (8 scanners)
--   **Windows:** 33 checks (5 check classes)
--   **Linux:** 35 checks (4 check classes)
+- **CrossPlatform Network:** 35+ checks (10 scanners — added TLS, SYSVOL)
+- **Windows:** 50+ checks (7 check classes — WinRM remote checks + IIS/SQL/Exchange)
+- **Linux:** 35+ checks (4 check classes — 3 new aggressive SSH checks)
+- **Attack Chains:** 8 correlation rules (`AST-CHAIN-001..008`)
 
 **Usage:**
 
@@ -85,10 +86,10 @@ ast scan --target 192.168.1.0/24 --mode aggressive
 **Description:**
 SMB server allows anonymous (null session) or guest account authentication, enabling attackers to enumerate:
 
--   Shares, files, and directories
--   User accounts and groups
--   Security policies
--   System information
+- Shares, files, and directories
+- User accounts and groups
+- Security policies
+- System information
 
 **Detection:**
 
@@ -117,8 +118,8 @@ reg add HKLM\SYSTEM\CurrentControlSet\Control\Lsa /v RestrictAnonymous /t REG_DW
 
 **References:**
 
--   MS Security Guide
--   CIS Windows Server Benchmark 2.3.10.x
+- MS Security Guide
+- CIS Windows Server Benchmark 2.3.10.x
 
 ---
 
@@ -127,9 +128,9 @@ reg add HKLM\SYSTEM\CurrentControlSet\Control\Lsa /v RestrictAnonymous /t REG_DW
 **Description:**
 SMB server does not enforce message signing, allowing man-in-the-middle (MITM) attacks including:
 
--   SMB relay attacks
--   Session hijacking
--   Credential interception
+- SMB relay attacks
+- Session hijacking
+- Credential interception
 
 **Detection:**
 
@@ -155,13 +156,13 @@ shutdown /r /t 60
 
 **Impact:**
 
--   Disables SMB relay attacks (Responder, ntlmrelayx)
--   May impact performance on high-throughput SMB workloads (test in production)
+- Disables SMB relay attacks (Responder, ntlmrelayx)
+- May impact performance on high-throughput SMB workloads (test in production)
 
 **References:**
 
--   CVE-2019-1040 (Drop the MIC)
--   Petitpotam, PXE boot MITM
+- CVE-2019-1040 (Drop the MIC)
+- Petitpotam, PXE boot MITM
 
 ---
 
@@ -170,9 +171,9 @@ shutdown /r /t 60
 **Description:**
 SMBv1 is an obsolete protocol with critical vulnerabilities:
 
--   **MS17-010 (EternalBlue):** Remote code execution exploited by WannaCry, NotPetya
--   **CVE-2017-0143 through CVE-2017-0148**
--   **CVE-2017-7494:** Samba "SambaCry"
+- **MS17-010 (EternalBlue):** Remote code execution exploited by WannaCry, NotPetya
+- **CVE-2017-0143 through CVE-2017-0148**
+- **CVE-2017-7494:** Samba "SambaCry"
 
 **Detection:**
 
@@ -202,14 +203,14 @@ server min protocol = SMB2
 
 **Critical:**
 
--   **URGENT** - Disable immediately, even if "testing" or "legacy compatibility needed"
--   SMBv1 is **NOT SAFE** to keep enabled even temporarily
--   Document legacy applications requiring SMBv1, prioritize replacement
+- **URGENT** - Disable immediately, even if "testing" or "legacy compatibility needed"
+- SMBv1 is **NOT SAFE** to keep enabled even temporarily
+- Document legacy applications requiring SMBv1, prioritize replacement
 
 **References:**
 
--   [Microsoft: SMBv1 should not be installed or enabled](https://docs.microsoft.com/en-us/windows-server/storage/file-server/troubleshoot/smbv1-not-installed-by-default-in-windows)
--   MS17-010, WannaCry, NotPetya, SambaCry
+- [Microsoft: SMBv1 should not be installed or enabled](https://docs.microsoft.com/en-us/windows-server/storage/file-server/troubleshoot/smbv1-not-installed-by-default-in-windows)
+- MS17-010, WannaCry, NotPetya, SambaCry
 
 ---
 
@@ -220,10 +221,10 @@ NTLM authentication (vs Kerberos) allows pass-the-hash attacks where stolen NTLM
 
 **Sensitive Shares:**
 
--   `\\server\ADMIN$` (C:\Windows)
--   `\\server\C$` (full drive access)
--   `\\DC\SYSVOL` (domain policies, scripts)
--   `\\DC\NETLOGON` (logon scripts)
+- `\\server\ADMIN$` (C:\Windows)
+- `\\server\C$` (full drive access)
+- `\\DC\SYSVOL` (domain policies, scripts)
+- `\\DC\NETLOGON` (logon scripts)
 
 **Detection:**
 
@@ -253,8 +254,8 @@ LONG-TERM:
 
 **References:**
 
--   MITRE ATT&CK T1550.002 (Pass the Hash)
--   [Microsoft Pass-the-Hash guidance](<https://download.microsoft.com/download/7/7/A/77ABC5BD-8320-41AF-863C-6ECFB10CB4B9/Mitigating%20Pass-the-Hash%20(PtH)%20Attacks%20and%20Other%20Credential%20Theft%20Techniques_English.pdf>)
+- MITRE ATT&CK T1550.002 (Pass the Hash)
+- [Microsoft Pass-the-Hash guidance](<https://download.microsoft.com/download/7/7/A/77ABC5BD-8320-41AF-863C-6ECFB10CB4B9/Mitigating%20Pass-the-Hash%20(PtH)%20Attacks%20and%20Other%20Credential%20Theft%20Techniques_English.pdf>)
 
 ---
 
@@ -276,9 +277,9 @@ LONG-TERM:
 **Description:**
 Network Level Authentication (NLA) requires authentication before establishing an RDP session. Without NLA:
 
--   Attackers can enumerate usernames via login prompts
--   RDP service is exposed to brute-force attacks at protocol level
--   No pre-authentication barrier (vs. Kerberos pre-auth)
+- Attackers can enumerate usernames via login prompts
+- RDP service is exposed to brute-force attacks at protocol level
+- No pre-authentication barrier (vs. Kerberos pre-auth)
 
 **Detection:**
 
@@ -308,8 +309,8 @@ Get-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Terminal Server\W
 
 **References:**
 
--   MS-RDPBCGR: Remote Desktop Protocol Basic Connectivity and Graphics Remoting Specification
--   CIS Windows Server Benchmark 18.9.60.x
+- MS-RDPBCGR: Remote Desktop Protocol Basic Connectivity and Graphics Remoting Specification
+- CIS Windows Server Benchmark 18.9.60.x
 
 ---
 
@@ -318,10 +319,10 @@ Get-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Terminal Server\W
 **Description:**
 **CRITICAL** pre-authentication remote code execution vulnerability in RDP:
 
--   Affects Windows 7, Server 2008 R2, Server 2008, XP, Vista
--   Wormable (no user interaction required)
--   Allows SYSTEM-level code execution
--   Exploited in-the-wild by BlueKeep exploit kit, DejaBlue
+- Affects Windows 7, Server 2008 R2, Server 2008, XP, Vista
+- Wormable (no user interaction required)
+- Allows SYSTEM-level code execution
+- Exploited in-the-wild by BlueKeep exploit kit, DejaBlue
 
 **Detection:**
 
@@ -357,16 +358,16 @@ reg add "HKLM\SYSTEM\CurrentControlSet\Control\Terminal Server" /v fDenyTSConnec
 
 **CRITICAL NOTES:**
 
--   **Wormable:** Can spread automatically like WannaCry
--   **Pre-authentication:** No credentials needed to exploit
--   **SYSTEM execution:** Full control of target system
--   **Do not delay patching**
+- **Wormable:** Can spread automatically like WannaCry
+- **Pre-authentication:** No credentials needed to exploit
+- **SYSTEM execution:** Full control of target system
+- **Do not delay patching**
 
 **References:**
 
--   CVE-2019-0708
--   [Microsoft BlueKeep Advisory](https://msrc.microsoft.com/update-guide/vulnerability/CVE-2019-0708)
--   MITRE ATT&CK T1210 (Exploitation of Remote Services)
+- CVE-2019-0708
+- [Microsoft BlueKeep Advisory](https://msrc.microsoft.com/update-guide/vulnerability/CVE-2019-0708)
+- MITRE ATT&CK T1210 (Exploitation of Remote Services)
 
 ---
 
@@ -391,11 +392,11 @@ reg add "HKLM\SYSTEM\CurrentControlSet\Control\Terminal Server" /v fDenyTSConnec
 **Description:**
 LDAP server allows anonymous (unauthenticated) bind with query capability, exposing:
 
--   Domain user accounts (username enumeration)
--   Group memberships
--   Computer accounts
--   Domain policies (password policy, Kerberos settings)
--   Service Principal Names (SPNs) for Kerberoasting
+- Domain user accounts (username enumeration)
+- Group memberships
+- Computer accounts
+- Domain policies (password policy, Kerberos settings)
+- Service Principal Names (SPNs) for Kerberoasting
 
 **Detection:**
 
@@ -431,14 +432,14 @@ ldp.exe -> Connection > Connect > Bind as: Currently logged on user (should fail
 
 **Impact:**
 
--   Prevents BloodHound/SharpHound enumeration without credentials
--   Stops pre-authentication reconnaissance
--   Forces attackers to obtain valid credentials first
+- Prevents BloodHound/SharpHound enumeration without credentials
+- Stops pre-authentication reconnaissance
+- Forces attackers to obtain valid credentials first
 
 **References:**
 
--   CVE-2017-8563 (LDAP NULL session information disclosure)
--   CIS Windows Server Benchmark 2.3.11.x
+- CVE-2017-8563 (LDAP NULL session information disclosure)
+- CIS Windows Server Benchmark 2.3.11.x
 
 ---
 
@@ -447,9 +448,9 @@ ldp.exe -> Connection > Connect > Bind as: Currently logged on user (should fail
 **Description:**
 Domain Controller does not enforce LDAP signing, allowing man-in-the-middle (MITM) attacks:
 
--   LDAP relay attacks (similar to SMB relay)
--   Credential interception
--   Domain policy modification via unsigned LDAP messages
+- LDAP relay attacks (similar to SMB relay)
+- Credential interception
+- Domain policy modification via unsigned LDAP messages
 
 **Detection:**
 
@@ -483,14 +484,14 @@ shutdown /r /t 300 /c "Applying LDAP signing policy - reboot in 5 minutes"
 
 **Impact:**
 
--   **Client compatibility:** Ensure all LDAP clients support signing (Windows 2000+, modern Linux)
--   **Application testing:** Test LOB applications using LDAP before enforcing
--   **Monitor first:** Set to "Negotiate signing" + audit for 30 days, then enforce
+- **Client compatibility:** Ensure all LDAP clients support signing (Windows 2000+, modern Linux)
+- **Application testing:** Test LOB applications using LDAP before enforcing
+- **Monitor first:** Set to "Negotiate signing" + audit for 30 days, then enforce
 
 **References:**
 
--   [Microsoft LDAP Signing Guidance](https://support.microsoft.com/en-us/topic/2020-ldap-channel-binding-and-ldap-signing-requirements-for-windows-ef185fb8-00f7-167d-744c-f299a66fc00a)
--   ADV190023
+- [Microsoft LDAP Signing Guidance](https://support.microsoft.com/en-us/topic/2020-ldap-channel-binding-and-ldap-signing-requirements-for-windows-ef185fb8-00f7-167d-744c-f299a66fc00a)
+- ADV190023
 
 ---
 
@@ -499,10 +500,10 @@ shutdown /r /t 300 /c "Applying LDAP signing policy - reboot in 5 minutes"
 **Description:**
 Domain password policy does not meet security best practices:
 
--   **minPwdLength < 8:** Short passwords vulnerable to brute-force
--   **Complexity disabled:** Allows simple passwords (Password1, Summer2023)
--   **pwdHistoryLength < 12:** Users can reuse recent passwords
--   **maxPwdAge > 180 days:** Passwords never expire, or expire too infrequently
+- **minPwdLength < 8:** Short passwords vulnerable to brute-force
+- **Complexity disabled:** Allows simple passwords (Password1, Summer2023)
+- **pwdHistoryLength < 12:** Users can reuse recent passwords
+- **maxPwdAge > 180 days:** Passwords never expire, or expire too infrequently
 
 **Detection:**
 
@@ -564,9 +565,9 @@ Add-ADFineGrainedPasswordPolicySubject -Identity "AdminPasswordPolicy" -Subjects
 
 **References:**
 
--   NIST SP 800-63B: Digital Identity Guidelines
--   CIS Windows Server Benchmark 1.1.x
--   [Microsoft Password Guidance](https://www.microsoft.com/en-us/research/publication/password-guidance/)
+- NIST SP 800-63B: Digital Identity Guidelines
+- CIS Windows Server Benchmark 1.1.x
+- [Microsoft Password Guidance](https://www.microsoft.com/en-us/research/publication/password-guidance/)
 
 ---
 
@@ -636,14 +637,14 @@ Get-ADUser -Filter {DoesNotRequirePreAuth -eq $true} | Set-ADUser -DoesNotRequir
 
 **Impact:**
 
--   Offline password cracking (no account lockout)
--   100% success rate if weak password used
--   Commonly found on service accounts, old user accounts
+- Offline password cracking (no account lockout)
+- 100% success rate if weak password used
+- Commonly found on service accounts, old user accounts
 
 **References:**
 
--   MITRE ATT&CK T1558.004 (AS-REP Roasting)
--   [HarmJ0y: Roasting AS-REPs](https://blog.harmj0y.net/activedirectory/roasting-as-reps/)
+- MITRE ATT&CK T1558.004 (AS-REP Roasting)
+- [HarmJ0y: Roasting AS-REPs](https://blog.harmj0y.net/activedirectory/roasting-as-reps/)
 
 ---
 
@@ -654,10 +655,10 @@ Any authenticated domain user can request Kerberos service tickets (TGS) for acc
 
 **Commonly Vulnerable:**
 
--   SQL Server service accounts
--   IIS application pool identities
--   SharePoint service accounts
--   Custom service accounts with SPNs
+- SQL Server service accounts
+- IIS application pool identities
+- SharePoint service accounts
+- Custom service accounts with SPNs
 
 **Detection:**
 
@@ -708,15 +709,15 @@ Set-ADAccountPassword -Identity "svc_sql" -NewPassword (ConvertTo-SecureString $
 
 **Impact:**
 
--   **Most common Active Directory attack** after initial access
--   100% success rate with weak service account passwords
--   No account lockout (offline attack)
+- **Most common Active Directory attack** after initial access
+- 100% success rate with weak service account passwords
+- No account lockout (offline attack)
 
 **References:**
 
--   MITRE ATT&CK T1558.003 (Kerberoasting)
--   [Tim Medin: Attacking Kerberos - Kicking the Guard Dog of Hades](https://www.youtube.com/watch?v=PUyhlN-E5MU)
--   [Microsoft: gMSA Getting Started Guide](https://docs.microsoft.com/en-us/windows-server/security/group-managed-service-accounts/getting-started-with-group-managed-service-accounts)
+- MITRE ATT&CK T1558.003 (Kerberoasting)
+- [Tim Medin: Attacking Kerberos - Kicking the Guard Dog of Hades](https://www.youtube.com/watch?v=PUyhlN-E5MU)
+- [Microsoft: gMSA Getting Started Guide](https://docs.microsoft.com/en-us/windows-server/security/group-managed-service-accounts/getting-started-with-group-managed-service-accounts)
 
 ---
 
@@ -737,10 +738,10 @@ Set-ADAccountPassword -Identity "svc_sql" -NewPassword (ConvertTo-SecureString $
 **Description:**
 DNS server allows unrestricted zone transfers (AXFR), exposing complete DNS zone data:
 
--   All hostnames and IP addresses (reconnaissance)
--   Mail servers (email infrastructure)
--   Service records (SRV) revealing internal architecture
--   Subdomain enumeration
+- All hostnames and IP addresses (reconnaissance)
+- Mail servers (email infrastructure)
+- Service records (SRV) revealing internal architecture
+- Subdomain enumeration
 
 **Detection:**
 
@@ -778,14 +779,14 @@ dig @ns1.example.com example.com AXFR  # Should be refused
 
 **Impact:**
 
--   **Full reconnaissance:** Attacker learns entire internal DNS layout
--   **Subdomain discovery:** Find hidden/development/admin subdomains
--   **Email harvesting:** Identify mail servers for phishing campaigns
+- **Full reconnaissance:** Attacker learns entire internal DNS layout
+- **Subdomain discovery:** Find hidden/development/admin subdomains
+- **Email harvesting:** Identify mail servers for phishing campaigns
 
 **References:**
 
--   RFC 5155: DNS Security (DNSSEC)
--   CWE-497: Exposure of System Data to an Unauthorized Control Sphere
+- RFC 5155: DNS Security (DNSSEC)
+- CWE-497: Exposure of System Data to an Unauthorized Control Sphere
 
 ---
 
@@ -840,14 +841,14 @@ Get-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows NT\DNSClient" 
 
 **Impact:**
 
--   **Credential theft:** Passive attack, no account lockout
--   **MitM authentication:** SMB relay, HTTP relay
--   **Common attack vector:** Responder is first step in most internal pentests
+- **Credential theft:** Passive attack, no account lockout
+- **MitM authentication:** SMB relay, HTTP relay
+- **Common attack vector:** Responder is first step in most internal pentests
 
 **References:**
 
--   MITRE ATT&CK T1557.001 (LLMNR/NBT-NS Poisoning)
--   [SpiderLabs: LLMNR/NBT-NS Poisoning](https://www.aptive.co.uk/blog/llmnr-nbt-ns-spoofing/)
+- MITRE ATT&CK T1557.001 (LLMNR/NBT-NS Poisoning)
+- [SpiderLabs: LLMNR/NBT-NS Poisoning](https://www.aptive.co.uk/blog/llmnr-nbt-ns-spoofing/)
 
 ---
 
@@ -868,15 +869,15 @@ Get-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows NT\DNSClient" 
 **Description:**
 SNMP server allows write access (SET operations) via community string, enabling attackers to:
 
--   Modify device configurations
--   Change routing tables
--   Disable interfaces
--   Exfiltrate sensitive data
--   Execute commands (on some devices)
+- Modify device configurations
+- Change routing tables
+- Disable interfaces
+- Exfiltrate sensitive data
+- Execute commands (on some devices)
 
 **Common RW Community Strings:**
 
--   `private`, `write`, `admin`, `secret`, `rwcommunity`, `rw`
+- `private`, `write`, `admin`, `secret`, `rwcommunity`, `rw`
 
 **Detection:**
 
@@ -913,14 +914,14 @@ sudo systemctl restart snmpd
 
 **Impact:**
 
--   **Complete device compromise:** Configuration changes, denial of service
--   **Lateral movement:** Modify routing to intercept traffic
--   **Data exfiltration:** Read and modify MIB objects
+- **Complete device compromise:** Configuration changes, denial of service
+- **Lateral movement:** Modify routing to intercept traffic
+- **Data exfiltration:** Read and modify MIB objects
 
 **References:**
 
--   CVE-2002-0013 (Multiple SNMP vulnerabilities)
--   CIS Network Device Benchmark
+- CVE-2002-0013 (Multiple SNMP vulnerabilities)
+- CIS Network Device Benchmark
 
 ---
 
@@ -941,10 +942,10 @@ sudo systemctl restart snmpd
 **Description:**
 FTP server allows anonymous users to upload files, creating risk of:
 
--   **Malware distribution:** Attackers upload malicious files
--   **Warez/piracy:** Server used for illegal file sharing
--   **Data exfiltration staging:** Stolen data uploaded temporarily
--   **Web shell uploads:** If FTP root is also web root (e.g., `/var/www/html`)
+- **Malware distribution:** Attackers upload malicious files
+- **Warez/piracy:** Server used for illegal file sharing
+- **Data exfiltration staging:** Stolen data uploaded temporarily
+- **Web shell uploads:** If FTP root is also web root (e.g., `/var/www/html`)
 
 **Detection:**
 
@@ -1003,14 +1004,14 @@ find /srv/ftp -type f -mtime -7  # Files uploaded in last week
 
 **Impact:**
 
--   **Legal liability:** Server used for piracy, malware distribution
--   **Server compromise:** Uploaded PHP/ASP web shells if web root shared
--   **Resource abuse:** Bandwidth, storage consumed
+- **Legal liability:** Server used for piracy, malware distribution
+- **Server compromise:** Uploaded PHP/ASP web shells if web root shared
+- **Resource abuse:** Bandwidth, storage consumed
 
 **References:**
 
--   OWASP: Unrestricted File Upload
--   CWE-434: Unrestricted Upload of File with Dangerous Type
+- OWASP: Unrestricted File Upload
+- CWE-434: Unrestricted Upload of File with Dangerous Type
 
 ---
 
@@ -1077,8 +1078,8 @@ New-NetFirewallRule -DisplayName "SMB Deny Others" -Direction Inbound -Protocol 
 
 **References:**
 
--   CIS Critical Security Controls: CSC 9 (Limitation and Control of Network Ports)
--   SANS Top 25: CWE-1188 (Insecure Default Initialization of Resource)
+- CIS Critical Security Controls: CSC 9 (Limitation and Control of Network Ports)
+- SANS Top 25: CWE-1188 (Insecure Default Initialization of Resource)
 
 ---
 
@@ -1120,17 +1121,18 @@ Get-NetFirewallProfile | Select-Object Name,Enabled,DefaultInboundAction
 **Code:** `src/Asterion/Checks/CrossPlatform/Windows/WinRegistryCheck.cs` (12KB, 354 lines)
 **Category:** Windows
 
-| Check ID            | Title                                                  | Severity    |
-| ------------------- | ------------------------------------------------------ | ----------- |
-| **AST-REG-WIN-001** | Insecure LM/NTLM compatibility level (< 5)             | HIGH/MEDIUM |
-| **AST-REG-WIN-002** | LM password hashes stored in SAM                       | HIGH        |
-| **AST-REG-WIN-003** | Anonymous SAM account/share enumeration not restricted | MEDIUM      |
-| **AST-REG-WIN-004** | NTLM client session security weak                      | MEDIUM      |
-| **AST-REG-WIN-005** | NTLM server session security weak                      | MEDIUM      |
-| **AST-REG-WIN-006** | User Account Control (UAC) completely disabled         | HIGH        |
-| **AST-REG-WIN-007** | UAC elevates without prompting                         | HIGH        |
-| **AST-REG-WIN-008** | UAC secure desktop disabled                            | MEDIUM      |
-| **AST-REG-WIN-011** | Everyone includes Anonymous (legacy setting)           | MEDIUM      |
+| Check ID            | Title                                                     | Severity    |
+| ------------------- | --------------------------------------------------------- | ----------- |
+| **AST-REG-WIN-001** | Insecure LM/NTLM compatibility level (< 5)                | HIGH/MEDIUM |
+| **AST-REG-WIN-002** | LM password hashes stored in SAM                          | HIGH        |
+| **AST-REG-WIN-003** | Anonymous SAM account/share enumeration not restricted    | MEDIUM      |
+| **AST-REG-WIN-004** | NTLM client session security weak                         | MEDIUM      |
+| **AST-REG-WIN-005** | NTLM server session security weak                         | MEDIUM      |
+| **AST-REG-WIN-006** | User Account Control (UAC) completely disabled            | HIGH        |
+| **AST-REG-WIN-007** | UAC elevates without prompting                            | HIGH        |
+| **AST-REG-WIN-008** | UAC secure desktop disabled                               | MEDIUM      |
+| **AST-REG-WIN-011** | Everyone includes Anonymous (legacy setting)              | MEDIUM      |
+| **AST-REG-WIN-012** | WDigest authentication enabled (cleartext creds in LSASS) | HIGH        |
 
 _(See full check details in implementation)_
 
@@ -1247,43 +1249,48 @@ _(See full check details in implementation)_
 | **AST-PRIV-LNX-003** | Insecure sudoers NOPASSWD config                                    | CRITICAL/HIGH |
 | **AST-PRIV-LNX-004** | Critical file permissions insecure (/etc/shadow, sudoers, SSH keys) | CRITICAL/HIGH |
 | **AST-PRIV-LNX-005** | SUID binary in unusual location                                     | INFO          |
+| **AST-PRIV-LNX-006** | Docker socket accessible (container escape to root)                 | CRITICAL/HIGH |
+| **AST-PRIV-LNX-007** | Writable systemd unit files (code execution as root on reload)      | HIGH          |
+| **AST-PRIV-LNX-008** | Exposed credential files (world-readable .bash_history, .env, etc.) | HIGH          |
 
 ---
 
 ## Statistics
 
-### Total Checks by Category
+### Total Checks by Category (v0.2.0)
 
-| Category                  | Checks | Critical | High   | Medium | Low   | Info  |
-| ------------------------- | ------ | -------- | ------ | ------ | ----- | ----- |
-| **CrossPlatform Network** | 31     | 5        | 14     | 8      | 2     | 2     |
-| **Windows**               | 33     | 2        | 18     | 11     | 2     | 0     |
-| **Linux**                 | 35     | 6        | 12     | 10     | 3     | 4     |
-| **TOTAL**                 | **99** | **13**   | **44** | **29** | **7** | **6** |
+| Category                  | Checks   | Notes                                             |
+| ------------------------- | -------- | ------------------------------------------------- |
+| **CrossPlatform Network** | 35+      | + TLS scanner, SYSVOL/GPP check                   |
+| **Windows (WinRM)**       | 50+      | + IIS, SQL Server, Exchange, WinRM remote checks  |
+| **Linux (SSH)**           | 35+      | + Docker socket, systemd units, cred files (aggr) |
+| **Attack Chains**         | 8 rules  | AST-CHAIN-001..008                                |
+| **TOTAL**                 | **130+** |                                                   |
 
 ### Critical Severity Breakdown
 
-**Linux (6 critical):**
+**Linux (7 critical):**
 
--   AST-PRIV-LNX-001: Dangerous SUID binaries (vim, python, bash)
--   AST-PRIV-LNX-003: Sudoers NOPASSWD for dangerous commands
--   AST-PRIV-LNX-004: /etc/shadow world-readable
--   AST-SSH-LNX-004: SSH empty passwords allowed
--   AST-NFS-LNX-001: NFS no_root_squash
--   AST-FTP-002: Anonymous FTP write access
+- AST-PRIV-LNX-001: Dangerous SUID binaries (vim, python, bash)
+- AST-PRIV-LNX-003: Sudoers NOPASSWD for dangerous commands
+- AST-PRIV-LNX-004: /etc/shadow world-readable
+- AST-PRIV-LNX-006: Docker socket accessible (container escape)
+- AST-SSH-LNX-004: SSH empty passwords allowed
+- AST-NFS-LNX-001: NFS no_root_squash
+- AST-FTP-002: Anonymous FTP write access
 
 **CrossPlatform Network (5 critical):**
 
--   AST-SMB-001: SMB anonymous access
--   AST-RDP-003: BlueKeep vulnerability (CVE-2019-0708)
--   AST-DNS-001: DNS zone transfer (AXFR) allowed
--   AST-SNMP-002: SNMP write access
--   (AST-FTP-002 counted in Linux above)
+- AST-SMB-001: SMB anonymous access
+- AST-RDP-003: BlueKeep vulnerability (CVE-2019-0708)
+- AST-DNS-001: DNS zone transfer (AXFR) allowed
+- AST-SNMP-002: SNMP write access
+- (AST-FTP-002 counted in Linux above)
 
 **Windows (2 critical):**
 
--   AST-PRIV-WIN-005: AlwaysInstallElevated enabled
--   AST-FW-WIN-004: Windows Firewall service stopped
+- AST-PRIV-WIN-005: AlwaysInstallElevated enabled
+- AST-FW-WIN-004: Windows Firewall service stopped
 
 ### Most Common Findings
 
@@ -1349,15 +1356,15 @@ public class Finding
 
 ## Related Documentation
 
--   **CONSENT.md** - Consent token system (required for aggressive mode)
--   **ETHICS.md** - Legal and ethical guidelines for security testing
--   **DATABASE_GUIDE.md** - Findings storage in SQLite database
--   **README.md** - Usage examples and installation
--   **ROADMAP.md** - Future check implementations (v0.2.0-v0.4.0)
+- **CONSENT.md** - Consent token system (required for aggressive mode)
+- **ETHICS.md** - Legal and ethical guidelines for security testing
+- **DATABASE_GUIDE.md** - Findings storage in SQLite database
+- **README.md** - Usage examples and installation
+- **ROADMAP.md** - Future check implementations (v0.2.0-v0.4.0)
 
 ---
 
-**Last Updated:** 2025-01-17
-**Asterion Version:** 0.1.0
+**Last Updated:** May 2026
+**Asterion Version:** 0.2.0
 **Total Security Checks:** 99
 **Code Location:** `src/Asterion/Checks/`

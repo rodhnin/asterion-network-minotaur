@@ -385,7 +385,7 @@ namespace Asterion.Checks.CrossPlatform
                     "This allows attackers to request AS-REP messages and crack passwords offline (AS-REP Roasting attack).",
                 evidence: new Evidence
                 {
-                    Type = "ldap_query",
+                    Type = "ldap",
                     Value = $"Domain: {info.DomainContext}",
                     Context = $"AS-REP roastable accounts: {accountList}"
                 },
@@ -410,7 +410,7 @@ namespace Asterion.Checks.CrossPlatform
                     "Longer ticket lifetimes increase the window for ticket theft and replay attacks.",
                 evidence: new Evidence
                 {
-                    Type = "ldap_query",
+                    Type = "ldap",
                     Value = $"Domain: {info.DomainContext}",
                     Context = $"Max ticket age: {info.MaxTicketAgeHours} hours"
                 },
@@ -442,7 +442,7 @@ namespace Asterion.Checks.CrossPlatform
                     "Any authenticated user can request Kerberos service tickets for these accounts and crack passwords offline (Kerberoasting attack).",
                 evidence: new Evidence
                 {
-                    Type = "ldap_query",
+                    Type = "ldap",
                     Value = $"Domain: {info.DomainContext}",
                     Context = $"Service accounts with SPNs: {accountList}"
                 },

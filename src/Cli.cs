@@ -44,8 +44,20 @@ namespace Asterion
             var verifySslOption = CreateVerifySslOption();
             var useAiOption = CreateUseAiOption();
             var aiToneOption = CreateAiToneOption();
+            var aiProviderOption = CreateAiProviderOption();
+            var aiModelOption = CreateAiModelOption();
+            var aiBudgetOption = CreateAiBudgetOption();
+            var aiStreamOption = CreateAiStreamOption();
+            var aiAgentOption = CreateAiAgentOption();
+            var aiCompareOption = CreateAiCompareOption();
+            var diffOption = CreateDiffOption();
             var verboseOption = CreateVerboseOption();
-            
+            var credsFileOption = CreateCredsFileOption();
+            var sshKeyOption = CreateSshKeyOption();
+            var sudoPasswordOption = CreateSudoPasswordOption();
+            var bastionOption = CreateBastionOption();
+            var winRmOption = CreateWinRmOption();
+
             var scanCommand = new Command("scan", "Perform a security scan of network infrastructure")
             {
                 targetOption,
@@ -62,9 +74,21 @@ namespace Asterion
                 verifySslOption,
                 useAiOption,
                 aiToneOption,
-                verboseOption
+                aiProviderOption,
+                aiModelOption,
+                aiBudgetOption,
+                aiStreamOption,
+                aiAgentOption,
+                aiCompareOption,
+                diffOption,
+                verboseOption,
+                credsFileOption,
+                sshKeyOption,
+                sudoPasswordOption,
+                bastionOption,
+                winRmOption
             };
-            
+
             scanCommand.SetHandler(async (InvocationContext context) =>
             {
                 await HandleScanCommand(
@@ -83,7 +107,19 @@ namespace Asterion
                     verifySslOption,
                     useAiOption,
                     aiToneOption,
-                    verboseOption
+                    aiProviderOption,
+                    aiModelOption,
+                    aiBudgetOption,
+                    aiStreamOption,
+                    aiAgentOption,
+                    aiCompareOption,
+                    diffOption,
+                    verboseOption,
+                    credsFileOption,
+                    sshKeyOption,
+                    sudoPasswordOption,
+                    bastionOption,
+                    winRmOption
                 );
             });
 
@@ -128,7 +164,7 @@ namespace Asterion
             versionCommand.SetHandler(() =>
             {
                 Console.WriteLine("Asterion Network Security Auditor");
-                Console.WriteLine("Version: 0.1.0");
+                Console.WriteLine("Version: 0.2.0");
                 Console.WriteLine("Author: Rodney Dhavid Jimenez Chacin (rodhnin)");
                 Console.WriteLine("Part of the Argos Security Suite");
             });
@@ -269,6 +305,67 @@ namespace Asterion
             ).FromAmong("technical", "non_technical", "both");
         }
 
+        private Option<string?> CreateAiProviderOption()
+        {
+            return new Option<string?>(
+                "--ai-provider",
+                description: "AI provider override: openai, anthropic, or ollama (default: from config)"
+            );
+        }
+
+        private Option<string?> CreateAiModelOption()
+        {
+            return new Option<string?>(
+                "--ai-model",
+                description: "AI model override (e.g. gpt-4o-mini-2024-07-18, claude-3-5-haiku-20241022)"
+            );
+        }
+
+        private Option<double> CreateAiBudgetOption()
+        {
+            return new Option<double>(
+                "--ai-budget",
+                getDefaultValue: () => 0.0,
+                description: "AI cost budget in USD — aborts AI analysis if exceeded (0 = no limit)"
+            );
+        }
+
+        private Option<bool> CreateAiStreamOption()
+        {
+            return new Option<bool>(
+                "--ai-stream",
+                getDefaultValue: () => false,
+                description: "Stream AI output tokens to console in real-time (IMPROV-006)"
+            );
+        }
+
+        private Option<bool> CreateAiAgentOption()
+        {
+            return new Option<bool>(
+                "--ai-agent",
+                getDefaultValue: () => false,
+                description: "Use agent mode with NVD CVE lookup for network services (IMPROV-008)"
+            );
+        }
+
+        private Option<string?> CreateAiCompareOption()
+        {
+            return new Option<string?>(
+                "--ai-compare",
+                getDefaultValue: () => null,
+                description: "Compare multiple AI providers: 'openai/gpt-4o-mini,anthropic/claude-3-5-haiku' (IMPROV-007)"
+            );
+        }
+
+        private Option<string?> CreateDiffOption()
+        {
+            return new Option<string?>(
+                "--diff",
+                getDefaultValue: () => null,
+                description: "Compare with a previous scan. Use 'last' for the most recent scan of the same target, or provide a specific scan_id from the database (e.g. --diff 42)"
+            ) { ArgumentHelpName = "last|scan_id" };
+        }
+
         private Option<bool> CreateVerboseOption()
         {
             return new Option<bool>(
@@ -276,6 +373,56 @@ namespace Asterion
                 getDefaultValue: () => false,
                 description: "Enable verbose logging"
             );
+        }
+
+        private Option<string?> CreateCredsFileOption()
+        {
+            return new Option<string?>(
+                "--creds-file",
+                getDefaultValue: () => null,
+                description: "Path to a YAML credentials file containing multiple credential sets (MULTI-CRED)"
+            ) { ArgumentHelpName = "credentials.yaml" };
+        }
+
+        private Option<string?> CreateSshKeyOption()
+        {
+            return new Option<string?>(
+                "--ssh-key",
+                getDefaultValue: () => null,
+                description: "SSH key credentials for Linux auditing (format: user:~/.ssh/id_rsa or user:~/.ssh/id_rsa:passphrase). " +
+                             "Takes precedence over --ssh password auth when both are specified."
+            ) { ArgumentHelpName = "user:keypath[:passphrase]" };
+        }
+
+        private Option<string?> CreateSudoPasswordOption()
+        {
+            return new Option<string?>(
+                "--sudo-password",
+                getDefaultValue: () => null,
+                description: "Sudo password for privilege elevation on remote Linux hosts (used with --ssh or --ssh-key). " +
+                             "Enables reading protected files such as /etc/shadow and kernel audit logs."
+            ) { ArgumentHelpName = "password" };
+        }
+
+        private Option<string?> CreateWinRmOption()
+        {
+            return new Option<string?>(
+                "--winrm",
+                getDefaultValue: () => null,
+                description: "WinRM credentials for remote Windows auditing (format: \"DOMAIN\\user:password\" or \"user:password\"). " +
+                             "Enables remote execution of Windows checks (firewall, registry, services, privesc) via WS-Man/PowerShell. " +
+                             "WinRM must be enabled on the target: Enable-PSRemoting -Force"
+            ) { ArgumentHelpName = "credentials" };
+        }
+
+        private Option<string?> CreateBastionOption()
+        {
+            return new Option<string?>(
+                "--bastion",
+                getDefaultValue: () => null,
+                description: "SSH jump/bastion host (format: bastionhost:user:password). " +
+                             "SSH connection to the target will be tunnelled through this host."
+            ) { ArgumentHelpName = "host:user:password" };
         }
 
         // ============================================================================
@@ -298,7 +445,19 @@ namespace Asterion
             Option<bool> verifySslOption,
             Option<bool> useAiOption,
             Option<string> aiToneOption,
-            Option<bool> verboseOption)
+            Option<string?> aiProviderOption,
+            Option<string?> aiModelOption,
+            Option<double> aiBudgetOption,
+            Option<bool> aiStreamOption,
+            Option<bool> aiAgentOption,
+            Option<string?> aiCompareOption,
+            Option<string?> diffOption,
+            Option<bool> verboseOption,
+            Option<string?> credsFileOption,
+            Option<string?> sshKeyOption,
+            Option<string?> sudoPasswordOption,
+            Option<string?> bastionOption,
+            Option<string?> winRmOption)
         {
             try
             {
@@ -320,7 +479,19 @@ namespace Asterion
                 var verifySsl = context.ParseResult.GetValueForOption(verifySslOption);
                 var useAi = context.ParseResult.GetValueForOption(useAiOption);
                 var aiTone = context.ParseResult.GetValueForOption(aiToneOption) ?? "technical";
+                var aiProvider = context.ParseResult.GetValueForOption(aiProviderOption);
+                var aiModel = context.ParseResult.GetValueForOption(aiModelOption);
+                var aiBudget = context.ParseResult.GetValueForOption(aiBudgetOption);
+                var aiStream = context.ParseResult.GetValueForOption(aiStreamOption);
+                var aiAgent = context.ParseResult.GetValueForOption(aiAgentOption);
+                var aiCompare = context.ParseResult.GetValueForOption(aiCompareOption);
+                var diff = context.ParseResult.GetValueForOption(diffOption);
                 var verbose = context.ParseResult.GetValueForOption(verboseOption);
+                var credsFile = context.ParseResult.GetValueForOption(credsFileOption);
+                var sshKey = context.ParseResult.GetValueForOption(sshKeyOption);
+                var sudoPassword = context.ParseResult.GetValueForOption(sudoPasswordOption);
+                var bastion = context.ParseResult.GetValueForOption(bastionOption);
+                var winRm = context.ParseResult.GetValueForOption(winRmOption);
 
                 // Configure logging level
                 if (verbose)
@@ -357,7 +528,19 @@ namespace Asterion
                     VerifySsl = verifySsl,
                     UseAi = useAi,
                     AiTone = aiTone,
-                    Verbose = verbose
+                    AiProvider = aiProvider,
+                    AiModel = aiModel,
+                    AiBudget = aiBudget,
+                    AiStream = aiStream,
+                    AiAgent = aiAgent,
+                    AiCompare = aiCompare,
+                    DiffRef = diff,
+                    Verbose = verbose,
+                    CredsFile = credsFile,
+                    SshKeyCredentials = sshKey,
+                    SshSudoPassword = sudoPassword,
+                    BastionHost = bastion,
+                    WinRmCredentials = winRm
                 };
 
                 // Execute scan

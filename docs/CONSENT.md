@@ -4,19 +4,19 @@
 
 ## Table of Contents
 
--   [Overview](#overview)
--   [Why Consent Verification](#why-consent-verification)
--   [Token Generation](#token-generation)
--   [Verification Methods](#verification-methods)
-    -   [HTTP File Verification](#http-file-verification)
-    -   [DNS TXT Record Verification](#dns-txt-record-verification)
-    -   [SSH File Verification](#ssh-file-verification)
--   [Database Storage](#database-storage)
--   [CLI Commands](#cli-commands)
--   [Implementation Details](#implementation-details)
--   [Token Lifecycle](#token-lifecycle)
--   [Security Considerations](#security-considerations)
--   [Troubleshooting](#troubleshooting)
+- [Overview](#overview)
+- [Why Consent Verification](#why-consent-verification)
+- [Token Generation](#token-generation)
+- [Verification Methods](#verification-methods)
+    - [HTTP File Verification](#http-file-verification)
+    - [DNS TXT Record Verification](#dns-txt-record-verification)
+    - [SSH File Verification](#ssh-file-verification)
+- [Database Storage](#database-storage)
+- [CLI Commands](#cli-commands)
+- [Implementation Details](#implementation-details)
+- [Token Lifecycle](#token-lifecycle)
+- [Security Considerations](#security-considerations)
+- [Troubleshooting](#troubleshooting)
 
 ---
 
@@ -24,17 +24,17 @@
 
 The **Consent Token System** is a mandatory ownership verification mechanism required before running:
 
--   `--mode aggressive`: Intrusive scanning with vulnerability exploitation checks
--   `--use-ai`: AI-powered analysis that may generate sensitive findings
+- `--mode aggressive`: Intrusive scanning with vulnerability exploitation checks
+- `--use-ai`: AI-powered analysis that may generate sensitive findings
 
 **Key Features:**
 
--   Three verification methods: HTTP, DNS, SSH
--   Token expiration (48 hours by default)
--   Cryptographically secure token generation
--   Automatic database tracking
--   Proof preservation for audit trails
--   Shared with Argos Suite database
+- Three verification methods: HTTP, DNS, SSH
+- Token expiration (48 hours by default)
+- Cryptographically secure token generation
+- Automatic database tracking
+- Proof preservation for audit trails
+- Shared with Argos Suite database
 
 **Code Location:** `src/Asterion/Core/ConsentValidator.cs` (550 lines)
 
@@ -45,13 +45,11 @@ The **Consent Token System** is a mandatory ownership verification mechanism req
 ### Legal Requirements
 
 1. **Computer Fraud and Abuse Act (CFAA)** - US Federal Law
-
     - Unauthorized access to computer systems is a federal crime
     - "Exceeding authorized access" includes security testing without permission
     - Penalties: Up to 10 years imprisonment + fines
 
 2. **Computer Misuse Act 1990** - UK Law
-
     - Unauthorized access or modification of computer material
     - Penalties: Up to 2 years imprisonment
 
@@ -63,16 +61,16 @@ The **Consent Token System** is a mandatory ownership verification mechanism req
 
 Even if you own the target system:
 
--   **Network infrastructure** may be owned by hosting providers
--   **Third-party services** may be affected by aggressive scanning
--   **Rate limiting** without consent can trigger DDoS protections
--   **Exploitation checks** may crash vulnerable services
+- **Network infrastructure** may be owned by hosting providers
+- **Third-party services** may be affected by aggressive scanning
+- **Rate limiting** without consent can trigger DDoS protections
+- **Exploitation checks** may crash vulnerable services
 
 ### When Consent is Required
 
-| Mode                | AI         | Consent Required?                     |
-| ------------------- | ---------- | ------------------------------------- |
-| `--mode safe`       | No         | No (passive recon only)             |
+| Mode                | AI         | Consent Required?                    |
+| ------------------- | ---------- | ------------------------------------ |
+| `--mode safe`       | No         | No (passive recon only)              |
 | `--mode safe`       | `--use-ai` | Yes (AI generates sensitive reports) |
 | `--mode aggressive` | No         | Yes (intrusive checks)               |
 | `--mode aggressive` | `--use-ai` | Yes (both reasons)                   |
@@ -108,7 +106,6 @@ verify-7b4a1d8e2f9c6a3e
     ```
 
 2. **Token Expiration**
-
     - Default: **48 hours** from generation
     - Configurable: `config/defaults.yaml` � `consent.token_expiry_hours`
 
@@ -136,9 +133,9 @@ verify-7b4a1d8e2f9c6a3e
 
 #### Path Details
 
--   **Default Path:** `/.well-known/` (RFC 8615 standard)
--   **Configurable:** `config/defaults.yaml` → `consent.http_verification_path`
--   **Port Support:** Preserves port numbers (e.g., `http://example.com:8080/.well-known/`)
+- **Default Path:** `/.well-known/` (RFC 8615 standard)
+- **Configurable:** `config/defaults.yaml` → `consent.http_verification_path`
+- **Port Support:** Preserves port numbers (e.g., `http://example.com:8080/.well-known/`)
 
 #### Protocol Selection
 
@@ -209,9 +206,9 @@ Value: asterion-verify=verify-a3f8c2d1e9b4f7a6
 
 **Why Query Authoritative NS?**
 
--   Avoids stale DNS cache (up to 48 hours)
--   Ensures latest TXT record is checked
--   Faster verification after DNS update
+- Avoids stale DNS cache (up to 48 hours)
+- Ensures latest TXT record is checked
+- Faster verification after DNS update
 
 #### Example
 
@@ -331,11 +328,11 @@ ast consent verify --method ssh --domain win-server.example.com --token verify-a
 
 **Format:** `--ssh user:password`
 
-**Limitations:**
+**Supported authentication methods (v0.2.0):**
 
--   Only password authentication supported
--   No key-based authentication (yet - see ROADMAP.md AST-FEATURE-002)
--   No bastion/jump host support (planned for v0.2.0)
+- Password: `--ssh user:password`
+- Key-based: `--ssh-key user:~/.ssh/id_rsa` (v0.2.0, AST-FEATURE-002)
+- Bastion/jump host: `--bastion host:user:password` (v0.2.0, AST-FEATURE-002)
 
 #### Common Errors
 
@@ -609,9 +606,9 @@ Proof: https://example.com/.well-known/verify-a3f8c2d1e9b4f7a6.txt
 
 **Purpose:**
 
--   Audit trail for compliance
--   Legal evidence of authorization
--   Debugging verification issues
+- Audit trail for compliance
+- Legal evidence of authorization
+- Debugging verification issues
 
 **Code:** `src/Asterion/Core/ConsentValidator.cs:479-503`
 
@@ -676,24 +673,24 @@ Brute force time (at 1M attempts/sec): 584,942 years
 
 **Why 64 bits is sufficient:**
 
--   Token only valid for 48 hours
--   Verification requires placement on target domain (proof of ownership)
--   Not a password (no offline attack possible)
+- Token only valid for 48 hours
+- Verification requires placement on target domain (proof of ownership)
+- Not a password (no offline attack possible)
 
 ### Threat Model
 
 **Protected Against:**
 
--   Unauthorized scanning of third-party systems
--   Accidental aggressive scans without consent
--   AI analysis reports for wrong target
--   Token reuse after expiration
+- Unauthorized scanning of third-party systems
+- Accidental aggressive scans without consent
+- AI analysis reports for wrong target
+- Token reuse after expiration
 
 **NOT Protected Against:**
 
--   Malicious insider with domain control (they can generate valid token)
--   DNS hijacking (attacker controls DNS TXT records)
--   Compromised web server (attacker can upload token file)
+- Malicious insider with domain control (they can generate valid token)
+- DNS hijacking (attacker controls DNS TXT records)
+- Compromised web server (attacker can upload token file)
 
 **Design Philosophy:**
 
@@ -703,15 +700,15 @@ Brute force time (at 1M attempts/sec): 584,942 years
 
 **Database:**
 
--   Tokens stored in plaintext (they're not secrets)
--   Only verifiable by placing on target domain
--   No encryption needed (no confidentiality requirement)
+- Tokens stored in plaintext (they're not secrets)
+- Only verifiable by placing on target domain
+- No encryption needed (no confidentiality requirement)
 
 **Proof Files:**
 
--   Stored in `~/.argos/consent_proofs/` (chmod 700)
--   Contains verification evidence for audit trail
--   Should be backed up for compliance records
+- Stored in `~/.argos/consent_proofs/` (chmod 700)
+- Contains verification evidence for audit trail
+- Should be backed up for compliance records
 
 ---
 
@@ -818,11 +815,11 @@ ast consent generate --domain example.com
 
 ## Related Documentation
 
--   **Legal Framework:** `docs/ETHICS.md` - Computer fraud laws, ethical guidelines
--   **Database Guide:** `docs/DATABASE_GUIDE.md` - Argos Suite database schema, queries
--   **Roadmap:** `docs/ROADMAP.md` - Future consent system improvements
-    -   IMPROV-009: Interactive consent CLI with wizard
-    -   AST-FEATURE-002: SSH key authentication support
+- **Legal Framework:** `docs/ETHICS.md` - Computer fraud laws, ethical guidelines
+- **Database Guide:** `docs/DATABASE_GUIDE.md` - Argos Suite database schema, queries
+- **Roadmap:** `docs/ROADMAP.md` - Future consent system improvements
+    - IMPROV-009: Interactive consent CLI with wizard
+    - AST-FEATURE-002: SSH key authentication support
 
 ---
 
@@ -864,11 +861,16 @@ vim config/defaults.yaml  # � consent: section
 
 ---
 
-_Asterion Version: 0.1.0_
+_Asterion Version: 0.2.0_
 
--   `src/Asterion/Core/ConsentValidator.cs` - Main implementation
--   `src/Asterion/Core/Orchestrator.cs:163-191` - Automatic consent check
--   `src/Asterion/Core/Database.cs:423-503` - Database queries
--   `src/Cli.cs:90-138` - CLI commands
--   `db/migrate.sql:27-41` - Database schema
--   `config/defaults.yaml:163-178` - Configuration
+- `src/Asterion/Core/ConsentValidator.cs` - Main implementation
+- `src/Asterion/Core/Orchestrator.cs:163-191` - Automatic consent check
+- `src/Asterion/Core/Database.cs:423-503` - Database queries
+- `src/Cli.cs:90-138` - CLI commands
+- `db/migrate.sql:27-41` - Database schema
+- `config/defaults.yaml:163-178` - Configuration
+
+---
+
+**Last Updated:** May 2026  
+**Asterion Version:** 0.2.0

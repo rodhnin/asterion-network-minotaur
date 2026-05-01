@@ -78,26 +78,38 @@ namespace Asterion.Checks.CrossPlatform.Windows
 
             try
             {
-                // Note: This is a local check, 'targets' parameter is not used
-                // We're auditing the local Windows Registry
-
-                await Task.Run(() =>
+                // Remote path: use WinRM to read registry via PowerShell
+                if (WinRmManager != null && WinRmManager.IsConnected)
                 {
-                    // Authentication & Credential Security
-                    CheckLmCompatibilityLevel(findings);
-                    CheckNoLmHash(findings);
-                    CheckRestrictAnonymous(findings);
-                    CheckEveryoneIncludesAnonymous(findings);
-                    CheckNtlmMinClientSec(findings);
-                    CheckNtlmMinServerSec(findings);
-                    CheckDisableDomainCreds(findings);
+                    var winRmFindings = await CheckRegistryViaWinRmAsync();
+                    findings.AddRange(winRmFindings);
+                }
+                else
+                {
+#if WINDOWS
+                    // Local path: read registry directly via Microsoft.Win32.Registry
+                    await Task.Run(() =>
+                    {
+                        // Authentication & Credential Security
+                        CheckLmCompatibilityLevel(findings);
+                        CheckNoLmHash(findings);
+                        CheckRestrictAnonymous(findings);
+                        CheckEveryoneIncludesAnonymous(findings);
+                        CheckNtlmMinClientSec(findings);
+                        CheckNtlmMinServerSec(findings);
+                        CheckDisableDomainCreds(findings);
+                        CheckWDigest(findings);
 
-                    // User Account Control (UAC)
-                    CheckUacEnabled(findings);
-                    CheckUacConsentPromptBehavior(findings);
-                    CheckUacSecureDesktop(findings);
-                    CheckUacFilterAdministratorToken(findings);
-                });
+                        // User Account Control (UAC)
+                        CheckUacEnabled(findings);
+                        CheckUacConsentPromptBehavior(findings);
+                        CheckUacSecureDesktop(findings);
+                        CheckUacFilterAdministratorToken(findings);
+                    });
+#else
+                    Log.Debug("{CheckName}: Registry audit requires Windows OS or --winrm credentials", Name);
+#endif
+                }
 
                 if (findings.Count == 0)
                 {
@@ -109,7 +121,7 @@ namespace Asterion.Checks.CrossPlatform.Windows
                 Log.Error(ex, "{CheckName}: Error during registry security check", Name);
             }
 
-            LogExecution(1, findings.Count); // 1 target = local system
+            LogExecution(1, findings.Count);
             return findings;
         }
 
@@ -675,6 +687,84 @@ namespace Asterion.Checks.CrossPlatform.Windows
             }
         }
 
+        /// <summary>
+        /// Check if WDigest authentication is enabled.
+        /// UseLogonCredential = 1 means Windows stores plaintext credentials in LSASS memory.
+        /// This makes credentials trivially extractable by tools like Mimikatz.
+        /// </summary>
+        private void CheckWDigest(List<Finding> findings)
+        {
+            try
+            {
+                using var key = Registry.LocalMachine.OpenSubKey(
+                    @"SYSTEM\CurrentControlSet\Control\SecurityProviders\WDigest");
+                if (key == null)
+                    return;
+
+                var value = key.GetValue("UseLogonCredential");
+                if (value == null)
+                    return;
+
+                int useLogonCredential = Convert.ToInt32(value);
+                Log.Debug("{CheckName}: WDigest UseLogonCredential = {Value}", Name, useLogonCredential);
+
+                if (useLogonCredential == 1)
+                {
+                    findings.Add(Finding.Create(
+                        id: "AST-REG-WIN-012",
+                        title: "WDigest authentication stores credentials in plaintext (LSASS)",
+                        severity: "high",
+                        confidence: "high",
+                        recommendation: "Disable WDigest credential caching immediately:\n\n" +
+                            "Via Registry:\n" +
+                            "reg add \"HKLM\\SYSTEM\\CurrentControlSet\\Control\\SecurityProviders\\WDigest\" /v UseLogonCredential /t REG_DWORD /d 0 /f\n\n" +
+                            "Via PowerShell:\n" +
+                            "Set-ItemProperty -Path 'HKLM:\\SYSTEM\\CurrentControlSet\\Control\\SecurityProviders\\WDigest' -Name 'UseLogonCredential' -Value 0\n\n" +
+                            "Via Group Policy:\n" +
+                            "Computer Configuration > Administrative Templates > MS Security Guide > WDigest Authentication (KB2871997)\n" +
+                            "Set to: Disabled\n\n" +
+                            "After applying, force a user logoff/logon cycle to clear existing cached credentials from LSASS.\n\n" +
+                            "Note: On Windows 8.1 / Server 2012 R2 and later, WDigest is disabled by default (KB2871997).\n" +
+                            "If this is set to 1, it was explicitly enabled — investigate why."
+                    )
+                    .WithDescription(
+                        "WDigest authentication is explicitly enabled on this system (`UseLogonCredential = 1`). " +
+                        "This causes Windows to store user credentials **in plaintext** inside LSASS process memory.\n\n" +
+                        "**Impact:**\n" +
+                        "• Any process with LSASS read access (e.g., ProcDump, Task Manager, Mimikatz) can extract plaintext passwords\n" +
+                        "• No cracking required — passwords are recovered directly from memory\n" +
+                        "• Domain admin credentials cached after logon are immediately exposed\n" +
+                        "• Trivially exploitable in post-exploitation scenarios after any local admin compromise\n\n" +
+                        "**WDigest history:**\n" +
+                        "• Designed for HTTP Digest authentication (RFC 2617)\n" +
+                        "• Microsoft disabled it by default in KB2871997 (2014) due to widespread abuse\n" +
+                        "• Setting `UseLogonCredential = 1` re-enables the vulnerability intentionally\n\n" +
+                        "**Attack scenario:**\n" +
+                        "`privilege::debug` → `sekurlsa::logonpasswords` — instant plaintext credential dump"
+                    )
+                    .WithEvidence(
+                        type: "registry",
+                        value: "UseLogonCredential = 1",
+                        context: "Registry: HKLM\\SYSTEM\\CurrentControlSet\\Control\\SecurityProviders\\WDigest\\UseLogonCredential\n" +
+                                 "Value 1 = WDigest enabled — credentials stored in plaintext in LSASS memory\n" +
+                                 "This setting was explicitly configured (disabled by default since KB2871997)"
+                    )
+                    .WithReferences(
+                        "https://support.microsoft.com/en-us/topic/microsoft-security-advisory-update-to-improve-credentials-protection-and-management-may-13-2014-93434251-04ac-b7f3-52aa-9f951c14b649",
+                        "https://attack.mitre.org/techniques/T1003/001/",
+                        "https://www.cisecurity.org/benchmark/microsoft_windows_server"
+                    )
+                    .WithAffectedComponent("WDigest Authentication Provider (LSASS)"));
+
+                    Log.Warning("{CheckName}: WDigest UseLogonCredential is enabled — plaintext credentials in LSASS", Name);
+                }
+            }
+            catch (Exception ex)
+            {
+                Log.Error(ex, "{CheckName}: Error checking WDigest UseLogonCredential", Name);
+            }
+        }
+
         #endregion
 
         #region User Account Control (UAC) Checks
@@ -948,6 +1038,254 @@ namespace Asterion.Checks.CrossPlatform.Windows
             {
                 Log.Error(ex, "{CheckName}: Error checking UAC FilterAdministratorToken", Name);
             }
+        }
+
+        #endregion
+
+        #region WinRM Remote Registry Path
+
+        /// <summary>
+        /// Read all security-relevant registry values via WinRM/PowerShell in one round-trip.
+        /// Generates findings from the returned JSON, mirroring the local Registry checks.
+        /// </summary>
+        private async Task<List<Finding>> CheckRegistryViaWinRmAsync()
+        {
+            var findings = new List<Finding>();
+
+            // One consolidated PS script reads all values we care about and outputs JSON
+            const string psScript = @"
+$lsa   = 'HKLM:\SYSTEM\CurrentControlSet\Control\Lsa'
+$ntlm  = 'HKLM:\SYSTEM\CurrentControlSet\Control\Lsa\MSV1_0'
+$uac   = 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System'
+$creds = 'HKLM:\SYSTEM\CurrentControlSet\Control\Lsa'
+
+function gv($path, $name) {
+    try { (Get-ItemProperty -Path $path -Name $name -ErrorAction Stop).$name }
+    catch { $null }
+}
+
+@{
+    LmCompatibilityLevel          = gv $lsa   'LmCompatibilityLevel'
+    NoLMHash                      = gv $lsa   'NoLMHash'
+    RestrictAnonymous             = gv $lsa   'RestrictAnonymous'
+    RestrictAnonymousSAM          = gv $lsa   'RestrictAnonymousSAM'
+    EveryoneIncludesAnonymous     = gv $lsa   'EveryoneIncludesAnonymous'
+    NTLMMinClientSec              = gv $ntlm  'NTLMMinClientSec'
+    NTLMMinServerSec              = gv $ntlm  'NTLMMinServerSec'
+    DisableDomainCreds            = gv $lsa   'DisableDomainCreds'
+    UseLogonCredential            = gv $lsa   'UseLogonCredential'
+    EnableLUA                     = gv $uac   'EnableLUA'
+    ConsentPromptBehaviorAdmin    = gv $uac   'ConsentPromptBehaviorAdmin'
+    PromptOnSecureDesktop         = gv $uac   'PromptOnSecureDesktop'
+    FilterAdministratorToken      = gv $uac   'FilterAdministratorToken'
+} | ConvertTo-Json -Depth 1
+";
+            var json = await WinRmManager!.ExecutePowerShellAsync(psScript);
+
+            if (string.IsNullOrWhiteSpace(json))
+            {
+                Log.Warning("{CheckName}: WinRM registry query returned no output", Name);
+                return findings;
+            }
+
+            System.Text.Json.JsonElement reg;
+            try
+            {
+                reg = System.Text.Json.JsonSerializer.Deserialize<System.Text.Json.JsonElement>(json);
+            }
+            catch (Exception ex)
+            {
+                Log.Warning(ex, "{CheckName}: Failed to parse WinRM registry JSON", Name);
+                return findings;
+            }
+
+            // ── LmCompatibilityLevel ────────────────────────────────────────────
+            if (reg.TryGetProperty("LmCompatibilityLevel", out var lmLevel) &&
+                lmLevel.ValueKind != System.Text.Json.JsonValueKind.Null)
+            {
+                int level = lmLevel.GetInt32();
+                if (level < 5)
+                {
+                    string severity = level < 3 ? "high" : "medium";
+                    findings.Add(Finding.Create(
+                        id: "AST-REG-WIN-001",
+                        title: "Insecure LM/NTLM authentication level",
+                        severity: severity,
+                        confidence: "high",
+                        recommendation: "Set LmCompatibilityLevel to 5 via Group Policy or registry:\n" +
+                            "Set-ItemProperty -Path 'HKLM:\\SYSTEM\\CurrentControlSet\\Control\\Lsa' -Name 'LmCompatibilityLevel' -Value 5"
+                    )
+                    .WithDescription($"LmCompatibilityLevel is {level} — allows legacy LM/NTLMv1 authentication. Level 5 (NTLMv2 only) required.")
+                    .WithEvidence(type: "registry", value: $"HKLM:\\...\\Lsa\\LmCompatibilityLevel = {level}")
+                    .WithAffectedComponent("NTLM Authentication"));
+                }
+            }
+
+            // ── NoLMHash ────────────────────────────────────────────────────────
+            if (reg.TryGetProperty("NoLMHash", out var noLm) &&
+                noLm.ValueKind != System.Text.Json.JsonValueKind.Null)
+            {
+                if (noLm.GetInt32() == 0)
+                {
+                    findings.Add(Finding.Create(
+                        id: "AST-REG-WIN-002",
+                        title: "LM password hashes are being stored",
+                        severity: "high",
+                        confidence: "high",
+                        recommendation: "Enable NoLMHash:\nSet-ItemProperty -Path 'HKLM:\\SYSTEM\\CurrentControlSet\\Control\\Lsa' -Name 'NoLMHash' -Value 1"
+                    )
+                    .WithDescription("NoLMHash=0 — LM hashes stored in SAM. LM hashes are trivially crackable.")
+                    .WithEvidence(type: "registry", value: "HKLM:\\...\\Lsa\\NoLMHash = 0")
+                    .WithAffectedComponent("SAM Database"));
+                }
+            }
+
+            // ── RestrictAnonymous ───────────────────────────────────────────────
+            if (reg.TryGetProperty("RestrictAnonymous", out var restrictAnon) &&
+                restrictAnon.ValueKind != System.Text.Json.JsonValueKind.Null &&
+                restrictAnon.GetInt32() == 0)
+            {
+                findings.Add(Finding.Create(
+                    id: "AST-REG-WIN-003",
+                    title: "Anonymous access to SAM accounts/shares not restricted",
+                    severity: "medium",
+                    confidence: "high",
+                    recommendation: "Set RestrictAnonymous to 1 or 2:\nSet-ItemProperty -Path 'HKLM:\\SYSTEM\\CurrentControlSet\\Control\\Lsa' -Name 'RestrictAnonymous' -Value 1"
+                )
+                .WithDescription("RestrictAnonymous=0 allows unauthenticated enumeration of SAM accounts and shares.")
+                .WithEvidence(type: "registry", value: "HKLM:\\...\\Lsa\\RestrictAnonymous = 0")
+                .WithAffectedComponent("Anonymous Access"));
+            }
+
+            // ── EveryoneIncludesAnonymous ───────────────────────────────────────
+            if (reg.TryGetProperty("EveryoneIncludesAnonymous", out var evAnon) &&
+                evAnon.ValueKind != System.Text.Json.JsonValueKind.Null &&
+                evAnon.GetInt32() == 1)
+            {
+                findings.Add(Finding.Create(
+                    id: "AST-REG-WIN-011",
+                    title: "Everyone group includes Anonymous users",
+                    severity: "medium",
+                    confidence: "high",
+                    recommendation: "Set EveryoneIncludesAnonymous to 0:\nSet-ItemProperty -Path 'HKLM:\\SYSTEM\\CurrentControlSet\\Control\\Lsa' -Name 'EveryoneIncludesAnonymous' -Value 0"
+                )
+                .WithDescription("Legacy setting — Anonymous users inherit Everyone group permissions. Should be disabled.")
+                .WithEvidence(type: "registry", value: "HKLM:\\...\\Lsa\\EveryoneIncludesAnonymous = 1")
+                .WithAffectedComponent("Access Control"));
+            }
+
+            // ── NTLMMinClientSec ────────────────────────────────────────────────
+            if (reg.TryGetProperty("NTLMMinClientSec", out var ntlmClient) &&
+                ntlmClient.ValueKind != System.Text.Json.JsonValueKind.Null)
+            {
+                int flags = ntlmClient.GetInt32();
+                // 0x20080030 = NTLMv2 + 128-bit encryption + message integrity/confidentiality
+                if (flags < 0x20080030)
+                {
+                    findings.Add(Finding.Create(
+                        id: "AST-REG-WIN-004",
+                        title: "Weak NTLM client security requirements",
+                        severity: "medium",
+                        confidence: "high",
+                        recommendation: "Set NTLMMinClientSec to 537395248 (0x20080030):\nSet-ItemProperty -Path 'HKLM:\\SYSTEM\\CurrentControlSet\\Control\\Lsa\\MSV1_0' -Name 'NTLMMinClientSec' -Value 537395248"
+                    )
+                    .WithDescription($"NTLMMinClientSec=0x{flags:X8} — insufficient session security. Require NTLMv2 + 128-bit encryption (0x20080030).")
+                    .WithEvidence(type: "registry", value: $"HKLM:\\...\\MSV1_0\\NTLMMinClientSec = 0x{flags:X8}")
+                    .WithAffectedComponent("NTLM Client"));
+                }
+            }
+
+            // ── NTLMMinServerSec ────────────────────────────────────────────────
+            if (reg.TryGetProperty("NTLMMinServerSec", out var ntlmServer) &&
+                ntlmServer.ValueKind != System.Text.Json.JsonValueKind.Null)
+            {
+                int flags = ntlmServer.GetInt32();
+                if (flags < 0x20080030)
+                {
+                    findings.Add(Finding.Create(
+                        id: "AST-REG-WIN-005",
+                        title: "Weak NTLM server security requirements",
+                        severity: "medium",
+                        confidence: "high",
+                        recommendation: "Set NTLMMinServerSec to 537395248 (0x20080030):\nSet-ItemProperty -Path 'HKLM:\\SYSTEM\\CurrentControlSet\\Control\\Lsa\\MSV1_0' -Name 'NTLMMinServerSec' -Value 537395248"
+                    )
+                    .WithDescription($"NTLMMinServerSec=0x{flags:X8} — server accepts weak NTLM sessions. Require NTLMv2 + 128-bit encryption.")
+                    .WithEvidence(type: "registry", value: $"HKLM:\\...\\MSV1_0\\NTLMMinServerSec = 0x{flags:X8}")
+                    .WithAffectedComponent("NTLM Server"));
+                }
+            }
+
+            // ── WDigest (UseLogonCredential) ────────────────────────────────────
+            if (reg.TryGetProperty("UseLogonCredential", out var wdigest) &&
+                wdigest.ValueKind != System.Text.Json.JsonValueKind.Null &&
+                wdigest.GetInt32() == 1)
+            {
+                findings.Add(Finding.Create(
+                    id: "AST-REG-WIN-012",
+                    title: "WDigest authentication enabled (cleartext credentials in memory)",
+                    severity: "critical",
+                    confidence: "high",
+                    recommendation: "Disable WDigest:\nSet-ItemProperty -Path 'HKLM:\\SYSTEM\\CurrentControlSet\\Control\\Lsa' -Name 'UseLogonCredential' -Value 0"
+                )
+                .WithDescription("WDigest=1 — cleartext passwords cached in LSASS memory. Mimikatz can dump these without additional privilege.")
+                .WithEvidence(type: "registry", value: "HKLM:\\...\\Lsa\\UseLogonCredential = 1")
+                .WithReferences("https://attack.mitre.org/techniques/T1003/001/")
+                .WithAffectedComponent("LSASS / Credential Cache"));
+            }
+
+            // ── EnableLUA (UAC) ─────────────────────────────────────────────────
+            if (reg.TryGetProperty("EnableLUA", out var lua) &&
+                lua.ValueKind != System.Text.Json.JsonValueKind.Null &&
+                lua.GetInt32() == 0)
+            {
+                findings.Add(Finding.Create(
+                    id: "AST-REG-WIN-006",
+                    title: "User Account Control (UAC) is disabled",
+                    severity: "high",
+                    confidence: "high",
+                    recommendation: "Enable UAC:\nSet-ItemProperty -Path 'HKLM:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Policies\\System' -Name 'EnableLUA' -Value 1"
+                )
+                .WithDescription("UAC disabled — all processes run with full admin token. Dramatically lowers the bar for privilege escalation.")
+                .WithEvidence(type: "registry", value: "HKLM:\\...\\Policies\\System\\EnableLUA = 0")
+                .WithAffectedComponent("User Account Control"));
+            }
+
+            // ── ConsentPromptBehaviorAdmin ──────────────────────────────────────
+            if (reg.TryGetProperty("ConsentPromptBehaviorAdmin", out var consentPrompt) &&
+                consentPrompt.ValueKind != System.Text.Json.JsonValueKind.Null &&
+                consentPrompt.GetInt32() == 0)
+            {
+                findings.Add(Finding.Create(
+                    id: "AST-REG-WIN-007",
+                    title: "UAC admin elevation prompt disabled (auto-elevate)",
+                    severity: "high",
+                    confidence: "high",
+                    recommendation: "Set ConsentPromptBehaviorAdmin to 2 (prompt for credentials) or 5 (prompt for consent)."
+                )
+                .WithDescription("ConsentPromptBehaviorAdmin=0 — admin elevation happens silently without user prompt. Malware can escalate without interaction.")
+                .WithEvidence(type: "registry", value: "HKLM:\\...\\Policies\\System\\ConsentPromptBehaviorAdmin = 0")
+                .WithAffectedComponent("User Account Control"));
+            }
+
+            // ── PromptOnSecureDesktop ───────────────────────────────────────────
+            if (reg.TryGetProperty("PromptOnSecureDesktop", out var secureDesktop) &&
+                secureDesktop.ValueKind != System.Text.Json.JsonValueKind.Null &&
+                secureDesktop.GetInt32() == 0)
+            {
+                findings.Add(Finding.Create(
+                    id: "AST-REG-WIN-008",
+                    title: "UAC secure desktop is disabled",
+                    severity: "medium",
+                    confidence: "high",
+                    recommendation: "Enable secure desktop:\nSet-ItemProperty -Path 'HKLM:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Policies\\System' -Name 'PromptOnSecureDesktop' -Value 1"
+                )
+                .WithDescription("Secure desktop disabled — UAC prompts appear on the regular desktop, susceptible to UI spoofing attacks.")
+                .WithEvidence(type: "registry", value: "HKLM:\\...\\Policies\\System\\PromptOnSecureDesktop = 0")
+                .WithAffectedComponent("User Account Control"));
+            }
+
+            Log.Debug("{CheckName}: WinRM registry check complete — {Count} finding(s)", Name, findings.Count);
+            return findings;
         }
 
         #endregion

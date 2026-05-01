@@ -1,4 +1,5 @@
 using System;
+using System.IO;
 using System.Threading.Tasks;
 using Renci.SshNet;
 using Serilog;
@@ -7,29 +8,103 @@ namespace Asterion.Core
 {
     /// <summary>
     /// Manages SSH connections to remote for authenticated auditing.
-    /// Provides command execution and platform detection capabilities.
+    /// Supports password auth, key auth, sudo elevation, and bastion/jump hosts.
     /// </summary>
     public class SshConnectionManager : IDisposable
     {
         private readonly string _host;
         private readonly string _username;
-        private readonly string _password;
+
+        // Password auth
+        private readonly string? _password;
+
+        // Key auth
+        private readonly string? _privateKeyPath;
+        private readonly string? _passphrase;
+        private readonly bool _useKeyAuth;
+
+        // Sudo
+        private readonly string? _sudoPassword;
+
+        // Bastion
+        private SshClient? _bastionClient;
+        private ForwardedPortLocal? _forwardedPort;
+
         private SshClient? _client;
         private bool _isConnected;
 
-        /// <summary>
-        /// Initialize SSH connection manager
-        /// </summary>
-        /// <param name="host">Target hostname or IP address</param>
-        /// <param name="username">SSH username</param>
-        /// <param name="password">SSH password (plaintext)</param>
-        public SshConnectionManager(string host, string username, string password)
+        /// <summary>Password-based SSH connection.</summary>
+        public SshConnectionManager(string host, string username, string password, string? sudoPassword = null)
         {
             _host = host;
             _username = username;
             _password = password;
+            _sudoPassword = sudoPassword;
+            _useKeyAuth = false;
             _isConnected = false;
         }
+
+        /// <summary>Private constructor for key-auth and bastion factory methods.</summary>
+        private SshConnectionManager(string host, string username, string privateKeyPath, string? passphrase,
+            bool useKeyAuth, string? sudoPassword = null)
+        {
+            _host = host;
+            _username = username;
+            _privateKeyPath = privateKeyPath;
+            _passphrase = passphrase;
+            _useKeyAuth = useKeyAuth;
+            _sudoPassword = sudoPassword;
+            _isConnected = false;
+        }
+
+        /// <summary>
+        /// Create an SSH connection manager that authenticates with a private key.
+        /// </summary>
+        /// <param name="host">Target hostname or IP</param>
+        /// <param name="username">SSH username</param>
+        /// <param name="privateKeyPath">Path to private key file (PEM/OpenSSH format)</param>
+        /// <param name="passphrase">Optional key passphrase</param>
+        /// <param name="sudoPassword">Optional sudo password for privilege elevation</param>
+        public static SshConnectionManager CreateWithKeyAuth(
+            string host, string username, string privateKeyPath,
+            string? passphrase = null, string? sudoPassword = null)
+        {
+            return new SshConnectionManager(host, username, privateKeyPath, passphrase,
+                useKeyAuth: true, sudoPassword: sudoPassword);
+        }
+
+        /// <summary>
+        /// Create an SSH manager that tunnels through a bastion/jump host.
+        /// The tunnel is established synchronously when ConnectAsync() is called.
+        /// </summary>
+        /// <param name="bastionHost">Bastion hostname or IP</param>
+        /// <param name="bastionUsername">Bastion SSH username</param>
+        /// <param name="bastionPassword">Bastion SSH password (use key overload for key auth)</param>
+        /// <param name="targetHost">Final target hostname or IP</param>
+        /// <param name="targetUsername">Target SSH username</param>
+        /// <param name="targetPassword">Target SSH password</param>
+        /// <param name="targetPort">Target SSH port (default: 22)</param>
+        /// <param name="sudoPassword">Optional sudo password for privilege elevation on target</param>
+        public static SshConnectionManager CreateViaBastion(
+            string bastionHost, string bastionUsername, string bastionPassword,
+            string targetHost, string targetUsername, string targetPassword,
+            int targetPort = 22, string? sudoPassword = null)
+        {
+            // The manager's _host/_username/_password refer to the FINAL target.
+            // The bastion details are stored separately for the tunnel.
+            var mgr = new SshConnectionManager(targetHost, targetUsername, targetPassword, sudoPassword);
+            mgr._pendingBastionHost     = bastionHost;
+            mgr._pendingBastionUser     = bastionUsername;
+            mgr._pendingBastionPassword = bastionPassword;
+            mgr._pendingTargetPort      = targetPort;
+            return mgr;
+        }
+
+        // Bastion pending params (set by factory, consumed in ConnectAsync)
+        private string? _pendingBastionHost;
+        private string? _pendingBastionUser;
+        private string? _pendingBastionPassword;
+        private int _pendingTargetPort = 22;
 
         /// <summary>
         /// Check if SSH connection is active
@@ -37,47 +112,94 @@ namespace Asterion.Core
         public bool IsConnected => _isConnected && _client != null && _client.IsConnected;
 
         /// <summary>
-        /// Establish SSH connection to remote host
+        /// Establish SSH connection to remote host (password, key, or via bastion tunnel).
         /// </summary>
         /// <returns>True if connection successful, false otherwise</returns>
         public async Task<bool> ConnectAsync()
         {
             try
             {
-                Log.Debug("Attempting SSH connection to {Host} as {User}", _host, _username);
-
-                // Create SSH client with timeout
-                _client = new SshClient(_host, _username, _password)
+                // ── Bastion tunnel setup ──────────────────────────────────────────
+                if (_pendingBastionHost != null)
                 {
-                    ConnectionInfo = 
+                    Log.Debug("[SSH] Setting up bastion tunnel: {Bastion} → {Target}", _pendingBastionHost, _host);
+
+                    _bastionClient = new SshClient(_pendingBastionHost, _pendingBastionUser, _pendingBastionPassword)
+                    {
+                        ConnectionInfo = { Timeout = TimeSpan.FromSeconds(15) }
+                    };
+                    await Task.Run(() => _bastionClient.Connect());
+
+                    if (!_bastionClient.IsConnected)
+                    {
+                        Log.Error("[SSH] Bastion connection failed to {Bastion}", _pendingBastionHost);
+                        return false;
+                    }
+                    Log.Debug("[SSH] Bastion connected: {Bastion}", _pendingBastionHost);
+
+                    // Forward a random local port to target:targetPort through the bastion
+                    _forwardedPort = new ForwardedPortLocal("127.0.0.1", 0, _host, (uint)_pendingTargetPort);
+                    _bastionClient.AddForwardedPort(_forwardedPort);
+                    _forwardedPort.Start();
+
+                    // Build connection through the tunnel (127.0.0.1 : bound local port)
+                    int localPort = (int)_forwardedPort.BoundPort;
+                    Log.Debug("[SSH] Tunnel opened 127.0.0.1:{LocalPort} → {Target}:{TargetPort}", localPort, _host, _pendingTargetPort);
+
+                    var connInfo = new ConnectionInfo("127.0.0.1", localPort, _username,
+                        new PasswordAuthenticationMethod(_username, _password))
+                    {
+                        Timeout = TimeSpan.FromSeconds(15)
+                    };
+                    _client = new SshClient(connInfo);
+                }
+                // ── Key-based auth ────────────────────────────────────────────────
+                else if (_useKeyAuth && _privateKeyPath != null)
+                {
+                    Log.Debug("[SSH] Key auth: {User}@{Host} key={Key}", _username, _host, _privateKeyPath);
+
+                    var expandedPath = _privateKeyPath.Replace("~", Environment.GetFolderPath(Environment.SpecialFolder.UserProfile));
+                    PrivateKeyFile keyFile = string.IsNullOrEmpty(_passphrase)
+                        ? new PrivateKeyFile(expandedPath)
+                        : new PrivateKeyFile(expandedPath, _passphrase);
+
+                    var authMethod = new PrivateKeyAuthenticationMethod(_username, keyFile);
+                    var connInfo = new ConnectionInfo(_host, _username, authMethod)
                     {
                         Timeout = TimeSpan.FromSeconds(10)
-                    }
-                };
+                    };
+                    _client = new SshClient(connInfo);
+                }
+                // ── Password auth (default) ───────────────────────────────────────
+                else
+                {
+                    Log.Debug("[SSH] Password auth: {User}@{Host}", _username, _host);
+                    _client = new SshClient(_host, _username, _password)
+                    {
+                        ConnectionInfo = { Timeout = TimeSpan.FromSeconds(10) }
+                    };
+                }
 
-                // Connect (blocking operation, run in Task)
-                await Task.Run(() => _client.Connect());
-
+                await Task.Run(() => _client!.Connect());
                 _isConnected = true;
-                Log.Information("SSH connection successful: {User}@{Host}", _username, _host);
-                
+
+                var authDesc = _useKeyAuth ? "key" : _pendingBastionHost != null ? "bastion" : "password";
+                Log.Information("[SSH] Connected ({Auth}): {User}@{Host}", authDesc, _username, _host);
                 return true;
             }
             catch (Renci.SshNet.Common.SshAuthenticationException ex)
             {
-                Log.Error("SSH authentication failed for {User}@{Host}: {Error}", 
-                    _username, _host, ex.Message);
+                Log.Error("[SSH] Authentication failed for {User}@{Host}: {Error}", _username, _host, ex.Message);
                 return false;
             }
             catch (System.Net.Sockets.SocketException ex)
             {
-                Log.Error("SSH connection failed to {Host} (network error): {Error}", 
-                    _host, ex.Message);
+                Log.Error("[SSH] Network error connecting to {Host}: {Error}", _host, ex.Message);
                 return false;
             }
             catch (Exception ex)
             {
-                Log.Error(ex, "SSH connection failed to {Host}", _host);
+                Log.Error(ex, "[SSH] Connection failed to {Host}", _host);
                 return false;
             }
         }
@@ -121,6 +243,39 @@ namespace Asterion.Core
                 Log.Error(ex, "Failed to execute SSH command: {Command}", command);
                 throw;
             }
+        }
+
+        /// <summary>
+        /// Execute a command with sudo privilege elevation on the remote system.
+        /// Uses the sudo password supplied at construction / factory time.
+        /// Falls back to plain ExecuteCommandAsync if no sudo password is stored.
+        /// </summary>
+        /// <param name="command">Command to run as root (e.g., "cat /etc/shadow")</param>
+        /// <returns>Command output (stdout)</returns>
+        public async Task<string> ExecuteWithSudoAsync(string command)
+        {
+            if (string.IsNullOrEmpty(_sudoPassword))
+            {
+                // No sudo password — try plain execution
+                Log.Debug("[SSH] ExecuteWithSudoAsync: no sudo password stored, running plain: {Cmd}", command);
+                return await ExecuteCommandAsync(command);
+            }
+
+            // Escape single quotes in password (replace ' with '"'"')
+            var escapedPass = _sudoPassword.Replace("'", "'\"'\"'");
+            // Pipe password into sudo -S so it never appears in process list as argv
+            var sudoCmd = $"echo '{escapedPass}' | sudo -S -p '' {command}";
+            return await ExecuteCommandAsync(sudoCmd);
+        }
+
+        /// <summary>
+        /// Execute a command with sudo using an explicit password (ignores stored sudo password).
+        /// </summary>
+        public async Task<string> ExecuteWithSudoAsync(string command, string sudoPassword)
+        {
+            var escapedPass = sudoPassword.Replace("'", "'\"'\"'");
+            var sudoCmd = $"echo '{escapedPass}' | sudo -S -p '' {command}";
+            return await ExecuteCommandAsync(sudoCmd);
         }
 
         /// <summary>
@@ -261,7 +416,7 @@ namespace Asterion.Core
         }
 
         /// <summary>
-        /// Clean up SSH connection
+        /// Clean up SSH connection (and bastion tunnel if active).
         /// </summary>
         public void Dispose()
         {
@@ -269,15 +424,28 @@ namespace Asterion.Core
             {
                 if (_client != null && _client.IsConnected)
                 {
-                    Log.Debug("Disconnecting SSH from {Host}", _host);
+                    Log.Debug("[SSH] Disconnecting from {Host}", _host);
                     _client.Disconnect();
                 }
                 _client?.Dispose();
                 _isConnected = false;
+
+                // Tear down bastion tunnel
+                if (_forwardedPort != null)
+                {
+                    _forwardedPort.Stop();
+                    _forwardedPort.Dispose();
+                }
+                if (_bastionClient != null && _bastionClient.IsConnected)
+                {
+                    Log.Debug("[SSH] Disconnecting bastion tunnel: {Bastion}", _pendingBastionHost);
+                    _bastionClient.Disconnect();
+                }
+                _bastionClient?.Dispose();
             }
             catch (Exception ex)
             {
-                Log.Warning(ex, "Error during SSH disconnect");
+                Log.Warning(ex, "[SSH] Error during disconnect");
             }
         }
     }

@@ -12,7 +12,7 @@ if (Test-Path $asciiPath) {
     Get-Content $asciiPath | ForEach-Object { Write-Host $_ }
 } else {
     Write-Host "============================================================"
-    Write-Host "      ASTERION - Network Security Auditor Setup v0.1.0" -ForegroundColor Magenta
+    Write-Host "      ASTERION - Network Security Auditor Setup v0.2.0" -ForegroundColor Magenta
     Write-Host "           The Minotaur of the Argos Suite" -ForegroundColor Magenta
     Write-Host "============================================================"
 }

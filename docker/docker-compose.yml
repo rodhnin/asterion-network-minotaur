@@ -12,7 +12,7 @@ services:
         build:
             context: ..
             dockerfile: docker/Dockerfile
-        image: asterion:0.1.0
+        image: asterion:0.2.0
         container_name: asterion-scanner
         hostname: asterion
 
@@ -51,9 +51,9 @@ services:
             # Docker detection
             - ASTERION_IN_DOCKER=true
 
-            # AI Analysis API keys (configure in .env file)
-            - OPENAI_API_KEY=${OPENAI_API_KEY:-}
-            - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY:-}
+            # AI Analysis API key (configure in .env file)
+            # AI_API_KEY works for all providers: openai, anthropic, ollama
+            - AI_API_KEY=${AI_API_KEY:-}
 
             # Asterion paths (Docker optimized)
             - ASTERION_DB_PATH=/data/argos.db

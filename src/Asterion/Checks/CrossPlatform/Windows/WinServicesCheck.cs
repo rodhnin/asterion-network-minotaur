@@ -5,6 +5,7 @@ using System.Management;
 using System.Runtime.InteropServices;
 using System.Security.AccessControl;
 using System.Security.Principal;
+using System.Text.Json;
 using System.Threading.Tasks;
 using Serilog;
 using Asterion.Core;
@@ -65,9 +66,18 @@ namespace Asterion.Checks.CrossPlatform.Windows
 
             var findings = new List<Finding>();
 
-            // Determine if this is a local check
-            bool isLocal = targets.Contains("localhost") || 
-                          targets.Contains("127.0.0.1") || 
+            // WinRM remote path — runs PowerShell-based service checks on remote Windows host
+            if (WinRmManager != null && WinRmManager.IsConnected)
+            {
+                Log.Information("[{CheckName}] Performing remote Windows services audit via WinRM", Name);
+                findings.AddRange(await CheckServicesViaWinRmAsync());
+                LogExecution(targets.Count, findings.Count);
+                return findings;
+            }
+
+            // Local / WMI remote path
+            bool isLocal = targets.Contains("localhost") ||
+                          targets.Contains("127.0.0.1") ||
                           targets.Any(t => t.Equals(Environment.MachineName, StringComparison.OrdinalIgnoreCase));
 
             if (isLocal)
@@ -1130,6 +1140,190 @@ namespace Asterion.Checks.CrossPlatform.Windows
                 "https://docs.microsoft.com/en-us/security/"
             )
             .WithAffectedComponent($"{target}");
+        }
+
+        #endregion
+
+        #region WinRM Remote Services Path
+
+        /// <summary>
+        /// Check Windows services via WinRM/PowerShell.
+        /// Covers IIS, SQL Server, Exchange, and general service security misconfigurations.
+        /// </summary>
+        private async Task<List<Finding>> CheckServicesViaWinRmAsync()
+        {
+            var findings = new List<Finding>();
+
+            // ── IIS check ──────────────────────────────────────────────────────
+            findings.AddRange(await CheckIisViaWinRmAsync());
+
+            // ── SQL Server check ───────────────────────────────────────────────
+            findings.AddRange(await CheckSqlServerViaWinRmAsync());
+
+            // ── LocalSystem services ───────────────────────────────────────────
+            findings.AddRange(await CheckLocalSystemServicesViaWinRmAsync());
+
+            return findings;
+        }
+
+        private async Task<List<Finding>> CheckIisViaWinRmAsync()
+        {
+            var findings = new List<Finding>();
+
+            // Check if IIS (W3SVC) service is running
+            var iisJson = await WinRmManager!.ExecutePowerShellAsync(
+                "Get-Service -Name 'W3SVC' -ErrorAction SilentlyContinue | Select-Object Status | ConvertTo-Json");
+
+            if (string.IsNullOrWhiteSpace(iisJson)) return findings;
+
+            try
+            {
+                var svc = JsonSerializer.Deserialize<JsonElement>(iisJson);
+                // Status 4 = Running
+                bool running = svc.TryGetProperty("Status", out var st) &&
+                               st.ValueKind == JsonValueKind.Number &&
+                               st.GetInt32() == 4;
+                if (!running) return findings;
+            }
+            catch { return findings; }
+
+            Log.Information("[{CheckName}] IIS detected via WinRM, checking configuration", Name);
+
+            // Check WebDAV
+            var webdavResult = await WinRmManager!.ExecutePowerShellAsync(
+                "Get-WindowsFeature Web-DAV-Publishing -ErrorAction SilentlyContinue | Select-Object Installed | ConvertTo-Json");
+            if (!string.IsNullOrWhiteSpace(webdavResult))
+            {
+                try
+                {
+                    var wf = JsonSerializer.Deserialize<JsonElement>(webdavResult);
+                    if (wf.TryGetProperty("Installed", out var inst) && inst.GetBoolean())
+                    {
+                        findings.Add(Finding.Create(
+                            id: "AST-IIS-WIN-001", title: "IIS WebDAV Enabled",
+                            severity: "medium", confidence: "high",
+                            recommendation: "Disable WebDAV: Disable-WindowsOptionalFeature -Online -FeatureName IIS-WebDAV")
+                            .WithDescription("WebDAV is enabled on IIS. Attackers can use WebDAV for file upload/RCE if not properly secured.")
+                            .WithAffectedComponent("IIS WebDAV"));
+                    }
+                }
+                catch { /* skip if JSON parse fails */ }
+            }
+
+            // Check HTTPS bindings
+            var bindingsJson = await WinRmManager!.ExecutePowerShellAsync(
+                "Import-Module WebAdministration -ErrorAction SilentlyContinue; " +
+                "Get-WebBinding | Select-Object protocol,bindingInformation | ConvertTo-Json");
+            if (!string.IsNullOrWhiteSpace(bindingsJson))
+            {
+                try
+                {
+                    var bindings = JsonSerializer.Deserialize<JsonElement>(bindingsJson);
+                    bool hasHttps = false;
+                    if (bindings.ValueKind == JsonValueKind.Array)
+                    {
+                        foreach (var b in bindings.EnumerateArray())
+                        {
+                            if (b.TryGetProperty("protocol", out var proto) &&
+                                proto.GetString()?.Equals("https", StringComparison.OrdinalIgnoreCase) == true)
+                            {
+                                hasHttps = true; break;
+                            }
+                        }
+                    }
+                    if (!hasHttps)
+                    {
+                        findings.Add(Finding.Create(
+                            id: "AST-IIS-WIN-004", title: "IIS HTTPS not configured",
+                            severity: "medium", confidence: "medium",
+                            recommendation: "Configure an HTTPS binding with a valid TLS certificate on all IIS sites.")
+                            .WithDescription("No HTTPS bindings detected on IIS — all traffic is transmitted in cleartext.")
+                            .WithAffectedComponent("IIS TLS"));
+                    }
+                }
+                catch { /* skip */ }
+            }
+
+            return findings;
+        }
+
+        private async Task<List<Finding>> CheckSqlServerViaWinRmAsync()
+        {
+            var findings = new List<Finding>();
+
+            var sqlJson = await WinRmManager!.ExecutePowerShellAsync(
+                "Get-Service | Where-Object { $_.Name -like 'MSSQL*' } | " +
+                "Select-Object Name,Status,DisplayName | ConvertTo-Json");
+
+            if (string.IsNullOrWhiteSpace(sqlJson)) return findings;
+
+            Log.Information("[{CheckName}] SQL Server service detected via WinRM", Name);
+
+            // Check login mode via registry (Mixed vs Windows-only auth)
+            var sqlAuthJson = await WinRmManager!.ExecutePowerShellAsync(
+                "$instances = (Get-ItemProperty 'HKLM:\\SOFTWARE\\Microsoft\\Microsoft SQL Server' -ErrorAction SilentlyContinue).InstalledInstances; " +
+                "if ($instances) { $inst = $instances[0]; " +
+                "$key = \"HKLM:\\SOFTWARE\\Microsoft\\Microsoft SQL Server\\$inst\\MSSQLServer\"; " +
+                "(Get-ItemProperty $key -ErrorAction SilentlyContinue).LoginMode } else { -1 }");
+
+            if (!string.IsNullOrWhiteSpace(sqlAuthJson) && int.TryParse(sqlAuthJson.Trim(), out int loginMode))
+            {
+                if (loginMode == 2) // Mixed mode = SQL + Windows auth
+                {
+                    findings.Add(Finding.Create(
+                        id: "AST-SQL-WIN-002", title: "SQL Server Mixed Mode authentication enabled",
+                        severity: "medium", confidence: "high",
+                        recommendation: "Switch to Windows Authentication Only mode via SQL Server Management Studio.")
+                        .WithDescription("Mixed Mode allows SQL logins (username/password) in addition to Windows auth. Increases attack surface if SQL accounts have weak passwords.")
+                        .WithAffectedComponent("SQL Server Authentication"));
+                }
+            }
+
+            return findings;
+        }
+
+        private async Task<List<Finding>> CheckLocalSystemServicesViaWinRmAsync()
+        {
+            var findings = new List<Finding>();
+
+            // Find non-essential services running as SYSTEM
+            var systemServicesJson = await WinRmManager!.ExecutePowerShellAsync(
+                "$skip = @('wuauserv','WinDefend','MpsSvc','Dhcp','Dnscache','EventLog','LanmanServer','Schedule','SENS','SystemEventsBroker','Themes','WpnService');" +
+                "Get-WmiObject Win32_Service -ErrorAction SilentlyContinue | " +
+                "Where-Object { $_.StartName -eq 'LocalSystem' -and $_.State -eq 'Running' -and $_.Name -notin $skip } | " +
+                "Select-Object Name,DisplayName,PathName | ConvertTo-Json -Depth 1");
+
+            if (string.IsNullOrWhiteSpace(systemServicesJson)) return findings;
+
+            try
+            {
+                var arr = JsonSerializer.Deserialize<JsonElement>(systemServicesJson);
+                var services = arr.ValueKind == JsonValueKind.Array
+                    ? arr.EnumerateArray().ToList()
+                    : new List<JsonElement> { arr };
+
+                if (services.Count > 5) // Only flag if there are many SYSTEM services
+                {
+                    var names = string.Join(", ", services.Take(5).Select(s =>
+                        s.TryGetProperty("Name", out var n) ? n.GetString() : "?"));
+
+                    findings.Add(Finding.Create(
+                        id: "AST-SVC-WIN-001",
+                        title: $"Multiple services running as LocalSystem ({services.Count} detected)",
+                        severity: "info",
+                        confidence: "medium",
+                        recommendation: "Review services running as LocalSystem and apply principle of least privilege — use dedicated service accounts where possible.")
+                        .WithDescription($"Found {services.Count} non-essential services running as LocalSystem. Examples: {names}. Services with excessive privileges are a common lateral movement target.")
+                        .WithEvidence(type: "service", value: $"{services.Count} LocalSystem services", context: $"Examples: {names}")
+                        .WithAffectedComponent("Windows Services"));
+                }
+            }
+            catch (Exception ex)
+            {
+                Log.Debug(ex, "{CheckName}: Failed to parse LocalSystem services JSON", Name);
+            }
+
+            return findings;
         }
 
         #endregion

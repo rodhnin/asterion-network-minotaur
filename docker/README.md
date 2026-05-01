@@ -232,24 +232,25 @@ docker compose exec asterion dotnet /app/ast.dll scan --target corp.local
 
 ### Authenticated Scanning
 
-**Linux/macOS:**
-
 ```bash
-# Windows domain authentication
+# Windows domain authentication (LDAP/Kerberos/SMB)
 docker compose exec asterion dotnet /app/ast.dll scan --target dc.corp.local --auth "DOMAIN\admin:P@ssw0rd"
+
+# WinRM remote Windows checks (firewall, registry, services, AD, privesc)
+docker compose exec asterion dotnet /app/ast.dll scan --target 192.168.1.10 --winrm "DOMAIN\admin:P@ssw0rd"
 
 # SSH authentication for Linux hosts
 docker compose exec asterion dotnet /app/ast.dll scan --target 10.0.0.25 --ssh "root:toor"
-```
 
-**Windows:**
+# SSH + sudo elevation
+docker compose exec asterion dotnet /app/ast.dll scan --target 10.0.0.25 --ssh "admin:pass" --sudo-password "sudopass"
 
-```powershell
-# Windows domain authentication
-docker compose exec asterion dotnet /app/ast.dll scan --target dc.corp.local --auth "DOMAIN\admin:P@ssw0rd"
-
-# SSH authentication for Linux hosts
-docker compose exec asterion dotnet /app/ast.dll scan --target 10.0.0.25 --ssh "root:toor"
+# Full scan: Windows WinRM + auth + AI
+docker compose exec -e AI_API_KEY="sk-proj-..." asterion \
+  dotnet /app/ast.dll scan --target dc.corp.local \
+  --auth "DOMAIN\admin:P@ssw0rd" \
+  --winrm "DOMAIN\admin:P@ssw0rd" \
+  --use-ai --ai-tone technical -o both -v
 ```
 
 ### AI-Powered Analysis
@@ -257,13 +258,17 @@ docker compose exec asterion dotnet /app/ast.dll scan --target 10.0.0.25 --ssh "
 Requires API key in `.env` file:
 
 ```bash
-# Edit .env first
-OPENAI_API_KEY=sk-...
+# Edit .env first — one key works for all providers (OpenAI, Anthropic, Ollama)
+AI_API_KEY=sk-proj-...   # OpenAI key
 # or
-ANTHROPIC_API_KEY=sk-ant-...
+AI_API_KEY=sk-ant-...    # Anthropic key
 
 # Run scan with AI analysis
 docker compose exec asterion dotnet /app/ast.dll scan --target 10.0.0.0/24 --use-ai --output both
+
+# Pass key at runtime without editing .env
+docker compose exec -e AI_API_KEY="sk-proj-..." asterion \
+  dotnet /app/ast.dll scan --target 10.0.0.5 --use-ai --ai-tone technical -o both
 ```
 
 ### Accessing Reports
@@ -439,4 +444,4 @@ For Docker-related issues:
 
 ---
 
-**Asterion v0.1.0**
+**Asterion v0.2.0**

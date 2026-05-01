@@ -186,6 +186,19 @@ namespace Asterion.Checks.Linux
                 Log.Debug("[{CheckName}] Checking critical file permissions...", Name);
                 var permFindings = await CheckCriticalFilePermissionsAsync();
                 findings.AddRange(permFindings);
+
+                // v0.2.0 additions
+                Log.Debug("[{CheckName}] Checking Docker socket exposure...", Name);
+                var dockerFinding = await CheckDockerSocketAsync();
+                if (dockerFinding != null) findings.Add(dockerFinding);
+
+                Log.Debug("[{CheckName}] Checking writable systemd unit files...", Name);
+                var systemdFindings = await CheckWritableSystemdUnitsAsync();
+                findings.AddRange(systemdFindings);
+
+                Log.Debug("[{CheckName}] Checking exposed credential files...", Name);
+                var credFindings = await CheckExposedCredentialFilesAsync();
+                findings.AddRange(credFindings);
             }
             catch (Exception ex)
             {
@@ -582,5 +595,253 @@ namespace Asterion.Checks.Linux
         }
 
         #endregion
+
+        // ─── v0.2.0: Docker socket, systemd, credential files ─────────────────
+
+        /// <summary>
+        /// Check if Docker socket is world-accessible (group=docker without root needed).
+        /// Access to /var/run/docker.sock == full root equivalent.
+        /// Finding: AST-PRIV-LNX-006
+        /// </summary>
+        private async Task<Finding?> CheckDockerSocketAsync()
+        {
+            const string socketPath = "/var/run/docker.sock";
+            try
+            {
+                if (!File.Exists(socketPath))
+                    return null;
+
+                var (ok, stat) = await ExecuteShellAsync($"stat -c '%a %U %G' {socketPath}");
+                if (!ok || string.IsNullOrWhiteSpace(stat))
+                    return null;
+
+                var parts = stat.Trim().Split(' ');
+                string perms = parts.Length > 0 ? parts[0] : "";
+                string owner = parts.Length > 1 ? parts[1] : "";
+                string group = parts.Length > 2 ? parts[2] : "";
+
+                // Check if current user is in docker group (privesc without exploit)
+                var (inGroup, groupOut) = await ExecuteShellAsync("groups 2>/dev/null");
+                bool userInDockerGroup = inGroup && groupOut.Contains("docker");
+
+                // World-accessible or group=docker (non-root can access)
+                bool worldAccessible = perms.Length >= 3 && (perms[2] != '0');
+                bool groupAccessible = group == "docker" || group == "root";
+
+                if (!worldAccessible && !userInDockerGroup)
+                    return null;
+
+                var severity = userInDockerGroup ? "critical" : "high";
+
+                return Finding.Create(
+                    id: "AST-PRIV-LNX-006",
+                    title: "Docker socket accessible — container escape to root possible",
+                    severity: severity,
+                    confidence: "high",
+                    recommendation:
+                        "Restrict Docker socket access to authorized users only:\n" +
+                        "1. Remove untrusted users from the 'docker' group.\n" +
+                        "2. Use rootless Docker mode for non-privileged usage.\n" +
+                        "3. For CI/CD: use socket proxies (docker-socket-proxy) with limited API.\n" +
+                        "4. Consider Podman (rootless by default) as an alternative."
+                )
+                .WithDescription(
+                    $"The Docker socket at {socketPath} is accessible. " +
+                    (userInDockerGroup
+                        ? "The current user is a member of the 'docker' group, which is equivalent to unrestricted root access. "
+                        : "The socket has permissive permissions. ") +
+                    "Any process or user that can write to the Docker socket can mount the host filesystem " +
+                    "into a container and escape to full root — no CVE required."
+                )
+                .WithEvidence(
+                    type: "path",
+                    value: $"{socketPath} — permissions: {perms}, owner: {owner}, group: {group}",
+                    context: userInDockerGroup ? "Current user is in docker group" : $"Socket permissions: {perms}"
+                )
+                .WithAffectedComponent(socketPath)
+                .WithReferences(
+                    "https://gtfobins.github.io/gtfobins/docker/",
+                    "https://attack.mitre.org/techniques/T1611/"
+                );
+            }
+            catch (Exception ex)
+            {
+                Log.Debug(ex, "[{CheckName}] CheckDockerSocketAsync failed", Name);
+                return null;
+            }
+        }
+
+        /// <summary>
+        /// Find world-writable or group-writable systemd unit files.
+        /// A writable unit file lets any user achieve code execution as root at next boot/reload.
+        /// Finding: AST-PRIV-LNX-007
+        /// </summary>
+        private async Task<List<Finding>> CheckWritableSystemdUnitsAsync()
+        {
+            var findings = new List<Finding>();
+            try
+            {
+                // Search common systemd unit directories
+                var (ok, output) = await ExecuteShellAsync(
+                    "find /etc/systemd/system /lib/systemd/system /usr/lib/systemd/system " +
+                    "-name '*.service' -perm /022 -type f 2>/dev/null | head -30");
+
+                if (!ok || string.IsNullOrWhiteSpace(output))
+                    return findings;
+
+                var writableUnits = output.Trim().Split('\n', StringSplitOptions.RemoveEmptyEntries)
+                                          .Select(l => l.Trim())
+                                          .Where(l => !string.IsNullOrEmpty(l))
+                                          .ToList();
+
+                if (!writableUnits.Any()) return findings;
+
+                Log.Warning("[{CheckName}] Writable systemd unit files: {Files}",
+                    Name, string.Join(", ", writableUnits.Take(5)));
+
+                var unitList = string.Join("\n", writableUnits.Take(20).Select(u => $"  • {u}"));
+
+                findings.Add(Finding.Create(
+                    id: "AST-PRIV-LNX-007",
+                    title: $"Writable systemd unit files ({writableUnits.Count}) — code execution as root on reload",
+                    severity: "high",
+                    confidence: "high",
+                    recommendation:
+                        "Fix permissions on systemd unit files:\n" +
+                        "1. Set ownership to root:root: chown root:root /etc/systemd/system/*.service\n" +
+                        "2. Remove write for others: chmod 644 /etc/systemd/system/*.service\n" +
+                        "3. Audit: find /etc/systemd -perm /022 -type f\n" +
+                        "4. Review unit file contents for unexpected ExecStart modifications."
+                )
+                .WithDescription(
+                    $"Found {writableUnits.Count} systemd unit file(s) with world-writable or group-writable permissions. " +
+                    "An attacker with write access to a unit file can modify ExecStart to run arbitrary code " +
+                    "as root when the service is restarted or the system reboots."
+                )
+                .WithEvidence(
+                    type: "path",
+                    value: $"Writable unit files:\n{unitList}",
+                    context: "Permissions: -perm /022 (world-writable or group-writable)"
+                )
+                .WithAffectedComponent("/etc/systemd/system")
+                .WithReferences(
+                    "https://attack.mitre.org/techniques/T1543/002/",
+                    "https://book.hacktricks.wiki/en/linux-hardening/privilege-escalation/index.html#writable-service-files"
+                ));
+            }
+            catch (Exception ex)
+            {
+                Log.Debug(ex, "[{CheckName}] CheckWritableSystemdUnitsAsync failed", Name);
+            }
+            return findings;
+        }
+
+        /// <summary>
+        /// Check for world-readable credential files: .bash_history, .env, database configs.
+        /// Finding: AST-PRIV-LNX-008
+        /// </summary>
+        private async Task<List<Finding>> CheckExposedCredentialFilesAsync()
+        {
+            var findings = new List<Finding>();
+            try
+            {
+                var credentialPaths = new List<(string pattern, string description)>
+                {
+                    ("/root/.bash_history",    "root bash history (may contain passwords in commands)"),
+                    ("/home/*/.bash_history",  "user bash history"),
+                    ("/var/www/**/.env",        ".env files in web root (app secrets/DB passwords)"),
+                    ("/var/www/**/wp-config.php", "WordPress config (DB credentials)"),
+                    ("/etc/my.cnf",            "MySQL config"),
+                    ("/etc/mysql/my.cnf",      "MySQL config"),
+                    ("/root/.pgpass",          "PostgreSQL password file"),
+                    ("/root/.my.cnf",          "MySQL client password file"),
+                    ("/etc/pam_radius_auth.conf", "RADIUS auth config (may contain shared secret)"),
+                };
+
+                var exposed = new List<(string path, string description)>();
+
+                foreach (var (pattern, description) in credentialPaths)
+                {
+                    try
+                    {
+                        var (ok2, globOut2) = await ExecuteShellAsync(
+                            $"ls -la {pattern} 2>/dev/null | grep -v '^d'");
+
+                        if (ok2 && !string.IsNullOrWhiteSpace(globOut2))
+                        {
+                            // Check if world-readable (others have read bit)
+                            var lines = globOut2.Trim().Split('\n')
+                                .Where(l => l.TrimStart().Length > 0 && l[4] == 'r'); // others read
+                            foreach (var line in lines)
+                            {
+                                var fname = line.Split(' ', StringSplitOptions.RemoveEmptyEntries).LastOrDefault();
+                                if (!string.IsNullOrEmpty(fname) && pattern.Contains('/'))
+                                    exposed.Add((pattern.Split('*')[0].TrimEnd('/') + "/" + fname, description));
+                            }
+                        }
+                    }
+                    catch { /* continue */ }
+                }
+
+                // Separate simpler check: look for .env files
+                var (envOk, envOut) = await ExecuteShellAsync(
+                    "find /var/www /opt /srv -name '.env' -readable -type f 2>/dev/null | head -10");
+                if (envOk && !string.IsNullOrWhiteSpace(envOut))
+                {
+                    foreach (var line in envOut.Trim().Split('\n').Where(l => !string.IsNullOrEmpty(l.Trim())))
+                        exposed.Add((line.Trim(), ".env application secrets file"));
+                }
+
+                // Check bash_history directly
+                var (histOk, histOut) = await ExecuteShellAsync(
+                    "find /root /home -name '.bash_history' -readable -type f 2>/dev/null | head -5");
+                if (histOk && !string.IsNullOrWhiteSpace(histOut))
+                {
+                    foreach (var line in histOut.Trim().Split('\n').Where(l => !string.IsNullOrEmpty(l.Trim())))
+                        exposed.Add((line.Trim(), "bash history (may contain credentials in commands)"));
+                }
+
+                if (!exposed.Any()) return findings;
+
+                Log.Warning("[{CheckName}] Exposed credential files: {Count}", Name, exposed.Count);
+
+                var fileList = string.Join("\n", exposed.Distinct().Take(15)
+                    .Select(e => $"  • {e.path} — {e.description}"));
+
+                findings.Add(Finding.Create(
+                    id: "AST-PRIV-LNX-008",
+                    title: $"Exposed credential files ({exposed.Count}) — world-readable sensitive files",
+                    severity: "high",
+                    confidence: "medium",
+                    recommendation:
+                        "Restrict access to credential and history files:\n" +
+                        "1. Bash history: chmod 600 /root/.bash_history /home/*/.bash_history\n" +
+                        "2. .env files: chmod 640 .env && chown www-data:www-data .env\n" +
+                        "3. DB configs: chmod 600 /etc/my.cnf /root/.my.cnf\n" +
+                        "4. Consider rotating credentials that may have been exposed.\n" +
+                        "5. Use a secrets manager (Vault, AWS Secrets Manager) instead of flat files."
+                )
+                .WithDescription(
+                    $"Found {exposed.Count} world-readable or group-readable files that may contain credentials. " +
+                    "These files can be read by any local user, enabling lateral movement or privilege escalation " +
+                    "via credential reuse."
+                )
+                .WithEvidence(
+                    type: "path",
+                    value: $"Accessible credential files:\n{fileList}",
+                    context: "Files readable by non-owner (world-readable or group-readable)"
+                )
+                .WithAffectedComponent("Linux filesystem")
+                .WithReferences(
+                    "https://attack.mitre.org/techniques/T1552/001/",
+                    "https://book.hacktricks.wiki/en/linux-hardening/privilege-escalation/index.html#sensitive-files"
+                ));
+            }
+            catch (Exception ex)
+            {
+                Log.Debug(ex, "[{CheckName}] CheckExposedCredentialFilesAsync failed", Name);
+            }
+            return findings;
+        }
     }
 }

@@ -1,115 +1,59 @@
-# Asterion — Network Security Auditor with AI-Powered Analysis
+<div align="center">
+  <img src="./docs/media/asterion-banner.webp" alt="Asterion — Network Minotaur" width="100%">
+</div>
 
-````
-                        _-""\
-                      (.-"  .`)     (              )
-                      j   .'_+     :[                ]      .^--..
-                      i    -"       |l                .    /      i
-                      ," .:j         `8o  _,,+.,.--,   d|   `:::;    b
-                      i  :'|          "88p;.  (-."_"-.oP        \.   :
-                      ; .  (            >,%%%   f),):8"          \:'  i
-                      i  :: j          ,;%%%:; ; ; i:%%%.,        i.   `.
-                      i  `: ( ____  ,-::::::' ::j )[]:```          [8:   ]
-                      <  ..``'::::8888oooooo.  :(jj),;,,,         [8::  ]
-                      `. ``:.      oo.8888888888:;%%%8o.::.+888+o.:`:'  |
-                      `.   `        `o`88888888b`%%%%%88< Y888P""'-    ;
-                      "`---`.       Y`888888888;;.,"888b."""..::::'-'
-                              "-....  b`8888888:::::.`8888._::-"
-                                  `:::. `:::::O:::::::.`%%'|
-                                  `.      "``::::::''    .'
-                                      `.                   <
-                                      +:         `:   -';
-                                      `:         : .::/
-                                          ;+_  :::. :..;;;
-                                          ;;;;,;;;;;;;;,;;
-                    ╔═══════════════════════════════════════════════════════╗
-                    ║              ASTERION — Network Minotaur              ║
-                    ║                                                       ║
-                    ║    Network Maze Mapping | Vulnerability Hunter        ║
-                    ║    Author: Rodney Dhavid Jimenez Chacin (rodhnin)     ║
-                    ║    Website: https://rodhnin.com                       ║
-                    ╚═══════════════════════════════════════════════════════╝
-                    "He walks the maze — every flaw meets the horned end..."
-              ╔═════════════════════════════════════════════════════════════════════╗
-              ║       ETHICAL USE ONLY - Use on authorized targets exclusively      ║
-              ║       Consent verification required for aggressive/AI modes         ║
-              ╚═════════════════════════════════════════════════════════════════════╝
-````
+<br>
 
 <div align="center">
 
-![.NET](https://img.shields.io/badge/.NET-8.0-512BD4?style=for-the-badge&logo=dotnet)
-![C#](https://img.shields.io/badge/C%23-11.0-239120?style=for-the-badge&logo=c-sharp)
-![Python](https://img.shields.io/badge/Python-3.10+-3776AB?style=for-the-badge&logo=python)
-![Platform](https://img.shields.io/badge/Platform-Windows%20%7C%20Linux%20%7C%20macOS-purple?style=for-the-badge)
-![License](https://img.shields.io/badge/License-MIT-green?style=for-the-badge)
-![Docker](https://img.shields.io/badge/Docker-Ready-blue?style=for-the-badge&logo=docker)
-![Status](https://img.shields.io/badge/Status-Production%20Ready-success?style=for-the-badge)
+[![Version](https://img.shields.io/badge/version-0.2.0-c0392b?style=for-the-badge&labelColor=1a0a2e)](https://github.com/rodhnin/asterion-network-minotaur/releases)
+[![.NET](https://img.shields.io/badge/.NET-8.0-e67e22?style=for-the-badge&labelColor=1a0a2e&logo=dotnet&logoColor=e67e22)](https://dotnet.microsoft.com/)
+[![Python](https://img.shields.io/badge/python-3.10+-8e44ad?style=for-the-badge&labelColor=1a0a2e&logo=python&logoColor=8e44ad)](https://www.python.org/)
+[![License](https://img.shields.io/badge/license-MIT-4ade80?style=for-the-badge&labelColor=1a0a2e)](LICENSE)
+[![Docker](https://img.shields.io/badge/docker-ready-e67e22?style=for-the-badge&labelColor=1a0a2e&logo=docker&logoColor=e67e22)](docker/)
+[![Ethical](https://img.shields.io/badge/ethical-use_only-f87171?style=for-the-badge&labelColor=1a0a2e)](docs/ETHICS.md)
 
-**Ethical network and domain security auditor with AI-powered analysis**
+<br>
 
-[🚀 Quick Start](#-quick-start) •
-[📖 Documentation](docs/) •
-[🐳 Docker](#-docker-deployment) •
-[🤖 AI Features](#-ai-powered-analysis) •
-[⭐ Star Us](https://github.com/rodhnin/asterion-network-minotaur)
+**Ethical network security auditor — 50+ checks across SMB, RDP, LDAP, SSH, Kerberos and more, with AI-powered CVE analysis and OWASP/CIS/NIST compliance mapping.**
 
+<br>
+
+[Quick Start](#-quick-start) &nbsp;·&nbsp;
+[Documentation](docs/) &nbsp;·&nbsp;
+[Docker](#-docker-deployment) &nbsp;·&nbsp;
+[AI Features](#-ai-powered-analysis) &nbsp;·&nbsp;
+[Star on GitHub](https://github.com/rodhnin/asterion-network-minotaur)
+
+</div>
+
+<br>
+
+<div align="center">
+  <img src="./docs/media/asterion-hero.webp" alt="Asterion — He walks the maze, every flaw meets the horned end" width="100%">
 </div>
 
 ---
 
-## 🎬 Demo
-
-### Scanner in Action
+## In Action
 
 <div align="center">
-  <img src="./docs/media/asterion.gif" alt="Asterion Scanner Demo" width="800">
-
-_Demo showing:_
-
--   CLI execution with real-time progress indicators
--   Network vulnerability detection and evidence collection
--   HTML report generation with findings
+  <img src="./docs/media/console.webp" alt="Asterion — real scan output" width="100%">
+  <br><sub>Local scan · 127.0.0.1 · 33 findings (0C/4H/2M/3L/24I) · 16 checks · 57.74s · .NET 8.0.22</sub>
 </div>
 
----
+<br>
 
-## 📸 Screenshots
-
-### Console Execution
-
-<div align="center">
-  <img src="./docs/media/console.png" alt="Console Execution" width="900">
-
-_Real-time scan execution showing network security findings_
-
-</div>
-
-### HTML Report
-
-<div align="center">
-  <img src="./docs/media/report_html.png" alt="HTML Report Preview" width="900">
-
-_Beautiful HTML report with:_
-
--   🎨 Minotaur-themed design with dark grown/gray tones
--   🏷️ Color-coded severity badges (Critical, High, Medium, Low, Info)
--   📝 Expandable evidence sections showing SMB shares, LDAP queries, and network artifacts
--   🤖 AI-generated remediation guides (technical + executive modes)
--   📊 Network topology and vulnerability classification
-</div>
-
-### JSON Report
-
-<div align="center">
-  <img src="./docs/media/report_json.png" alt="JSON Report Preview" width="900">
-
-_Machine-readable JSON report for:_
-
--   🤖 Programmatic processing and automation
--   📈 Historical analysis and trending
--   🔍 Detailed findings with network evidence and vulnerability data
-</div>
+<table width="100%"><tr>
+<td width="50%" align="center">
+  <img src="./docs/media/report-html.webp" alt="Asterion — HTML report with severity badges and AI analysis" width="100%">
+  <br><sub>Minotaur-themed HTML report — severity badges, expandable evidence, AI remediation</sub>
+</td>
+<td width="50%" align="center">
+  <img src="./docs/media/report-findings.webp" alt="Asterion — JSON report for automation" width="100%">
+  <br><sub>JSON report — OWASP/CIS/NIST/PCI mapping, CVE data, machine-readable</sub>
+</td>
+</tr></table>
 
 ---
 
@@ -119,12 +63,12 @@ Asterion is a production-ready **network and domain security auditor** that puts
 
 ### Why Asterion?
 
--   **🔒 Ethical by Design**: Consent token system prevents unauthorized scanning
--   **🤖 AI-Powered**: GPT-4, Claude, or local Ollama for intelligent remediation guides
--   **📊 Professional Reports**: Beautiful HTML (Minotaur-themed) + machine-readable JSON
--   **🚀 Fast & Efficient**: Multi-threaded scanning with intelligent rate limiting
--   **💾 Persistent Tracking**: Shared SQLite database with Argos Suite for scan history
--   **🐳 Docker Ready**: Containerized scanning for CI/CD integration
+- **🔒 Ethical by Design**: Consent token system prevents unauthorized scanning
+- **🤖 AI-Powered**: GPT-4, Claude, or local Ollama for intelligent remediation guides
+- **📊 Professional Reports**: Beautiful HTML (Minotaur-themed) + machine-readable JSON
+- **🚀 Fast & Efficient**: Multi-threaded scanning with intelligent rate limiting
+- **💾 Persistent Tracking**: Shared SQLite database with Argos Suite for scan history
+- **🐳 Docker Ready**: Containerized scanning for CI/CD integration
 
 ### What It Scans
 
@@ -150,10 +94,10 @@ Asterion is a production-ready **network and domain security auditor** that puts
 ast scan --target 10.0.0.0/24 --output html
 ```
 
--   **Multi-Method Detection**: SMB, RDP, LDAP, Kerberos, SSH, FTP, DNS, SNMP protocol analysis
--   **Multi-Threading**: Concurrent scanning with 1-20 worker threads
--   **Smart Rate Limiting**: Configurable request throttling (1-20 req/s) to avoid detection
--   **Evidence Collection**: SMB shares, LDAP queries, PowerShell output preserved
+- **Multi-Method Detection**: SMB, RDP, LDAP, Kerberos, SSH, FTP, DNS, SNMP protocol analysis
+- **Multi-Threading**: Concurrent scanning with 1-20 worker threads
+- **Smart Rate Limiting**: Configurable request throttling (1-20 req/s) to avoid detection
+- **Evidence Collection**: SMB shares, LDAP queries, PowerShell output preserved
 
 ### 🤖 AI-Powered Analysis
 
@@ -167,8 +111,8 @@ Choose your AI provider based on your needs:
 
 **Two Analysis Modes:**
 
--   **Technical**: Step-by-step remediation with PowerShell/GPO commands and configuration snippets
--   **Executive**: Plain-language summaries for stakeholders and management
+- **Technical**: Step-by-step remediation with PowerShell/GPO commands and configuration snippets
+- **Executive**: Plain-language summaries for stakeholders and management
 
 ### 📊 Professional Reporting
 
@@ -177,26 +121,44 @@ Choose your AI provider based on your needs:
 ```json
 {
   "tool": "asterion",
-  "version": "0.1.0",
-  "target": "10.0.0.0/24",
+  "version": "0.2.0",
+  "target": "192.168.1.10",
+  "riskScore": 10.0,
   "summary": {
-    "critical": 12,
+    "critical": 3,
     "high": 8,
-    "medium": 15,
+    "medium": 16,
     "low": 5,
-    "info": 20
+    "info": 2
   },
-  "findings": [...]
+  "findings": [
+    {
+      "id": "AST-SMB-003",
+      "title": "SMBv1 protocol enabled (EternalBlue vector)",
+      "severity": "high",
+      "owasp": { "id": "A06", "name": "Vulnerable and Outdated Components" },
+      "vulnerabilities": [
+        {
+          "cve_id": "CVE-2017-0143",
+          "cvss_score": 9.8,
+          "cwe_id": "CWE-119"
+        }
+      ],
+      "cvss": 9.8
+    }
+  ],
+  "attackChains": [...],
+  "diff": { "refScanId": 41, "new": [...], "fixed": [...], "persisting": [...] }
 }
 ```
 
 **HTML Reports** (Human-Friendly)
 
--   🎨 Minotaur-themed design (red/orange/purple color scheme)
--   🏷️ Color-coded severity badges
--   📝 Expandable evidence sections (SMB shares, LDAP queries, PowerShell output)
--   🤖 AI analysis beautifully formatted
--   📱 Mobile-friendly responsive design
+- 🎨 Minotaur-themed design (red/orange/purple color scheme)
+- 🏷️ Color-coded severity badges
+- 📝 Expandable evidence sections (SMB shares, LDAP queries, PowerShell output)
+- 🤖 AI analysis beautifully formatted
+- 📱 Mobile-friendly responsive design
 
 ### 🔐 Consent Token System
 
@@ -222,10 +184,10 @@ ast scan --target corp.local --mode aggressive --use-ai
 
 Shared SQLite database with Argos Suite tracks everything:
 
--   **Scan History**: Date, duration, findings count, severity breakdown
--   **Finding Repository**: Searchable vulnerability database across all Argos tools
--   **Verified Domains**: Consent token tracking with expiration
--   **Trend Analysis**: Compare scans over time
+- **Scan History**: Date, duration, findings count, severity breakdown
+- **Finding Repository**: Searchable vulnerability database across all Argos tools
+- **Verified Domains**: Consent token tracking with expiration
+- **Trend Analysis**: Compare scans over time
 
 ```bash
 # Query recent scans (works for all Argos Suite tools)
@@ -243,14 +205,14 @@ sqlite3 ~/.argos/argos.db "SELECT * FROM v_critical_findings WHERE tool='asterio
 
 **All Platforms:**
 
--   **.NET 8.0 SDK** ([Download](https://dotnet.microsoft.com/download/dotnet/8.0))
--   **Python 3.10+** ([Download](https://www.python.org/downloads/))
--   **git** (for cloning the repository)
+- **.NET 8.0 SDK** ([Download](https://dotnet.microsoft.com/download/dotnet/8.0))
+- **Python 3.10+** ([Download](https://www.python.org/downloads/))
+- **git** (for cloning the repository)
 
 **Optional:**
 
--   **Docker** (for containerized scanning)
--   **API Keys** (for AI analysis - OpenAI or Anthropic)
+- **Docker** (for containerized scanning)
+- **API Keys** (for AI analysis - OpenAI or Anthropic)
 
 ### Installation — Automated Setup (Recommended)
 
@@ -373,26 +335,25 @@ exec dotnet "$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)/src/Asterion/bin/R
 sudo chmod +x /usr/local/bin/ast
 ```
 
-#### Step 7: Configure API keys (optional)
+#### Step 7: Configure API key (optional)
 
-**For OpenAI:**
+A single environment variable works for all AI providers (OpenAI, Anthropic):
 
-```bash
-export OPENAI_API_KEY="sk-..."
-```
-
-**For Anthropic Claude:**
+**Linux/macOS:**
 
 ```bash
-export ANTHROPIC_API_KEY="sk-ant-..."
+export AI_API_KEY="sk-proj-..."   # OpenAI key
+# or
+export AI_API_KEY="sk-ant-..."    # Anthropic key
+# Add to ~/.bashrc or ~/.zshrc to make permanent
 ```
 
 **Windows (PowerShell):**
 
 ```powershell
-$env:OPENAI_API_KEY = "sk-..."
+$env:AI_API_KEY = "sk-proj-..."
 # Or permanently:
-[Environment]::SetEnvironmentVariable("OPENAI_API_KEY", "sk-...", [System.EnvironmentVariableTarget]::User)
+[Environment]::SetEnvironmentVariable("AI_API_KEY", "sk-proj-...", [System.EnvironmentVariableTarget]::User)
 ```
 
 #### Step 8: Verify installation
@@ -534,18 +495,18 @@ ast scan --target 10.0.0.0/24 \
 
 **Native Installation:**
 
--   Reports: `~/.asterion/reports/`
--   Database: `~/.argos/argos.db`
+- Reports: `~/.asterion/reports/`
+- Database: `~/.argos/argos.db`
 
 **Windows:**
 
--   Reports: `%USERPROFILE%\.asterion\reports\`
--   Database: `%USERPROFILE%\.argos\argos.db`
+- Reports: `%USERPROFILE%\.asterion\reports\`
+- Database: `%USERPROFILE%\.argos\argos.db`
 
 **Docker Deployment:**
 
--   Reports: `docker/reports/`
--   Database: `docker/data/argos.db`
+- Reports: `docker/reports/`
+- Database: `docker/data/argos.db`
 
 **🎉 Success!** Check the reports directory for JSON and HTML output files.
 
@@ -591,29 +552,53 @@ ast <command> [options]
 
 **Available Commands:**
 
--   `scan` — Run a security scan
--   `consent` — Manage consent tokens
--   `version` — Display version information
+- `scan` — Run a security scan
+- `consent` — Manage consent tokens
+- `version` — Display version information
 
 ### Scan Command Options
 
-| Option          | Values                         | Default      | Description                                                        |
-| --------------- | ------------------------------ | ------------ | ------------------------------------------------------------------ |
-| `--target, -t`  | IP/CIDR/domain                 | **Required** | Target to scan (e.g., `192.168.1.0/24`, `localhost`, `corp.local`) |
-| `--mode, -m`    | safe, aggressive               | `safe`       | Scan mode (aggressive requires consent)                            |
-| `--output, -o`  | json, html, both               | `json`       | Output format                                                      |
-| `--ports, -p`   | port list                      | Auto-detect  | Ports to scan (e.g., `22,80,443` or `8000-9000`)                   |
-| `--threads`     | 1-20                           | 5            | Number of concurrent threads                                       |
-| `--rate`        | 1-20                           | 5            | Request rate limit (req/s)                                         |
-| `--timeout`     | seconds                        | 10           | Connection timeout                                                 |
-| `--use-ai`      | flag                           | false        | Enable AI-powered analysis                                         |
-| `--ai-tone`     | technical, non_technical, both | technical    | AI analysis format                                                 |
-| `--auth`        | user:pass                      | -            | Domain credentials (format: `DOMAIN\user:pass`)                    |
-| `--auth-ntlm`   | user:hash                      | -            | NTLM hash (format: `user:hash`)                                    |
-| `--kerberos`    | user:pass@REALM                | -            | Kerberos credentials                                               |
-| `--ssh`         | user:pass                      | -            | SSH credentials for Linux auditing                                 |
-| `--verify-ssl`  | true, false                    | true         | Verify SSL certificates                                            |
-| `--verbose, -v` | flag                           | false        | Enable verbose logging                                             |
+#### Core Flags
+
+| Option          | Values           | Default      | Description                                                       |
+| --------------- | ---------------- | ------------ | ----------------------------------------------------------------- |
+| `--target, -t`  | IP/CIDR/domain   | **Required** | Target(s): `192.168.1.0/24`, `10.0.0.1`, `corp.local`, comma-list |
+| `--mode, -m`    | safe, aggressive | `safe`       | Scan mode (aggressive requires consent token)                     |
+| `--output, -o`  | json, html, both | `json`       | Output format                                                     |
+| `--ports, -p`   | port list        | Auto-detect  | Ports to scan (e.g., `22,80,443` or `8000-9000`)                  |
+| `--threads`     | 1-20             | 5            | Number of concurrent threads                                      |
+| `--rate`        | 1-20             | 5            | Request rate limit (req/s)                                        |
+| `--timeout`     | seconds          | 10           | Connection timeout                                                |
+| `--verify-ssl`  | flag             | true         | Verify SSL/TLS certificates (disable for self-signed certs)       |
+| `--verbose, -v` | flag             | false        | Enable verbose logging                                            |
+| `--diff`        | last / scan_id   | -            | Compare against previous scan (`--diff last` or `--diff 42`)      |
+| `--creds-file`  | path to YAML     | -            | Load all credentials from YAML file                               |
+
+#### Credential Flags
+
+| Option            | Values             | Description                                                    |
+| ----------------- | ------------------ | -------------------------------------------------------------- |
+| `--auth`          | `DOMAIN\user:pass` | Domain credentials for LDAP/Kerberos/SMB/AD checks             |
+| `--auth-ntlm`     | `user:hash`        | Pass-the-hash NTLM authentication                              |
+| `--kerberos`      | `user:pass@REALM`  | Kerberos credentials                                           |
+| `--winrm`         | `DOMAIN\user:pass` | WinRM remote Windows checks (firewall, registry, services, AD) |
+| `--ssh`           | `user:pass`        | SSH password auth for remote Linux checks                      |
+| `--ssh-key`       | `user:/path/key`   | SSH key-based authentication                                   |
+| `--sudo-password` | `pass`             | Sudo elevation password for Linux privileged checks            |
+| `--bastion`       | `host:user:key`    | Jump/bastion host for multi-hop SSH                            |
+
+#### AI Flags
+
+| Option          | Values                         | Default                | Description                                   |
+| --------------- | ------------------------------ | ---------------------- | --------------------------------------------- |
+| `--use-ai`      | flag                           | false                  | Enable AI-powered analysis                    |
+| `--ai-tone`     | technical, non_technical, both | technical              | AI analysis format                            |
+| `--ai-provider` | openai, anthropic, ollama      | openai                 | AI provider                                   |
+| `--ai-model`    | model name                     | gpt-4o-mini-2024-07-18 | AI model to use                               |
+| `--ai-budget`   | USD amount                     | -                      | Abort AI if estimated cost exceeds this value |
+| `--ai-stream`   | flag                           | false                  | Stream AI tokens to stdout in real-time       |
+| `--ai-agent`    | flag                           | false                  | LangChain agent mode with NVD CVE lookup tool |
+| `--ai-compare`  | `prov/model,prov/model`        | -                      | Multi-model comparison                        |
 
 ### Quick Reference Examples
 
@@ -662,58 +647,75 @@ ast scan --target 10.0.0.0/24 --ports 445,3389,22,139
 #### Windows Domain Scanning
 
 ```bash
-# Basic authenticated scan
+# Network + LDAP/Kerberos/AD checks
 ast scan --target dc01.corp.local \
   --auth "CORP\Administrator:P@ssw0rd"
+
+# WinRM: remote firewall, registry, services, privesc
+ast scan --target 192.168.1.10 \
+  --winrm "CORP\admin:P@ssw0rd"
+
+# Full Windows audit: auth + WinRM + AI + HTML
+ast scan --target 192.168.1.10 \
+  --auth "CORP\admin:P@ssw0rd" \
+  --winrm "CORP\admin:P@ssw0rd" \
+  --use-ai --ai-tone technical -o both -v
 
 # With NTLM hash (Pass-the-Hash)
 ast scan --target 10.0.0.5 \
   --auth-ntlm "admin:aad3b435b51404eeaad3b435b51404ee:8846f7eaee8fb117ad06bdd830b7586c"
 
-# With Kerberos
-ast scan --target dc.corp.local \
-  --kerberos "admin:password@CORP.LOCAL"
-
-# Full domain audit with AI analysis
-ast scan --target corp.local \
-  --auth "CORP\admin:P@ssw0rd" \
-  --use-ai \
-  --ai-tone both \
-  --output html
+# Diff against last scan (track security changes)
+ast scan --target 192.168.1.10 --winrm "CORP\admin:P@ssw0rd" --diff last -o both
 ```
 
 #### Linux System Auditing
 
 ```bash
-# Remote Linux SSH scan
+# Remote Linux SSH scan (password)
 ast scan --target 10.0.0.25 --ssh "admin:password"
 
-# SSH with output
+# SSH with sudo elevation (for privileged checks)
+ast scan --target 10.0.0.25 --ssh "admin:password" --sudo-password "sudopass"
+
+# SSH key authentication
+ast scan --target 10.0.0.25 --ssh-key "admin:~/.ssh/id_rsa"
+
+# Via bastion host
+ast scan --target internal.corp.local \
+  --bastion "bastion.corp.local:jumpuser:~/.ssh/bastion_key" \
+  --ssh "admin:password"
+
+# Full Linux audit: SSH + sudo + AI + HTML
 ast scan --target 10.0.0.25 \
   --ssh "root:toor" \
-  --output html
+  --use-ai --ai-tone technical -o both -v
 ```
 
 #### AI-Powered Analysis
 
 ```bash
-# Technical remediation (for security teams)
-ast scan --target 10.0.0.0/24 \
-  --use-ai \
-  --ai-tone technical \
-  --output html
+# Technical remediation (default, for security teams)
+ast scan --target 10.0.0.5 \
+  --ssh "root:pass" \
+  --use-ai --ai-tone technical -o html
 
 # Executive summary (for management)
-ast scan --target 10.0.0.0/24 \
-  --use-ai \
-  --ai-tone non_technical \
-  --output html
+ast scan --target 10.0.0.5 \
+  --use-ai --ai-tone non_technical -o html
 
-# Both formats
-ast scan --target 10.0.0.0/24 \
-  --use-ai \
-  --ai-tone both \
-  --output both
+# Both formats + streaming output
+ast scan --target 10.0.0.5 --use-ai --ai-tone both --ai-stream -o both
+
+# Agent mode (NVD CVE lookup tool enabled)
+ast scan --target 10.0.0.5 --ssh "root:pass" --use-ai --ai-agent -v
+
+# Compare two models
+ast scan --target 10.0.0.5 --use-ai \
+  --ai-compare "openai/gpt-4o-mini-2024-07-18,anthropic/claude-3-5-haiku-20241022"
+
+# Enforce cost budget
+ast scan --target 10.0.0.5 --winrm "admin:pass" --use-ai --ai-budget 0.05
 ```
 
 #### Debugging
@@ -843,36 +845,36 @@ Asterion uses **LangChain 1.0.0** with support for multiple AI providers via Pyt
 
 **Best for: Production use**
 
--   ⭐ Quality: Excellent (5/5)
--   ⚡ Speed: ~40 seconds
--   💰 Cost: ~$0.30 per scan
--   🔒 Privacy: Standard (data encrypted in transit)
+- ⭐ Quality: Excellent (5/5)
+- ⚡ Speed: ~60–80 seconds (gpt-4o-mini, default)
+- 💰 Cost: ~$0.004–0.009 per scan (gpt-4o-mini with ~30 findings)
+- 🔒 Privacy: Standard (data encrypted in transit)
 
 ```bash
-export OPENAI_API_KEY="sk-..."
+export AI_API_KEY="sk-proj-..."   # Use AI_API_KEY for all providers
 ```
 
 #### Anthropic Claude
 
 **Best for: Enhanced privacy**
 
--   ⭐ Quality: Excellent (5/5)
--   ⚡ Speed: ~50 seconds
--   💰 Cost: ~$0.35 per scan
--   🔒 Privacy: Enhanced (Anthropic's privacy-first approach)
+- ⭐ Quality: Excellent (5/5)
+- ⚡ Speed: ~50–70 seconds
+- 💰 Cost: ~$0.007–0.015 per scan (claude-3-5-haiku)
+- 🔒 Privacy: Enhanced (Anthropic's privacy-first approach)
 
 ```bash
-export ANTHROPIC_API_KEY="sk-ant-..."
+export AI_API_KEY="sk-ant-..."   # Same variable, Anthropic key format
 ```
 
 #### Ollama (Local Models)
 
 **Best for: Complete privacy**
 
--   ⭐ Quality: Good (3/5)
--   🐢 Speed: ~30 minutes (CPU) or ~90 seconds (GPU)
--   💰 Cost: Free
--   🔐 Privacy: 100% offline (data never leaves your machine)
+- ⭐ Quality: Good (3/5)
+- 🐢 Speed: ~30 minutes (CPU) or ~90 seconds (GPU)
+- 💰 Cost: Free
+- 🔐 Privacy: 100% offline (data never leaves your machine)
 
 ```bash
 # Install Ollama: https://ollama.ai
@@ -884,24 +886,24 @@ ollama pull llama3.2
 **Automatic Sanitization**
 Before sending data to AI providers, Asterion automatically removes:
 
--   ✅ Consent tokens
--   ✅ Domain credentials (passwords, NTLM hashes)
--   ✅ Personal Identifiable Information (PII)
--   ✅ Internal IP addresses (when requested)
--   ✅ SMB share paths with sensitive data
+- ✅ Consent tokens
+- ✅ Domain credentials (passwords, NTLM hashes)
+- ✅ Personal Identifiable Information (PII)
+- ✅ Internal IP addresses (when requested)
+- ✅ SMB share paths with sensitive data
 
 **Opt-In Only**
 
--   AI analysis requires explicit `--use-ai` flag
--   Aggressive scanning requires verified consent token
--   You control which provider sees your data
+- AI analysis requires explicit `--use-ai` flag
+- Aggressive scanning requires verified consent token
+- You control which provider sees your data
 
 **For Maximum Privacy**
 Use Ollama locally. While slower and less accurate, your scan data never leaves your machine.
 
 ### Switching Providers
 
-**Current Method (v0.1.0):** Edit `config/defaults.yaml`
+**Current Method (v0.2.0):** Edit `config/defaults.yaml`
 
 ```yaml
 ai:
@@ -991,10 +993,10 @@ Asterion implements **technical controls** to prevent misuse:
 
 Unauthorized access to computer systems is **illegal** in most jurisdictions:
 
--   🇺🇸 **USA**: Computer Fraud and Abuse Act (CFAA)
--   🇬🇧 **UK**: Computer Misuse Act 1990
--   🇪🇺 **EU**: Directive 2013/40/EU
--   🌍 **International**: Various cybercrime laws
+- 🇺🇸 **USA**: Computer Fraud and Abuse Act (CFAA)
+- 🇬🇧 **UK**: Computer Misuse Act 1990
+- 🇪🇺 **EU**: Directive 2013/40/EU
+- 🌍 **International**: Various cybercrime laws
 
 ### Best Practices
 
@@ -1072,9 +1074,9 @@ docker compose down
 
 **Persistent data:**
 
--   Reports: `./reports/` → host directory `docker/reports/`
--   Database: `./data/argos.db` → host directory `docker/data/argos.db` (shared Argos Suite DB)
--   Logs: `./logs/asterion.log` → host directory `docker/logs/asterion.log`
+- Reports: `./reports/` → host directory `docker/reports/`
+- Database: `./data/argos.db` → host directory `docker/data/argos.db` (shared Argos Suite DB)
+- Logs: `./logs/asterion.log` → host directory `docker/logs/asterion.log`
 
 **Note:** Asterion automatically detects Docker environment via `ASTERION_IN_DOCKER` environment variable.
 
@@ -1091,10 +1093,10 @@ docker compose down
 ```
 ~/.asterion/
 ├── reports/
-│   ├── asterion_report_10_0_0_0_24_20251117_143000.json  # Machine-readable
-│   └── asterion_report_10_0_0_0_24_20251117_143000.html  # Human-friendly (Minotaur-themed)
+│   ├── asterion_report_10_0_0_0_24_20260419_143000.json  # Machine-readable
+│   └── asterion_report_10_0_0_0_24_20260419_143000.html  # Human-friendly (Minotaur-themed)
 └── consent-proofs/
-    └── corp_local_verify-abc123_20251117.txt
+    └── corp_local_verify-abc123_20260419.txt
 
 ~/.argos/
 ├── argos.db          # Shared Argos Suite database
@@ -1108,8 +1110,8 @@ docker compose down
 asterion-network-minotaur/
 ├── docker/
 │   ├── reports/
-│   │   ├── asterion_report_10_0_0_0_24_20251117_143000.json
-│   │   └── asterion_report_10_0_0_0_24_20251117_143000.html
+│   │   ├── asterion_report_10_0_0_0_24_20260419_143000.json
+│   │   └── asterion_report_10_0_0_0_24_20260419_143000.html
 │   ├── data/
 │   │   └── argos.db          # Shared Argos Suite database (Docker)
 │   ├── logs/
@@ -1125,9 +1127,9 @@ asterion-network-minotaur/
 ```json
 {
     "tool": "asterion",
-    "version": "0.1.0",
+    "version": "0.2.0",
     "target": "10.0.0.0/24",
-    "date": "2025-11-17T14:30:00Z",
+    "date": "2026-04-13T14:30:00Z",
     "mode": "safe",
     "summary": {
         "critical": 12,
@@ -1194,8 +1196,8 @@ asterion-network-minotaur/
     "aiAnalysis": {
         "executiveSummary": "The network scan identified 12 critical security vulnerabilities requiring immediate attention...",
         "technicalRemediation": "### Critical Issues\n\n1. **SMBv1 Enabled (EternalBlue)**\n   - Affected systems: 10.0.0.5, 10.0.0.10\n   - Remediation: Disable SMBv1...",
-        "generatedAt": "2025-11-17T14:35:00Z",
-        "modelUsed": "gpt-4-turbo-preview",
+        "generatedAt": "2026-04-19T14:35:00Z",
+        "modelUsed": "gpt-4o-mini-2024-07-18",
         "provider": "openai"
     }
 }
@@ -1203,13 +1205,13 @@ asterion-network-minotaur/
 
 ### HTML Report Features
 
--   **📊 Executive Dashboard**: Summary cards with severity counts and Minotaur branding
--   **🤖 AI Analysis**: Expandable sections for executive and technical insights
--   **🔍 Detailed Findings**: Organized by severity with PowerShell/GPO remediation commands
--   **📋 Evidence**: SMB shares, LDAP queries, RDP configurations, PowerShell output
--   **🔗 External References**: Links to CVE, Microsoft documentation, OWASP guides
--   **📱 Mobile Responsive**: Works on all devices
--   **🎨 Minotaur Theme**: Red/orange/purple color scheme
+- **📊 Executive Dashboard**: Summary cards with severity counts and Minotaur branding
+- **🤖 AI Analysis**: Expandable sections for executive and technical insights
+- **🔍 Detailed Findings**: Organized by severity with PowerShell/GPO remediation commands
+- **📋 Evidence**: SMB shares, LDAP queries, RDP configurations, PowerShell output
+- **🔗 External References**: Links to CVE, Microsoft documentation, OWASP guides
+- **📱 Mobile Responsive**: Works on all devices
+- **🎨 Minotaur Theme**: Red/orange/purple color scheme
 
 ---
 
@@ -1223,8 +1225,9 @@ asterion-network-minotaur/
 │   │   ├── Asterion.csproj           # .NET project file
 │   │   │
 │   │   ├── Checks/                   # Security check modules
-│   │   │   ├── ICheck.cs             # Check interface (65 lines)
+│   │   │   ├── ICheck.cs             # Check interface
 │   │   │   ├── BaseCheck.cs          # Abstract base class (350 lines)
+│   │   │   ├── CheckCategory.cs      # Check category enum
 │   │   │   │
 │   │   │   ├── CrossPlatform/        # Network service scanners (work from any OS)
 │   │   │   │   ├── PortScanner.cs    # TCP port scanning
@@ -1234,7 +1237,11 @@ asterion-network-minotaur/
 │   │   │   │   ├── KerberosScanner.cs # Kerberos security (22KB)
 │   │   │   │   ├── SnmpScanner.cs    # SNMP vulnerabilities (21KB)
 │   │   │   │   ├── DnsScanner.cs     # DNS misconfigurations (14KB)
-│   │   │   │   └── FtpScanner.cs     # FTP security (27KB)
+│   │   │   │   ├── FtpScanner.cs     # FTP security (27KB)
+│   │   │   │   ├── TlsScanner.cs     # TLS/SSL certificate checks
+│   │   │   │   ├── SysvolCheck.cs    # SYSVOL/GPP password exposure
+│   │   │   │   ├── AdAggressiveCheck.cs # AS-REP roasting, delegation, weak ACLs
+│   │   │   │   └── WinRmChecks.cs    # Remote Windows audit via WS-Man
 │   │   │   │
 │   │   │   ├── Windows/              # Local Windows system checks
 │   │   │   │   ├── WinFirewallCheck.cs # Firewall configuration
@@ -1252,41 +1259,49 @@ asterion-network-minotaur/
 │   │   ├── Core/                     # Core infrastructure
 │   │   │   ├── Orchestrator.cs       # Main execution engine (1,243 lines)
 │   │   │   ├── Config.cs             # YAML configuration loader
-│   │   │   ├── ScanOptions.cs        # Scan configuration (24 lines)
+│   │   │   ├── ScanOptions.cs        # Scan configuration
 │   │   │   ├── Database.cs           # SQLite operations
 │   │   │   ├── ConsentValidator.cs   # Consent token verification
-│   │   │   ├── SshConnectionManager.cs # SSH.NET wrapper
+│   │   │   ├── SshConnectionManager.cs  # SSH.NET wrapper (password/key/bastion)
+│   │   │   ├── WinRmConnectionManager.cs # WS-Man HTTP/NTLM (Linux → Windows)
+│   │   │   ├── AttackChainAnalyzer.cs   # Multi-step attack chain correlation
+│   │   │   ├── NtlmSpnego.cs         # NTLM/SPNEGO auth implementation
+│   │   │   ├── NtlmV2Auth.cs         # NTLMv2 auth implementation
 │   │   │   │
 │   │   │   ├── Output/
-│   │   │   │   └── ReportBuilder.cs  # Report generation
+│   │   │   │   └── ReportBuilder.cs  # Report generation (risk score, labels)
 │   │   │   │
 │   │   │   └── Utils/
 │   │   │       ├── NetworkUtils.cs   # Network operations
 │   │   │       ├── CidrParser.cs     # CIDR/IP range parsing
-│   │   │       └── AuthenticationManager.cs # Credential handling
+│   │   │       ├── AuthenticationManager.cs # Credential handling
+│   │   │       └── OsDetector.cs     # Per-target OS detection (SSH/SMB/TTL)
 │   │   │
 │   │   ├── Models/                   # Data models
-│   │   │   ├── Report.cs             # Main report structure (150 lines)
-│   │   │   ├── Finding.cs            # Security finding (126 lines, fluent API)
+│   │   │   ├── Report.cs             # Main report structure
+│   │   │   ├── Finding.cs            # Security finding (OWASP/CVE/Compliance)
 │   │   │   ├── Evidence.cs           # Finding proof
 │   │   │   ├── ConsentInfo.cs        # Consent verification
-│   │   │   └── AiAnalysis.cs         # AI-generated content
+│   │   │   └── AiAnalysis.cs         # AI-generated content (cost tracking)
 │   │   │
-│   │   ├── Program.cs                # Application entry point (164 lines)
-│   │   └── Cli.cs                    # CLI argument parser (527 lines)
+│   │   ├── Program.cs                # Application entry point
+│   │   └── Cli.cs                    # CLI argument parser (all flags)
 │   │
 │   └── Asterion.sln                  # Visual Studio solution
 │
 ├── scripts/                          # Python bridge scripts
-│   ├── ai_analyzer.py                # LangChain AI integration
+│   ├── ai_analyzer.py                # LangChain AI integration (stream/agent/compare)
+│   ├── cve_lookup.py                 # NVD API v2 CVE enrichment
+│   ├── owasp.py                      # OWASP Top 10 mapping (139 entries)
+│   ├── compliance.py                 # CIS/NIST/PCI mapping (95 entries)
 │   ├── db_migrate.py                 # Database setup
 │   ├── render_html.py                # HTML report generation (Jinja2)
-│   ├── setup.py                      # Installation script
+│   ├── setup.sh                      # Linux/macOS installation script
 │   ├── setup.ps1                     # Windows PowerShell setup
-│   └── requirements.txt              # Python dependencies (22 packages)
+│   └── requirements.txt              # Python dependencies
 │
 ├── config/                           # Configuration files
-│   ├── defaults.yaml                 # Default settings (321 lines)
+│   ├── defaults.yaml                 # Default settings
 │   └── prompts/                      # AI prompt templates
 │       ├── technical.txt             # Technical remediation prompts
 │       └── non_technical.txt         # Executive summary prompts
@@ -1300,10 +1315,10 @@ asterion-network-minotaur/
 │   ├── compose.testing.yml           # Vulnerable lab environment
 │   ├── .dockerignore
 │   ├── .env.example
-│   └── README.md                     # Docker instructions (80 lines)
+│   └── README.md                     # Docker instructions
 │
 ├── docs/                             # Documentation
-│   ├── AI_INTEGRATION.md             # AI setup guide (748 lines)
+│   ├── AI_INTEGRATION.md             # AI setup guide
 │   ├── CONSENT.md                    # Consent token system
 │   ├── DATABASE_GUIDE.md             # SQLite schema and queries
 │   ├── ETHICS.md                     # Ethical guidelines
@@ -1311,7 +1326,7 @@ asterion-network-minotaur/
 │   └── ROADMAP.md                    # Development roadmap
 │
 ├── schema/
-│   └── report.schema.json            # Argos Suite unified schema (240 lines)
+│   └── report.schema.json            # Argos Suite unified schema
 │
 ├── templates/
 │   └── report.html.j2                # HTML report template (35KB, Minotaur-themed)
@@ -1319,17 +1334,18 @@ asterion-network-minotaur/
 ├── assets/
 │   └── ascii.txt                     # Minotaur ASCII art banner
 │
-├── CHANGELOG.md                      # Version history (104 lines)
+├── CHANGELOG.md                      # Version history
+├── README_PATTERN.md                 # README visual branding guide
 ├── LICENSE                           # MIT License
 └── README.md                         # This file
 ```
 
 **Statistics:**
 
--   **Total C# files**: 37 files (4,050 lines of code)
--   **Total Python files**: 4 files
--   **Platform**: Cross-platform (.NET 8.0)
--   **Language**: C# (primary), Python (AI bridge)
+- **Total C# files**: ~46 files
+- **Total Python files**: 6 scripts
+- **Platform**: Cross-platform (.NET 8.0)
+- **Language**: C# (primary), Python (AI bridge)
 
 ---
 
@@ -1337,47 +1353,50 @@ asterion-network-minotaur/
 
 ### v0.1.0 — Initial Release ✅ (November 2025)
 
+- ✅ 50+ security checks (SMB, RDP, LDAP, Kerberos, Windows, Linux)
+- ✅ AI-powered analysis (OpenAI, Anthropic, Ollama)
+- ✅ Consent token system (HTTP + DNS + SSH verification)
+- ✅ JSON + HTML reports (Minotaur theme), shared Argos Suite database
+- ✅ Docker support, cross-platform (.NET 8.0)
+
+### v0.2.0 — Remote System Auditing ✅ (May 2026)
+
 **Status:** 🎉 **Released**
 
--   ✅ 50+ security checks (SMB, RDP, LDAP, Kerberos, Windows, Linux)
--   ✅ AI-powered analysis (OpenAI, Anthropic, Ollama)
--   ✅ Consent token system (HTTP + DNS + SSH verification)
--   ✅ Professional reporting (JSON + HTML with Minotaur branding)
--   ✅ Shared Argos Suite database
--   ✅ Docker support
--   ✅ Cross-platform (.NET 8.0)
-
-### v0.2.0 — Remote System Auditing (Q2 2026)
-
-**Focus:** WinRM support, enhanced SSH, OS detection, aggressive mode
-
--   🔜 **WinRM Remote Windows Checks**: Audit Windows servers from Linux/macOS
--   🔜 **Enhanced SSH**: Key authentication, bastion hosts, sudo elevation
--   🔜 **OS Detection**: Per-target OS detection for automatic check selection
--   🔜 **Aggressive Mode**: AD enumeration (AS-REP roasting, delegation, ACLs)
--   🔜 **AI Cost Tracking**: Budget limits, token usage monitoring
--   🔜 **AI Streaming**: Real-time progress for long analyses
--   🔜 **Enhanced HTML Reports**: CVE/CWE badges, PowerShell/GPO snippets
+- ✅ **WinRM Remote Windows Checks**: Audit Windows servers from Linux/macOS (`--winrm`)
+- ✅ **Enhanced SSH**: Key auth, bastion hosts, sudo elevation (`--ssh-key`, `--bastion`, `--sudo-password`)
+- ✅ **OS Detection**: Per-target detection (SSH banner + SMB/RDP port + TTL)
+- ✅ **Aggressive Mode**: AS-REP roasting, delegation, weak ACLs, LAPS, AdminCount
+- ✅ **TLS Scanner**: Expired/self-signed certs, TLS 1.0/1.1, weak ciphers
+- ✅ **SYSVOL/GPP Check**: Group Policy Preferences password exposure
+- ✅ **Attack Chain Correlation**: 8 multi-step vectors with MITRE IDs
+- ✅ **Diff Reports**: `--diff last` / `--diff <id>` — track security regression
+- ✅ **Multi-Cred File**: `--creds-file credentials.yaml`
+- ✅ **AI Cost Tracking**: `--ai-budget`, costs saved to DB + `costs.json`
+- ✅ **AI Streaming** / **Agent Mode** / **Compare Mode**: `--ai-stream`, `--ai-agent`, `--ai-compare`
+- ✅ **CVE Enrichment**: NVD API v2 per finding with CVE/CWE/CVSS data
+- ✅ **OWASP + Compliance Mapping**: All findings tagged with OWASP Top 10, CIS, NIST, PCI
+- ✅ **Enhanced HTML**: Filter bar, CVE/CWE badges, attack chains section, AI tabs
 
 ### v0.3.0 — Enterprise Features (Q3 2026)
 
 **Focus:** Usability, scale, interactive AI
 
--   🔜 **Metasploit-Style CLI**: Interactive config management (`--show-options`, `--set`)
--   🔜 **Database CLI**: No SQL required (`ast db scans list`, `ast db findings search`)
--   🔜 **Multi-Network Scanning**: Batch processing from file
--   🔜 **AI Chat Interface**: Conversational vulnerability analysis with BloodHound integration
--   🔜 **CI/CD Integration**: GitHub Actions, Jenkins, GitLab templates
--   🔜 **REST API Server**: ASP.NET Core API for automation
+- 🔜 **Metasploit-Style CLI**: Interactive config management (`--show-options`, `--set`)
+- 🔜 **Database CLI**: No SQL required (`ast db scans list`, `ast db findings search`)
+- 🔜 **Multi-Network Scanning**: Batch processing from file
+- 🔜 **AI Chat Interface**: Conversational vulnerability analysis with BloodHound integration
+- 🔜 **CI/CD Integration**: GitHub Actions, Jenkins, GitLab templates
+- 🔜 **REST API Server**: ASP.NET Core API for automation
 
 ### v0.4.0 — Intelligence & Automation (Q4 2026)
 
 **Focus:** Automated remediation, ML detection, distributed scanning
 
--   🔜 **Automated Remediation**: PowerShell DSC + Ansible playbook generation
--   🔜 **ML-Based Detection**: Anomaly detection, false positive reduction
--   🔜 **Distributed Scanning**: Worker nodes for large-scale environments
--   🔜 **Advanced AI Agents**: BloodHound query generation, attack path analysis
+- 🔜 **Automated Remediation**: PowerShell DSC + Ansible playbook generation
+- 🔜 **ML-Based Detection**: Anomaly detection, false positive reduction
+- 🔜 **Distributed Scanning**: Worker nodes for large-scale environments
+- 🔜 **Advanced AI Agents**: BloodHound query generation, attack path analysis
 
 For detailed feature descriptions, see [docs/ROADMAP.md](docs/ROADMAP.md)
 
@@ -1387,10 +1406,10 @@ For detailed feature descriptions, see [docs/ROADMAP.md](docs/ROADMAP.md)
 
 We welcome contributions! Whether it's:
 
--   🐛 Bug reports
--   💡 Feature requests
--   📝 Documentation improvements
--   🔧 Code contributions
+- 🐛 Bug reports
+- 💡 Feature requests
+- 📝 Documentation improvements
+- 🔧 Code contributions
 
 ### How to Contribute
 
@@ -1422,10 +1441,10 @@ dotnet run --project src/Asterion -- scan --target 192.168.1.1 -v
 
 ### Code Style
 
--   **C# Formatting**: Follow Microsoft C# coding conventions
--   **Python Formatting**: We use [Black](https://github.com/psf/black) (line length: 88)
--   **XML Documentation**: Required for all public classes/methods
--   **Code Comments**: Use `//` for inline comments, `///` for XML docs
+- **C# Formatting**: Follow Microsoft C# coding conventions
+- **Python Formatting**: We use [Black](https://github.com/psf/black) (line length: 88)
+- **XML Documentation**: Required for all public classes/methods
+- **Code Comments**: Use `//` for inline comments, `///` for XML docs
 
 ### Reporting Issues
 
@@ -1435,12 +1454,12 @@ Found a bug? Have a feature request?
 
 Please include:
 
--   Asterion version (`ast version`)
--   .NET version (`dotnet --version`)
--   Python version (`python --version`)
--   Operating system
--   Steps to reproduce (for bugs)
--   Expected vs actual behavior
+- Asterion version (`ast version`)
+- .NET version (`dotnet --version`)
+- Python version (`python --version`)
+- Operating system
+- Steps to reproduce (for bugs)
+- Expected vs actual behavior
 
 ---
 
@@ -1459,9 +1478,9 @@ Comprehensive documentation available in the `docs/` directory:
 
 ### Quick Links
 
--   **Changelog**: [CHANGELOG.md](CHANGELOG.md)
--   **License**: [LICENSE](LICENSE)
--   **ASCII Art**: [assets/ascii.txt](assets/ascii.txt)
+- **Changelog**: [CHANGELOG.md](CHANGELOG.md)
+- **License**: [LICENSE](LICENSE)
+- **ASCII Art**: [assets/ascii.txt](assets/ascii.txt)
 
 ---
 
@@ -1478,10 +1497,10 @@ Asterion is the fourth component of the **Argos Security Suite**:
 
 **Shared Infrastructure:**
 
--   SQLite database (`~/.argos/argos.db`)
--   Unified JSON report schema
--   Consent token system
--   AI analysis via LangChain
+- SQLite database (`~/.argos/argos.db`)
+- Unified JSON report schema
+- Consent token system
+- AI analysis via LangChain
 
 ---
 
@@ -1492,7 +1511,7 @@ This project is licensed under the **MIT License** - see the [LICENSE](LICENSE) 
 ```
 MIT License
 
-Copyright (c) 2025 Rodney Dhavid Jimenez Chacin
+Copyright (c) 2025-2026 Rodney Dhavid Jimenez Chacin
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -1529,10 +1548,10 @@ By using Asterion, you acknowledge and agree that:
 
 If you discover vulnerabilities using Asterion:
 
--   📧 Contact the network/system owner privately first
--   ⏰ Give reasonable time to fix (typically 90 days)
--   🤝 Coordinate disclosure timeline
--   📝 Document your findings professionally
+- 📧 Contact the network/system owner privately first
+- ⏰ Give reasonable time to fix (typically 90 days)
+- 🤝 Coordinate disclosure timeline
+- 📝 Document your findings professionally
 
 ### When in Doubt
 
@@ -1544,15 +1563,15 @@ If you discover vulnerabilities using Asterion:
 
 Asterion stands on the shoulders of giants:
 
--   **Microsoft** — .NET platform and security documentation
--   **BloodHound** — AD security research and attack path analysis
--   **OWASP** — Security standards (Top 10, Testing Guide, ASVS)
--   **SMBLibrary** — Pure C# SMB implementation by Tal Aloni
--   **SSH.NET** — SSH protocol implementation for .NET
--   **DnsClient.NET** — DNS client library by Michael Conrad
--   **LangChain** — AI framework that powers intelligent analysis
--   **Anthropic & OpenAI** — AI models for vulnerability analysis
--   **Ollama** — Local AI inference for privacy-focused scanning
+- **Microsoft** — .NET platform and security documentation
+- **BloodHound** — AD security research and attack path analysis
+- **OWASP** — Security standards (Top 10, Testing Guide, ASVS)
+- **SMBLibrary** — Pure C# SMB implementation by Tal Aloni
+- **SSH.NET** — SSH protocol implementation for .NET
+- **DnsClient.NET** — DNS client library by Michael Conrad
+- **LangChain** — AI framework that powers intelligent analysis
+- **Anthropic & OpenAI** — AI models for vulnerability analysis
+- **Ollama** — Local AI inference for privacy-focused scanning
 
 Special thanks to all security researchers who practice and promote ethical hacking.
 
@@ -1562,9 +1581,9 @@ Special thanks to all security researchers who practice and promote ethical hack
 
 **Rodney Dhavid Jimenez Chacin (rodhnin)**
 
--   🌐 Website & Contact: [rodhnin.com](https://rodhnin.com)
--   💼 GitHub: [@rodhnin](https://github.com/rodhnin)
--   🐦 Twitter: [@rodhnin](https://twitter.com/rodhnin)
+- 🌐 Website & Contact: [rodhnin.com](https://rodhnin.com)
+- 💼 GitHub: [@rodhnin](https://github.com/rodhnin)
+- 🐦 Twitter: [@rodhnin](https://twitter.com/rodhnin)
 
 For questions, feedback, or collaboration inquiries, please visit [rodhnin.com](https://rodhnin.com)
 
@@ -1572,9 +1591,9 @@ For questions, feedback, or collaboration inquiries, please visit [rodhnin.com](
 
 ## 💬 Community
 
--   **Discussions**: [GitHub Discussions](https://github.com/rodhnin/asterion-network-minotaur/discussions)
--   **Issues**: [GitHub Issues](https://github.com/rodhnin/asterion-network-minotaur/issues)
--   **Releases**: [GitHub Releases](https://github.com/rodhnin/asterion-network-minotaur/releases)
+- **Discussions**: [GitHub Discussions](https://github.com/rodhnin/asterion-network-minotaur/discussions)
+- **Issues**: [GitHub Issues](https://github.com/rodhnin/asterion-network-minotaur/issues)
+- **Releases**: [GitHub Releases](https://github.com/rodhnin/asterion-network-minotaur/releases)
 
 ---
 
@@ -1590,7 +1609,7 @@ For questions, feedback, or collaboration inquiries, please visit [rodhnin.com](
 
 **🐂 Asterion — Navigating the Network Labyrinth 🐂**
 
-_Asterion v0.1.0 — November 2025_
+_Asterion v0.2.0 — May 2026_
 
 Made with ❤️ by rodhnin | Part of the Argos Security Suite
 

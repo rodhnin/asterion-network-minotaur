@@ -65,9 +65,9 @@ ai:
     enabled: false # Enable via --use-ai flag
     langchain:
         provider: "openai" # Change to: openai, anthropic, or ollama
-        model: "gpt-4-turbo-preview"
+        model: "gpt-4o-mini-2024-07-18"
         temperature: 0.3
-        max_tokens: 2000
+        max_tokens: 6144
         ollama_base_url: "http://localhost:11434" # For Ollama only
     api_key_env: "AI_API_KEY"
     prompts_dir: "config/prompts"
@@ -75,15 +75,15 @@ ai:
 
 ### Provider-Specific Configuration
 
-#### **OpenAI (Best Quality)**
+#### **OpenAI (Default)**
 
 ```yaml
 ai:
     langchain:
         provider: "openai"
-        model: "gpt-4-turbo-preview" # or gpt-4, gpt-3.5-turbo
+        model: "gpt-4o-mini-2024-07-18" # or gpt-4o, gpt-4-turbo
         temperature: 0.3
-        max_tokens: 2000
+        max_tokens: 6144
 ```
 
 **Set API Key:**
@@ -98,9 +98,9 @@ export AI_API_KEY="sk-proj-..."
 ai:
     langchain:
         provider: "anthropic"
-        model: "claude-3-5-sonnet-20241022" # or claude-3-opus, claude-3-haiku
+        model: "claude-3-5-haiku-20241022" # or claude-3-5-sonnet-20241022, claude-3-opus
         temperature: 0.3
-        max_tokens: 2000
+        max_tokens: 6144
 ```
 
 **Set API Key:**
@@ -117,7 +117,7 @@ ai:
         provider: "ollama"
         model: "llama3.2:latest" # or llama3.2:3b (faster)
         temperature: 0.3
-        max_tokens: 2000
+        max_tokens: 6144
         ollama_base_url: "http://localhost:11434"
 ```
 
@@ -153,14 +153,60 @@ open ~/.asterion/reports/asterion_report_192.168.100.30_*.html
 ### AI Tone Options
 
 ```bash
-# Technical analysis only (faster)
+# Technical analysis only (default)
 ast scan --target 192.168.100.30 --use-ai --ai-tone technical
 
-# Executive summary only (faster)
+# Executive summary only
 ast scan --target 192.168.100.30 --use-ai --ai-tone non_technical
 
-# Both analyses (default, comprehensive)
+# Both analyses (comprehensive)
 ast scan --target 192.168.100.30 --use-ai --ai-tone both
+```
+
+### AI Provider & Model Override
+
+```bash
+# Use a specific provider and model
+ast scan --target 192.168.100.30 --use-ai --ai-provider anthropic --ai-model claude-3-5-sonnet-20241022
+
+# Use local Ollama
+ast scan --target 192.168.100.30 --use-ai --ai-provider ollama --ai-model llama3.2:latest
+```
+
+### AI Streaming (Real-Time Output)
+
+```bash
+# Stream tokens to console as they are generated
+ast scan --target 192.168.100.30 --use-ai --ai-stream -v
+```
+
+### AI Agent Mode (NVD CVE Lookup)
+
+```bash
+# Agent autonomously searches NVD for CVEs matching detected software
+ast scan --target 192.168.100.30 --ssh "root:Toor1234" --use-ai --ai-agent -v
+
+# Check agent analysis in JSON
+cat ~/.asterion/reports/asterion_report_*.json | jq '.agentAnalysis'
+```
+
+### AI Compare Mode (Multi-Model)
+
+```bash
+# Run analysis with two models and compare
+ast scan --target 192.168.100.30 \
+  --use-ai \
+  --ai-compare "openai/gpt-4o-mini-2024-07-18,anthropic/claude-3-5-haiku-20241022"
+
+# Check compare results in JSON
+cat ~/.asterion/reports/asterion_report_*.json | jq '.compareResults'
+```
+
+### Budget Enforcement
+
+```bash
+# Abort AI analysis if it would cost more than $0.05
+ast scan --target 192.168.100.20 --winrm "CORP\admin:pass" --use-ai --ai-budget 0.05
 ```
 
 ### HTML Report with AI
@@ -199,16 +245,21 @@ python scripts/ai_analyzer.py \
 
 ### CLI Parameters
 
-| Parameter       | Required | Description                                          | Default               |
-| --------------- | -------- | ---------------------------------------------------- | --------------------- |
-| `--input`       | ✅ Yes   | Input JSON report path                               | -                     |
-| `--output`      | ✅ Yes   | Output JSON report path                              | -                     |
-| `--provider`    | ❌ No    | AI provider (`openai`, `anthropic`, `ollama`)        | `openai`              |
-| `--model`       | ❌ No    | Model name                                           | `gpt-4-turbo-preview` |
-| `--temperature` | ❌ No    | Temperature (0.0-1.0)                                | `0.3`                 |
-| `--max-tokens`  | ❌ No    | Max tokens to generate                               | `2000`                |
-| `--tone`        | ❌ No    | Analysis tone (`technical`, `non_technical`, `both`) | `technical`           |
-| `--verbose`     | ❌ No    | Enable debug output                                  | `false`               |
+| Parameter       | Required | Description                                              | Default                  |
+| --------------- | -------- | -------------------------------------------------------- | ------------------------ |
+| `--input`       | ✅ Yes   | Input JSON report path                                   | -                        |
+| `--output`      | ✅ Yes   | Output JSON report path                                  | -                        |
+| `--provider`    | ❌ No    | AI provider (`openai`, `anthropic`, `ollama`)            | `openai`                 |
+| `--model`       | ❌ No    | Model name                                               | `gpt-4o-mini-2024-07-18` |
+| `--temperature` | ❌ No    | Temperature (0.0-1.0)                                    | `0.3`                    |
+| `--max-tokens`  | ❌ No    | Max tokens to generate                                   | `6144`                   |
+| `--tone`        | ❌ No    | Analysis tone (`technical`, `non_technical`, `both`)     | `technical`              |
+| `--scan-id`     | ❌ No    | Scan ID for DB cost tracking                             | -                        |
+| `--budget`      | ❌ No    | Abort if estimated cost exceeds this USD amount          | -                        |
+| `--stream`      | ❌ No    | Stream tokens to stdout in real-time                     | `false`                  |
+| `--agent`       | ❌ No    | Run in LangChain agent mode with NVD CVE lookup tool     | `false`                  |
+| `--compare`     | ❌ No    | Comma-separated `provider/model` pairs for multi-compare | -                        |
+| `--verbose`     | ❌ No    | Enable debug output                                      | `false`                  |
 
 ### Example: Test Ollama Integration
 
@@ -242,19 +293,19 @@ Before sending reports to AI, Asterion **automatically removes** sensitive infor
 
 **What Gets Removed:**
 
--   ✅ Consent tokens (`verify-abc123...`)
--   ✅ Bearer tokens and API keys
--   ✅ Passwords and credentials (`password=***REDACTED***`)
--   ✅ SSH keys and private keys
--   ✅ Long evidence snippets (truncated to 500 chars)
+- ✅ Consent tokens (`verify-abc123...`)
+- ✅ Bearer tokens and API keys
+- ✅ Passwords and credentials (`password=***REDACTED***`)
+- ✅ SSH keys and private keys
+- ✅ Long evidence snippets (truncated to 500 chars)
 
 **What Gets Sent (Sanitized):**
 
--   Finding IDs and titles
--   Severity levels
--   Redacted/truncated evidence
--   Generic recommendations
--   Target IP/hostname (for context)
+- Finding IDs and titles
+- Severity levels
+- Redacted/truncated evidence
+- Generic recommendations
+- Target IP/hostname (for context)
 
 ### Privacy Recommendations
 
@@ -274,16 +325,16 @@ Before sending reports to AI, Asterion **automatically removes** sensitive infor
 
 **Pros:**
 
--   ✅ Best analysis quality
--   ✅ Extensive network security knowledge
--   ✅ Fast response (20-40s per analysis)
--   ✅ Handles complex multi-finding reports
+- ✅ Best analysis quality
+- ✅ Extensive network security knowledge
+- ✅ Fast response (60–80s total including CVE enrichment)
+- ✅ Handles complex multi-finding reports
 
 **Cons:**
 
--   ❌ Requires internet
--   ❌ Costs money (~$0.15-0.40/scan)
--   ❌ Data sent to OpenAI servers
+- ❌ Requires internet
+- ❌ Costs money (~$0.004–0.009/scan with gpt-4o-mini)
+- ❌ Data sent to OpenAI servers
 
 **Best For:** Production reports, client deliverables, complex findings
 
@@ -293,16 +344,16 @@ Before sending reports to AI, Asterion **automatically removes** sensitive infor
 
 **Pros:**
 
--   ✅ Strong technical reasoning
--   ✅ Good with code/config analysis
--   ✅ Privacy-focused company
--   ✅ Competitive pricing
+- ✅ Strong technical reasoning
+- ✅ Good with code/config analysis
+- ✅ Privacy-focused company
+- ✅ Competitive pricing
 
 **Cons:**
 
--   ❌ Requires internet
--   ❌ Costs money (~$0.20-0.50/scan)
--   ❌ Slightly slower than GPT-4 (30-50s)
+- ❌ Requires internet
+- ❌ Costs money (~$0.01–0.03/scan with claude-3-5-haiku)
+- ❌ Similar speed to GPT-4 (50–90s total)
 
 **Best For:** Technical deep-dives, code-heavy findings, EU clients (GDPR)
 
@@ -312,17 +363,17 @@ Before sending reports to AI, Asterion **automatically removes** sensitive infor
 
 **Pros:**
 
--   ✅ 100% offline operation
--   ✅ Complete privacy (no data leaves machine)
--   ✅ Free (no API costs)
--   ✅ No internet required
+- ✅ 100% offline operation
+- ✅ Complete privacy (no data leaves machine)
+- ✅ Free (no API costs)
+- ✅ No internet required
 
 **Cons:**
 
--   ❌ **Very slow without GPU** (15-30 min per analysis)
--   ❌ Lower quality analysis (may miss nuances)
--   ❌ May struggle with complex reports
--   ❌ Requires local setup
+- ❌ **Very slow without GPU** (15-30 min per analysis)
+- ❌ Lower quality analysis (may miss nuances)
+- ❌ May struggle with complex reports
+- ❌ Requires local setup
 
 **Best For:** Sensitive environments, air-gapped networks, learning/testing
 
@@ -330,14 +381,16 @@ Before sending reports to AI, Asterion **automatically removes** sensitive infor
 
 ### Performance Comparison
 
-| Provider             | Technical Analysis | Executive Summary | Total Time | Quality    |
-| -------------------- | ------------------ | ----------------- | ---------- | ---------- |
-| **OpenAI GPT-4**     | ~20s               | ~15s              | **~10s**   | ⭐⭐⭐⭐⭐ |
-| **Anthropic Claude** | ~25s               | ~20s              | **~15s**   | ⭐⭐⭐⭐⭐ |
-| **Ollama (CPU)**     | ~15min             | ~14min            | **~30min** | ⭐⭐⭐     |
-| **Ollama (GPU)**     | ~45s               | ~30s              | **~75s**   | ⭐⭐⭐     |
+| Provider                         | Technical Analysis | Total Time  | Quality    |
+| -------------------------------- | ------------------ | ----------- | ---------- |
+| **OpenAI gpt-4o-mini** (default) | ~60–80s            | **~60–80s** | ⭐⭐⭐⭐   |
+| **OpenAI gpt-4o**                | ~40–60s            | **~40–60s** | ⭐⭐⭐⭐⭐ |
+| **Anthropic claude-3-5-haiku**   | ~50–70s            | **~50–70s** | ⭐⭐⭐⭐   |
+| **Anthropic claude-3-5-sonnet**  | ~60–90s            | **~60–90s** | ⭐⭐⭐⭐⭐ |
+| **Ollama (CPU)**                 | ~15min             | **~30min**  | ⭐⭐⭐     |
+| **Ollama (GPU)**                 | ~45s               | **~75s**    | ⭐⭐⭐     |
 
-_Based on 26-finding report (192.168.100.30 test scan)_
+_Based on real scans: 29–34 findings with full CVE enrichment context (~40–46k input tokens)._
 
 ---
 
@@ -375,7 +428,7 @@ ai:
         provider: "ollama"
         model: "llama3.2:latest"
         temperature: 0.3
-        max_tokens: 2000
+        max_tokens: 6144
         ollama_base_url: "http://localhost:11434"
 ```
 
@@ -416,10 +469,10 @@ Prompts are stored in `config/prompts/`:
 
 **Structure:**
 
--   Risk assessment
--   Command examples
--   Verification methods
--   Testing procedures
+- Risk assessment
+- Command examples
+- Verification methods
+- Testing procedures
 
 **Edit to customize:**
 
@@ -435,10 +488,10 @@ nano config/prompts/technical.txt
 
 **Structure:**
 
--   Business impact
--   Plain language explanations
--   Executive actions
--   Timeline recommendations
+- Business impact
+- Plain language explanations
+- Executive actions
+- Timeline recommendations
 
 **Edit to customize:**
 
@@ -557,13 +610,36 @@ python --version
 
 ### Token Usage Estimates
 
-| Report Size          | Input Tokens | Output Tokens | OpenAI Cost | Anthropic Cost |
-| -------------------- | ------------ | ------------- | ----------- | -------------- |
-| Small (10 findings)  | ~2,000       | ~1,500        | ~$0.06      | ~$0.10         |
-| Medium (26 findings) | ~3,500       | ~2,500        | ~$0.15      | ~$0.22         |
-| Large (50+ findings) | ~6,000       | ~4,000        | ~$0.30      | ~$0.45         |
+Based on real scans with `gpt-4o-mini-2024-07-18` (default model):
 
-_Based on `--ai-tone both` (technical + executive summary)_
+| Report Size          | Input Tokens | Output Tokens | Total Tokens | Cost (gpt-4o-mini) |
+| -------------------- | ------------ | ------------- | ------------ | ------------------ |
+| Small (12 findings)  | ~16,000      | ~3,000        | ~19,000      | ~$0.004            |
+| Medium (29 findings) | ~40,000      | ~2,400        | ~42,000      | ~$0.007            |
+| Large (34 findings)  | ~46,000      | ~3,200        | ~49,000      | ~$0.009            |
+
+_Based on `--ai-tone technical` (single analysis). Using `--ai-tone both` approximately doubles cost._
+
+> **Note:** Input tokens are high because CVE enrichment + OWASP/compliance mapping data is included in the prompt context per finding. This ensures the AI has full context for accurate remediation guidance.
+
+### AI Cost Tracking
+
+AI costs are automatically recorded in two places:
+
+```bash
+# 1. Shared Argos Suite costs file
+cat ~/.argos/costs.json
+
+# 2. Database table (per-analysis breakdown)
+sqlite3 ~/.argos/argos.db "SELECT scan_id, provider, model, analysis_type, input_tokens, output_tokens, cost_usd FROM ai_costs ORDER BY cost_id DESC LIMIT 10;"
+```
+
+### Budget Enforcement
+
+```bash
+# Abort if AI analysis would cost more than $0.05
+ast scan --target 192.168.100.20 --winrm "CORP\admin:pass" --use-ai --ai-budget 0.05
+```
 
 ### Cost Reduction Tips
 
@@ -604,11 +680,11 @@ ast scan --target 192.168.100.30 --rate 2.0 --use-ai
 
 **Always verify:**
 
--   ✅ Technical commands are correct for target OS
--   ✅ Version numbers match actual findings
--   ✅ Remediation steps are complete and tested
--   ✅ No hallucinated CVEs or references
--   ✅ Risk assessments align with severity
+- ✅ Technical commands are correct for target OS
+- ✅ Version numbers match actual findings
+- ✅ Remediation steps are complete and tested
+- ✅ No hallucinated CVEs or references
+- ✅ Risk assessments align with severity
 
 ---
 
@@ -636,7 +712,7 @@ ast scan --target staging.example.com --use-ai
 # 1. Configure OpenAI
 export AI_API_KEY="sk-proj-..."
 nano config/defaults.yaml
-# Set: provider: "openai", model: "gpt-4-turbo-preview"
+# Set: provider: "openai", model: "gpt-4o-mini-2024-07-18"
 
 # 2. Generate consent
 ast consent generate --domain example.com
@@ -664,12 +740,13 @@ open ~/.asterion/reports/asterion_report_192.168.100.30_*.html
 [17:03:21] Scan completed in 6.95s
 [17:03:21] Total findings: 26 (5C/7H/7M/3L/4I)
 [17:03:22] Generating BOTH technical and non-technical analyses...
-[17:03:42] ✓ Technical analysis completed in 20.1s
-[17:04:02] ✓ Executive summary completed in 19.8s
-[17:04:03] ✓ AI analysis generated successfully
-[17:04:03]   Provider: openai
-[17:04:03]   Model: gpt-4-turbo-preview
-[17:04:03] ✓ HTML report saved
+[17:04:02] ✓ Technical analysis completed in 39.5s
+[17:04:42] ✓ Executive summary completed in 40.1s
+[17:04:43] ✓ AI analysis generated successfully
+[17:04:43]   Provider: openai
+[17:04:43]   Model: gpt-4o-mini-2024-07-18
+[17:04:43]   Cost: $0.014 (49,200 tokens)
+[17:04:43] ✓ HTML report saved
 ```
 
 ---
@@ -725,11 +802,11 @@ cat /tmp/ai_test.json | jq '.aiAnalysis.technicalRemediation' | head -50
 
 ## 📖 **Additional Resources**
 
--   📚 [LangChain v1.0 Documentation](https://python.langchain.com/docs/)
--   🤖 [OpenAI Platform](https://platform.openai.com/)
--   🔍 [Anthropic Claude](https://docs.anthropic.com/)
--   🦙 [Ollama Documentation](https://ollama.com/)
--   🐂 [Asterion GitHub](https://github.com/rodhnin/asterion-network-minotaur)
+- 📚 [LangChain v1.0 Documentation](https://python.langchain.com/docs/)
+- 🤖 [OpenAI Platform](https://platform.openai.com/)
+- 🔍 [Anthropic Claude](https://docs.anthropic.com/)
+- 🦙 [Ollama Documentation](https://ollama.com/)
+- 🐂 [Asterion GitHub](https://github.com/rodhnin/asterion-network-minotaur)
 
 ---
 
@@ -737,12 +814,12 @@ cat /tmp/ai_test.json | jq '.aiAnalysis.technicalRemediation' | head -50
 
 For AI-related issues:
 
--   **GitHub Issues:** https://github.com/rodhnin/asterion-network-minotaur/issues
--   **Contact:** https://rodhnin.com
--   **Tag:** `ai-integration` in issue title
+- **GitHub Issues:** https://github.com/rodhnin/asterion-network-minotaur/issues
+- **Contact:** https://rodhnin.com
+- **Tag:** `ai-integration` in issue title
 
 ---
 
-**Last Updated:** November 2025  
-**Asterion Version:** 0.1.0  
+**Last Updated:** May 2026
+**Asterion Version:** 0.2.0
 **LangChain Version:** 1.0.0+

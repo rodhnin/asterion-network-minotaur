@@ -72,8 +72,8 @@ namespace Asterion.Checks.CrossPlatform.Windows
             var findings = new List<Finding>();
 
             // This check requires local execution
-            bool isLocal = targets.Contains("localhost") || 
-                          targets.Contains("127.0.0.1") || 
+            bool isLocal = targets.Contains("localhost") ||
+                          targets.Contains("127.0.0.1") ||
                           targets.Any(t => t.Equals(Environment.MachineName, StringComparison.OrdinalIgnoreCase));
 
             if (!isLocal && targets.Any())
@@ -1104,19 +1104,31 @@ namespace Asterion.Checks.CrossPlatform.Windows
 
                 foreach (FileSystemAccessRule rule in rules)
                 {
-                    if (rule.IdentityReference.Equals(usersGroup) || 
-                        rule.IdentityReference.Equals(authenticatedUsers) ||
-                        rule.IdentityReference.Equals(everyone))
-                    {
-                        var rights = rule.FileSystemRights;
-                        var hasWrite = (rights & (FileSystemRights.Write | FileSystemRights.Modify | FileSystemRights.FullControl)) != 0;
+                    if (rule.AccessControlType != AccessControlType.Allow) continue;
+                    if (!rule.IdentityReference.Equals(usersGroup) &&
+                        !rule.IdentityReference.Equals(authenticatedUsers) &&
+                        !rule.IdentityReference.Equals(everyone)) continue;
 
-                        if (hasWrite && rule.AccessControlType == AccessControlType.Allow)
-                        {
-                            isWritable = true;
-                            var identity = rule.IdentityReference.Translate(typeof(NTAccount)).Value;
-                            detailsBuilder.AppendLine($"{identity}: {rights} ({rule.AccessControlType})");
-                        }
+                    var rights = rule.FileSystemRights;
+
+                    bool isFilePath = File.Exists(path);
+                    FileSystemRights dangerousWrite = isFilePath
+                        ? (FileSystemRights.WriteData |           // 0x002 — overwrite contents
+                           FileSystemRights.ChangePermissions |   // 0x40000
+                           FileSystemRights.TakeOwnership)        // 0x80000
+                        : (FileSystemRights.WriteData |
+                           FileSystemRights.AppendData |          // 0x004 — create files/subdirs
+                           FileSystemRights.WriteAttributes |
+                           FileSystemRights.WriteExtendedAttributes |
+                           FileSystemRights.ChangePermissions |
+                           FileSystemRights.TakeOwnership);
+
+                    bool hasWrite = (rights & dangerousWrite) != 0;
+                    if (hasWrite)
+                    {
+                        isWritable = true;
+                        var identity = rule.IdentityReference.Translate(typeof(NTAccount)).Value;
+                        detailsBuilder.AppendLine($"{identity}: {rights} ({rule.AccessControlType})");
                     }
                 }
 

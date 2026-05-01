@@ -197,7 +197,6 @@ namespace Asterion.Checks.Linux
                         if (mapToGuest.ToLower().Contains("bad user"))
                         {
                             Log.Debug("Samba configured with 'map to guest = Bad User' (allows anonymous login)");
-                            // This is often intentional, but combined with guest ok=yes on shares, it's a problem
                         }
                     }
                 }
@@ -509,7 +508,6 @@ namespace Asterion.Checks.Linux
                     if (Regex.IsMatch(line, @"anonuid\s*=\s*0"))
                     {
                         Log.Warning("NFS export {Path} has anonuid=0 (maps anonymous users to root)", exportPath);
-                        // This is extremely dangerous but covered by no_root_squash check
                     }
                 }
 

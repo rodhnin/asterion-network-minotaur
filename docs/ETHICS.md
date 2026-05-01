@@ -4,20 +4,20 @@
 
 ## Table of Contents
 
--   [Legal Framework](#legal-framework)
-    -   [United States](#united-states)
-    -   [United Kingdom](#united-kingdom)
-    -   [European Union](#european-union)
-    -   [Other Jurisdictions](#other-jurisdictions)
--   [Ethical Guidelines](#ethical-guidelines)
--   [Authorization Requirements](#authorization-requirements)
--   [Consent Token System](#consent-token-system)
--   [Responsible Disclosure](#responsible-disclosure)
--   [Safe vs Aggressive Mode](#safe-vs-aggressive-mode)
--   [Red Lines (Never Do This)](#red-lines-never-do-this)
--   [Case Studies](#case-studies)
--   [Best Practices](#best-practices)
--   [Legal Disclaimer](#legal-disclaimer)
+- [Legal Framework](#legal-framework)
+    - [United States](#united-states)
+    - [United Kingdom](#united-kingdom)
+    - [European Union](#european-union)
+    - [Other Jurisdictions](#other-jurisdictions)
+- [Ethical Guidelines](#ethical-guidelines)
+- [Authorization Requirements](#authorization-requirements)
+- [Consent Token System](#consent-token-system)
+- [Responsible Disclosure](#responsible-disclosure)
+- [Safe vs Aggressive Mode](#safe-vs-aggressive-mode)
+- [Red Lines (Never Do This)](#red-lines-never-do-this)
+- [Case Studies](#case-studies)
+- [Best Practices](#best-practices)
+- [Legal Disclaimer](#legal-disclaimer)
 
 ---
 
@@ -31,27 +31,25 @@
 
 **Key Provisions:**
 
--   **(a)(2):** Unauthorized access to obtain information from financial institutions, government systems, or protected computers
--   **(a)(5):** Intentional unauthorized access causing damage (including security testing without permission)
--   **(a)(7):** Extortion through threats to damage computer systems
+- **(a)(2):** Unauthorized access to obtain information from financial institutions, government systems, or protected computers
+- **(a)(5):** Intentional unauthorized access causing damage (including security testing without permission)
+- **(a)(7):** Extortion through threats to damage computer systems
 
 **Penalties:**
 
--   First offense: Up to **1 year** imprisonment + fines
--   Repeat offenses: Up to **10 years** imprisonment + fines
--   Financial damage > $5,000: Up to **20 years** imprisonment
+- First offense: Up to **1 year** imprisonment + fines
+- Repeat offenses: Up to **10 years** imprisonment + fines
+- Financial damage > $5,000: Up to **20 years** imprisonment
 
 **Relevant Case Law:**
 
 1. **United States v. Morris (1991)** - _First CFAA conviction_
-
     - Robert Morris released the Morris Worm (1988)
     - Claimed it was "research" to measure internet size
     - Convicted: Intent to access without authorization
     - **Lesson:** Good intentions don't excuse unauthorized access
 
 2. **United States v. Kane (2011)** - _Authorized access + exceeding authorization_
-
     - Employee accessed competitor's website to gather intelligence
     - Company policy prohibited competitive intelligence gathering
     - Convicted: Exceeding authorized access
@@ -65,15 +63,15 @@
 
 **Asterion Implications:**
 
--   -   Scanning ANY system without explicit written authorization is illegal
--   -   "Bug bounty program exists" ` authorization (must comply with program rules)
--   -   "Public-facing service" ` permission to scan
--   -   Consent token system provides proof of authorization
+-   - Scanning ANY system without explicit written authorization is illegal
+-   - "Bug bounty program exists" ` authorization (must comply with program rules)
+-   - "Public-facing service" ` permission to scan
+-   - Consent token system provides proof of authorization
 
 **References:**
 
--   [18 U.S.C. 1030 - Full Text](https://www.law.cornell.edu/uscode/text/18/1030)
--   [DOJ Computer Crime Manual](hhttps://www.justice.gov/d9/criminal-ccips/legacy/2015/01/14/ccmanual_0.pdf)
+- [18 U.S.C. 1030 - Full Text](https://www.law.cornell.edu/uscode/text/18/1030)
+- [DOJ Computer Crime Manual](hhttps://www.justice.gov/d9/criminal-ccips/legacy/2015/01/14/ccmanual_0.pdf)
 
 ---
 
@@ -85,15 +83,14 @@
 
 **Key Provisions:**
 
--   **Section 1:** Unauthorized access to computer material (max **2 years**)
--   **Section 2:** Unauthorized access with intent to commit further offenses (max **5 years**)
--   **Section 3:** Unauthorized modification of computer material (max **10 years**)
--   **Section 3ZA:** Unauthorized acts causing serious damage (max **life imprisonment**)
+- **Section 1:** Unauthorized access to computer material (max **2 years**)
+- **Section 2:** Unauthorized access with intent to commit further offenses (max **5 years**)
+- **Section 3:** Unauthorized modification of computer material (max **10 years**)
+- **Section 3ZA:** Unauthorized acts causing serious damage (max **life imprisonment**)
 
 **Notable Cases:**
 
 1. **R v. Lennon (2006)** - _DDoS as "unauthorized modification"_
-
     - Sent 5 million emails to MP's account (email bomb)
     - Convicted under Section 3 (unauthorized modification)
     - **Lesson:** Rate limiting bypass = unauthorized modification
@@ -106,15 +103,15 @@
 
 **Asterion Implications:**
 
--   Scanning UK systems without authorization violates CMA 1990
--   Aggressive mode (exploitation checks) = unauthorized modification
--   Rate limiting bypass = potential Section 3 violation
--   Consent token system demonstrates authorization
+- Scanning UK systems without authorization violates CMA 1990
+- Aggressive mode (exploitation checks) = unauthorized modification
+- Rate limiting bypass = potential Section 3 violation
+- Consent token system demonstrates authorization
 
 **References:**
 
--   [Computer Misuse Act 1990 - Full Text](https://www.legislation.gov.uk/ukpga/1990/18/contents)
--   [CPS Guidance on Computer Misuse](https://www.cps.gov.uk/legal-guidance/computer-misuse)
+- [Computer Misuse Act 1990 - Full Text](https://www.legislation.gov.uk/ukpga/1990/18/contents)
+- [CPS Guidance on Computer Misuse](https://www.cps.gov.uk/legal-guidance/computer-misuse)
 
 ---
 
@@ -126,22 +123,22 @@
 
 **Relevant Articles:**
 
--   **Article 5:** Principles of data processing (lawfulness, fairness, transparency)
--   **Article 6:** Lawful basis for processing (consent, legitimate interest)
--   **Article 32:** Security of processing (appropriate technical measures)
--   **Article 33:** Data breach notification (within **72 hours**)
+- **Article 5:** Principles of data processing (lawfulness, fairness, transparency)
+- **Article 6:** Lawful basis for processing (consent, legitimate interest)
+- **Article 32:** Security of processing (appropriate technical measures)
+- **Article 33:** Data breach notification (within **72 hours**)
 
 **Security Testing Implications:**
 
--   Security testing is a "legitimate interest" (Article 6(1)(f))
--   Identifying vulnerabilities = fulfilling Article 32 obligations
--   Unauthorized scanning = unlawful processing if personal data accessed
--   If breach discovered: Must notify DPA within 72 hours
+- Security testing is a "legitimate interest" (Article 6(1)(f))
+- Identifying vulnerabilities = fulfilling Article 32 obligations
+- Unauthorized scanning = unlawful processing if personal data accessed
+- If breach discovered: Must notify DPA within 72 hours
 
 **References:**
 
--   [GDPR Full Text](https://gdpr-info.eu/)
--   [ICO Guidance on Security Testing](https://ico.org.uk/for-organisations/guide-to-data-protection/)
+- [GDPR Full Text](https://gdpr-info.eu/)
+- [ICO Guidance on Security Testing](https://ico.org.uk/for-organisations/guide-to-data-protection/)
 
 #### Network and Information Systems (NIS) Directive
 
@@ -149,9 +146,9 @@
 
 **Implications for Security Testing:**
 
--   Operators must conduct regular security assessments
--   Security testing is mandatory for essential services
--   Unauthorized penetration testing = criminal offense in most EU states
+- Operators must conduct regular security assessments
+- Security testing is mandatory for essential services
+- Unauthorized penetration testing = criminal offense in most EU states
 
 ---
 
@@ -183,25 +180,21 @@
 ### Core Principles
 
 1. **Do No Harm**
-
     - Minimize impact on target systems
     - Avoid service disruption or data loss
     - Respect production environments
 
 2. **Obtain Authorization**
-
     - Written permission from system owner
     - Clear scope definition (IP ranges, domains)
     - Documented consent (proof of authorization)
 
 3. **Respect Privacy**
-
     - Don't access personal data unnecessarily
     - Don't exfiltrate sensitive information
     - Follow data minimization principles
 
 4. **Responsible Disclosure**
-
     - Report vulnerabilities to system owners
     - Allow reasonable time for remediation (90 days typical)
     - Don't publicly disclose until patched
@@ -256,7 +249,6 @@
 Before running Asterion, you **MUST** have:
 
 1. **Written Authorization** (email, contract, or statement of work)
-
     - System owner's name and signature
     - Date range for testing
     - Explicit scope (IP ranges, domains, services)
@@ -264,7 +256,6 @@ Before running Asterion, you **MUST** have:
     - Emergency contact information
 
 2. **Technical Consent Verification**
-
     - Asterion consent token verified on target domain
     - Proof file saved: `~/.argos/consent_proofs/`
     - Database record: `consent_tokens` table
@@ -372,13 +363,11 @@ Day 90:  Public disclosure (with or without patch)
 ### Disclosure Process
 
 1. **Report to Vendor**
-
     - Use official security contact (security@example.com)
     - Provide: CVE details, proof-of-concept, impact assessment
     - Request: Acknowledgment within 7 days
 
 2. **Coordinate Timeline**
-
     - Agree on disclosure date
     - Typical: 90 days from initial report
     - Critical vulnerabilities: May negotiate shorter timeline
@@ -390,10 +379,10 @@ Day 90:  Public disclosure (with or without patch)
 
 ### Exceptions (Immediate Disclosure)
 
--   **Active exploitation in the wild**
--   **Vendor unresponsive for 90+ days**
--   **Vendor refuses to patch**
--   **Public safety at risk**
+- **Active exploitation in the wild**
+- **Vendor unresponsive for 90+ days**
+- **Vendor refuses to patch**
+- **Public safety at risk**
 
 ### Asterion Disclosure Workflow
 
@@ -422,28 +411,28 @@ sqlite3 ~/.argos/argos.db "UPDATE scans SET notes='Disclosed to vendor 2025-01-1
 
 **Characteristics:**
 
--   Passive reconnaissance only
--   No exploitation attempts
--   No credential testing
--   Low rate limiting (5 req/s)
--   **No consent token required**
+- Passive reconnaissance only
+- No exploitation attempts
+- No credential testing
+- Low rate limiting (5 req/s)
+- **No consent token required**
 
 **Techniques:**
 
--   SMB enumeration (shares, version)
--   LDAP enumeration (domain users, groups)
--   RDP capability detection
--   DNS/NetBIOS queries
--   Banner grabbing
+- SMB enumeration (shares, version)
+- LDAP enumeration (domain users, groups)
+- RDP capability detection
+- DNS/NetBIOS queries
+- Banner grabbing
 
 **Legal Status:** Generally permissible (similar to web browsing)
 
 **Use Cases:**
 
--   Initial reconnaissance
--   Asset discovery
--   Service enumeration
--   Compliance checks
+- Initial reconnaissance
+- Asset discovery
+- Service enumeration
+- Compliance checks
 
 ---
 
@@ -451,30 +440,30 @@ sqlite3 ~/.argos/argos.db "UPDATE scans SET notes='Disclosed to vendor 2025-01-1
 
 **Characteristics:**
 
--   Active exploitation checks
--   Credential validation
--   Privilege escalation attempts
--   Higher rate limiting (10 req/s)
--   **Consent token REQUIRED**
+- Active exploitation checks
+- Credential validation
+- Privilege escalation attempts
+- Higher rate limiting (10 req/s)
+- **Consent token REQUIRED**
 
 **Techniques:**
 
--   AS-REP roasting (Kerberos pre-auth)
--   Kerberoasting (service account extraction)
--   SMB relay attacks
--   LDAP injection
--   Credential spraying
--   ACL abuse detection
--   Kernel exploit checks
+- AS-REP roasting (Kerberos pre-auth)
+- Kerberoasting (service account extraction)
+- SMB relay attacks
+- LDAP injection
+- Credential spraying
+- ACL abuse detection
+- Kernel exploit checks
 
 **Legal Status:** Requires explicit authorization
 
 **Use Cases:**
 
--   Penetration testing
--   Red team assessments
--   Advanced threat simulation
--   Compliance audits (PCI-DSS, HIPAA)
+- Penetration testing
+- Red team assessments
+- Advanced threat simulation
+- Compliance audits (PCI-DSS, HIPAA)
 
 ---
 
@@ -604,10 +593,10 @@ After scan completion:
 
 Asterion is a security auditing tool intended for **authorized** security assessments only. The developers of Asterion:
 
--   ❌ **DO NOT** endorse unauthorized computer access
--   ❌ **DO NOT** authorize scanning of any systems
--   ❌ **DO NOT** provide legal advice
--   ❌ **ARE NOT** responsible for your use of this tool
+- ❌ **DO NOT** endorse unauthorized computer access
+- ❌ **DO NOT** authorize scanning of any systems
+- ❌ **DO NOT** provide legal advice
+- ❌ **ARE NOT** responsible for your use of this tool
 
 **Your Responsibilities:**
 
@@ -622,19 +611,19 @@ By using Asterion, you agree to:
 
 Asterion is provided "AS IS" without warranty of any kind. The developers:
 
--   Make no guarantees about accuracy of findings
--   Are not liable for service disruptions caused by scanning
--   Are not liable for legal consequences of unauthorized use
--   Are not liable for damages resulting from use of this tool
+- Make no guarantees about accuracy of findings
+- Are not liable for service disruptions caused by scanning
+- Are not liable for legal consequences of unauthorized use
+- Are not liable for damages resulting from use of this tool
 
 **Consult Legal Counsel:**
 
 If you have questions about:
 
--   Whether you have proper authorization
--   Legal compliance in your jurisdiction
--   Responsible disclosure procedures
--   Liability for security testing
+- Whether you have proper authorization
+- Legal compliance in your jurisdiction
+- Responsible disclosure procedures
+- Liability for security testing
 
 **CONSULT A LAWYER** before using Asterion.
 
@@ -685,13 +674,13 @@ sqlite3 ~/.argos/argos.db "UPDATE scans SET notes='Disclosed 2025-01-17' WHERE s
 
 ---
 
-**Last Updated:** November 2025
-**Asterion Version:** 0.1.0
+**Last Updated:** April 2026
+**Asterion Version:** 0.2.0
 
 **REMEMBER:** When in doubt, **DON'T**. Always obtain written authorization before scanning any system you don't own.
 
 **Related Documentation:**
 
--   `docs/CONSENT.md` - Technical consent token system
--   `docs/README.md` - Tool capabilities and usage
--   `docs/ROADMAP.md` - Future ethical features
+- `docs/CONSENT.md` - Technical consent token system
+- `docs/README.md` - Tool capabilities and usage
+- `docs/ROADMAP.md` - Future ethical features

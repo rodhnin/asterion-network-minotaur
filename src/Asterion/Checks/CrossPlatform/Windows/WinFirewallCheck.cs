@@ -531,10 +531,18 @@ namespace Asterion.Checks.CrossPlatform.Windows
         }
 
         /// <summary>
-        /// Execute PowerShell command and return output
+        /// Execute PowerShell command — via WinRM if a remote manager is connected, otherwise local powershell.exe.
         /// </summary>
         private async Task<string> ExecutePowerShellAsync(string command)
         {
+            // Remote path: delegate to WinRM connection manager
+            if (WinRmManager != null && WinRmManager.IsConnected)
+            {
+                return await WinRmManager.ExecutePowerShellAsync(command);
+            }
+
+#if WINDOWS
+            // Local path: spawn powershell.exe (Windows only)
             try
             {
                 var psi = new ProcessStartInfo
@@ -561,7 +569,7 @@ namespace Asterion.Checks.CrossPlatform.Windows
 
                 if (process.ExitCode != 0)
                 {
-                    Log.Warning("{CheckName}: PowerShell command failed with exit code {ExitCode}: {Error}", 
+                    Log.Warning("{CheckName}: PowerShell command failed with exit code {ExitCode}: {Error}",
                         Name, process.ExitCode, error);
                     return string.Empty;
                 }
@@ -573,6 +581,10 @@ namespace Asterion.Checks.CrossPlatform.Windows
                 Log.Error(ex, "{CheckName}: Failed to execute PowerShell command", Name);
                 return string.Empty;
             }
+#else
+            Log.Debug("{CheckName}: PowerShell execution not available (not Windows and no WinRM)", Name);
+            return string.Empty;
+#endif
         }
 
         /// <summary>

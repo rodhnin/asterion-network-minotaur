@@ -7,7 +7,7 @@
     <Nullable>enable</Nullable>
     <AssemblyName>ast</AssemblyName>
     <RootNamespace>Asterion</RootNamespace>
-    <Version>0.1.0</Version>
+    <Version>0.2.0</Version>
     <Authors>Rodney Dhavid Jimenez Chacin (rodhnin)</Authors>
     <Company>Argos Suite</Company>
     <Product>Asterion Network Security Auditor</Product>
@@ -55,26 +55,52 @@
   <ItemGroup Condition="'$(OS)' == 'Windows_NT'">
     <PackageReference Include="System.Management" Version="8.0.0" />
   </ItemGroup>
+  <!-- Windows check files use Windows-only APIs (Registry, WMI) — excluded on Linux.          -->
+  <!-- WinRmChecks.cs provides the cross-platform remote path via WinRM/PowerShell.             -->
   <ItemGroup Condition="'$(OS)' != 'Windows_NT'">
     <Compile Remove="**/Windows/**/*.cs" />
   </ItemGroup>
 
   <ItemGroup>
-    <!-- Config files -->
-    <None Update="config\defaults.yaml">
+    <!-- Config files (root-relative paths, linked into output subdirectories) -->
+    <None Include="..\..\config\defaults.yaml" Link="config\defaults.yaml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Update="schema\report.schema.json">
+    <None Include="..\..\schema\report.schema.json" Link="schema\report.schema.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Update="templates\report.html.j2">
+    <None Include="..\..\templates\report.html.j2" Link="templates\report.html.j2">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    
+
+    <!-- Prompt templates (needed by ai_analyzer.py at runtime) -->
+    <None Include="..\..\config\prompts\technical.txt" Link="config\prompts\technical.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\..\config\prompts\non_technical.txt" Link="config\prompts\non_technical.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+
+    <!-- Python bridge scripts (AI analysis, HTML rendering, CVE/OWASP enrichment) -->
+    <None Include="..\..\scripts\ai_analyzer.py" Link="scripts\ai_analyzer.py">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\..\scripts\render_html.py" Link="scripts\render_html.py">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\..\scripts\cve_lookup.py" Link="scripts\cve_lookup.py">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\..\scripts\owasp.py" Link="scripts\owasp.py">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\..\scripts\compliance.py" Link="scripts\compliance.py">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+
     <!-- ASCII art -->
-    <None Update="..\..\assets\ascii.txt">
+    <None Include="..\..\assets\ascii.txt" Link="assets\ascii.txt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      <Link>assets\ascii.txt</Link>
     </None>
   </ItemGroup>
 

@@ -18,8 +18,11 @@ namespace Asterion.Checks
     {
         protected readonly Config _config;
 
-        // SSH connection manager for remote checks (set by Orchestrator)
-        protected SshConnectionManager? SshManager { get; set; }
+        // SSH connection manager for remote Linux checks (set by Orchestrator)
+        protected SshConnectionManager? SshManager { get; private set; }
+
+        // WinRM connection manager for remote Windows checks (set by Orchestrator)
+        protected WinRmConnectionManager? WinRmManager { get; private set; }
 
         // Abstract properties - must be implemented by derived classes
         public abstract string Name { get; }
@@ -39,12 +42,22 @@ namespace Asterion.Checks
         }
 
         /// <summary>
-        /// Set SSH connection manager for remote checks.
+        /// Set SSH connection manager for remote Linux checks.
         /// Called by Orchestrator before executing Linux checks via SSH.
         /// </summary>
         public void SetSshManager(SshConnectionManager? sshManager)
         {
             SshManager = sshManager;
+        }
+
+        /// <summary>
+        /// Set WinRM connection manager for remote Windows checks.
+        /// Called by Orchestrator before executing Windows checks via WinRM.
+        /// When set, Windows checks run PowerShell remotely instead of using local Windows APIs.
+        /// </summary>
+        public void SetWinRmManager(WinRmConnectionManager? winRmManager)
+        {
+            WinRmManager = winRmManager;
         }
 
         /// <summary>
@@ -57,9 +70,13 @@ namespace Asterion.Checks
             switch (Category)
             {
                 case CheckCategory.Windows:
-                    if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+                    // Allow Windows checks when:
+                    //   a) Running locally on Windows, OR
+                    //   b) WinRM manager is connected (remote execution via PowerShell)
+                    if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows) &&
+                        (WinRmManager == null || !WinRmManager.IsConnected))
                     {
-                        Log.Debug("{CheckName} skipped: Requires Windows", Name);
+                        Log.Debug("{CheckName} skipped: Requires Windows or WinRM connection", Name);
                         return false;
                     }
                     break;

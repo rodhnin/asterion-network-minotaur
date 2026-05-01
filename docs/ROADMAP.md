@@ -1,6 +1,6 @@
 # Asterion Development Roadmap
 
-## Current Version: v0.1.0 ✅ RELEASED
+## v0.1.0 ✅ RELEASED
 
 **Release Date:** November 2025
 **Status:** ✅ **PRODUCTION READY**
@@ -9,159 +9,161 @@
 
 #### Core Network Scanning
 
--   ✅ **Port Scanning**: TCP port scanning with configurable ranges (1-65535)
--   ✅ **Service Detection**: Banner grabbing for SMB, RDP, LDAP, SSH, FTP, DNS, SNMP
--   ✅ **Target Parsing**: CIDR notation, IP ranges, single IPs, hostnames
--   ✅ **Multi-Threading**: Concurrent scanning with 1-20 worker threads
--   ✅ **Rate Limiting**: Configurable request throttling (1-20 req/s)
--   ✅ **SSH Remote Auditing**: Full Linux system checks via SSH.NET
+- ✅ **Port Scanning**: TCP port scanning with configurable ranges (1-65535)
+- ✅ **Service Detection**: Banner grabbing for SMB, RDP, LDAP, SSH, FTP, DNS, SNMP
+- ✅ **Target Parsing**: CIDR notation, IP ranges, single IPs, hostnames
+- ✅ **Multi-Threading**: Concurrent scanning with 1-20 worker threads
+- ✅ **Rate Limiting**: Configurable request throttling (1-20 req/s)
+- ✅ **SSH Remote Auditing**: Full Linux system checks via SSH.NET
 
 #### Cross-Platform Network Checks (20+ checks)
 
--   ✅ **SMB/CIFS Security** (AST-SMB-001 to AST-SMB-005):
-    -   Anonymous/guest share access
-    -   SMB signing not required
-    -   SMBv1 enabled detection
-    -   NTLMv1 authentication allowed
-    -   Writable shares detection
--   ✅ **RDP Security** (AST-RDP-001 to AST-RDP-004):
-    -   RDP without Network Level Authentication (NLA)
-    -   Weak RDP encryption levels
-    -   RDP exposed to internet
-    -   Default port detection
--   ✅ **LDAP/Active Directory** (AST-LDAP-001, AST-AD-001 to AST-AD-006):
-    -   LDAP anonymous bind
-    -   LDAP signing not required
-    -   LDAP channel binding not enforced
-    -   Weak password policies
-    -   Password never expires for admin accounts
-    -   Pre-Windows 2000 compatible access
--   ✅ **Kerberos** (AST-KRB-001 to AST-KRB-003):
-    -   AS-REP roasting vulnerability detection
-    -   Kerberoasting vulnerable accounts
-    -   Excessive ticket lifetime
--   ✅ **SNMP** (AST-SNMP-001 to AST-SNMP-003):
-    -   Default community strings
-    -   SNMPv1/v2c plaintext detection
-    -   SNMP write access enabled
--   ✅ **DNS/NetBIOS** (AST-NET-001 to AST-NET-003):
-    -   DNS zone transfer (AXFR) allowed
-    -   LLMNR/NetBIOS poisoning risk
-    -   mDNS responder enabled
+- ✅ **SMB/CIFS Security** (AST-SMB-001 to AST-SMB-005):
+    - Anonymous/guest share access
+    - SMB signing not required
+    - SMBv1 enabled detection
+    - NTLMv1 authentication allowed
+    - Writable shares detection
+- ✅ **RDP Security** (AST-RDP-001 to AST-RDP-004):
+    - RDP without Network Level Authentication (NLA)
+    - Weak RDP encryption levels
+    - RDP exposed to internet
+    - Default port detection
+- ✅ **LDAP/Active Directory** (AST-LDAP-001, AST-AD-001 to AST-AD-006):
+    - LDAP anonymous bind
+    - LDAP signing not required
+    - LDAP channel binding not enforced
+    - Weak password policies
+    - Password never expires for admin accounts
+    - Pre-Windows 2000 compatible access
+- ✅ **Kerberos** (AST-KRB-001 to AST-KRB-003):
+    - AS-REP roasting vulnerability detection
+    - Kerberoasting vulnerable accounts
+    - Excessive ticket lifetime
+- ✅ **SNMP** (AST-SNMP-001 to AST-SNMP-003):
+    - Default community strings
+    - SNMPv1/v2c plaintext detection
+    - SNMP write access enabled
+- ✅ **DNS/NetBIOS** (AST-NET-001 to AST-NET-003):
+    - DNS zone transfer (AXFR) allowed
+    - LLMNR/NetBIOS poisoning risk
+    - mDNS responder enabled
 
 #### Windows-Specific Checks (15+ checks)
 
--   ✅ **Firewall** (AST-FW-001 to AST-FW-003):
-    -   Windows Firewall disabled or permissive
-    -   Firewall rules allowing Any-Any traffic
-    -   Inbound RDP allowed from any source
--   ✅ **Registry** (AST-WIN-001 to AST-WIN-004):
-    -   LM/NTLM authentication settings
-    -   UAC disabled or weakened
-    -   AutoAdminLogon enabled
-    -   LSA protection disabled
--   ✅ **Active Directory Policies** (AST-AD-006 to AST-AD-008):
-    -   Default Domain Controllers GPO modified
-    -   Unconstrained delegation enabled
-    -   AdminSDHolder permissions modified
--   ✅ **Services & Privileges** (AST-PRV-001 to AST-PRV-004):
-    -   Service executable writable by non-admin
-    -   Unquoted service paths
-    -   AlwaysInstallElevated enabled
-    -   Weak service permissions
+- ✅ **Firewall** (AST-FW-001 to AST-FW-003):
+    - Windows Firewall disabled or permissive
+    - Firewall rules allowing Any-Any traffic
+    - Inbound RDP allowed from any source
+- ✅ **Registry** (AST-WIN-001 to AST-WIN-004):
+    - LM/NTLM authentication settings
+    - UAC disabled or weakened
+    - AutoAdminLogon enabled
+    - LSA protection disabled
+- ✅ **Active Directory Policies** (AST-AD-006 to AST-AD-008):
+    - Default Domain Controllers GPO modified
+    - Unconstrained delegation enabled
+    - AdminSDHolder permissions modified
+- ✅ **Services & Privileges** (AST-PRV-001 to AST-PRV-004):
+    - Service executable writable by non-admin
+    - Unquoted service paths
+    - AlwaysInstallElevated enabled
+    - Weak service permissions
 
 #### Linux-Specific Checks (12+ checks)
 
--   ✅ **Firewall** (AST-LNX-001 to AST-LNX-003):
-    -   iptables/nftables disabled or permissive
-    -   Firewall rules allowing all traffic
-    -   Firewall not persistent across reboots
--   ✅ **NFS Security** (AST-NFS-001 to AST-NFS-003):
-    -   NFS export with no_root_squash
-    -   NFS export accessible to world
-    -   NFSv3 in use (no authentication)
--   ✅ **SSH Security** (AST-SSH-001 to AST-SSH-004):
-    -   Root login via SSH permitted
-    -   Password authentication enabled
-    -   Weak SSH ciphers/MACs enabled
-    -   SSH default port in use
--   ✅ **Privilege Escalation** (AST-PRV-005 to AST-PRV-008):
-    -   Dangerous SUID binaries
-    -   World-writable files in privileged directories
-    -   Sudo misconfiguration
-    -   /etc/passwd or /etc/shadow world-readable
+- ✅ **Firewall** (AST-LNX-001 to AST-LNX-003):
+    - iptables/nftables disabled or permissive
+    - Firewall rules allowing all traffic
+    - Firewall not persistent across reboots
+- ✅ **NFS Security** (AST-NFS-001 to AST-NFS-003):
+    - NFS export with no_root_squash
+    - NFS export accessible to world
+    - NFSv3 in use (no authentication)
+- ✅ **SSH Security** (AST-SSH-001 to AST-SSH-004):
+    - Root login via SSH permitted
+    - Password authentication enabled
+    - Weak SSH ciphers/MACs enabled
+    - SSH default port in use
+- ✅ **Privilege Escalation** (AST-PRV-005 to AST-PRV-008):
+    - Dangerous SUID binaries
+    - World-writable files in privileged directories
+    - Sudo misconfiguration
+    - /etc/passwd or /etc/shadow world-readable
 
 #### Infrastructure
 
--   ✅ **Consent Token System**: Ethical scanning with HTTP/.well-known, DNS TXT, or SSH verification
--   ✅ **SQLite Database**: Shared Argos Suite database (~/.argos/argos.db)
--   ✅ **Dual Reporting**: JSON (machine-readable) and HTML (Minotaur-themed) formats
--   ✅ **Professional HTML Reports**: Responsive, self-contained, Minotaur branding (red/orange/purple)
--   ✅ **Automatic Secret Redaction**: Logging system prevents credential leaks
--   ✅ **Multi-Source Configuration**: YAML defaults + environment variables + CLI overrides
--   ✅ **Docker Support**: Production-ready containerized scanning
+- ✅ **Consent Token System**: Ethical scanning with HTTP/.well-known, DNS TXT, or SSH verification
+- ✅ **SQLite Database**: Shared Argos Suite database (~/.argos/argos.db)
+- ✅ **Dual Reporting**: JSON (machine-readable) and HTML (Minotaur-themed) formats
+- ✅ **Professional HTML Reports**: Responsive, self-contained, Minotaur branding (red/orange/purple)
+- ✅ **Automatic Secret Redaction**: Logging system prevents credential leaks
+- ✅ **Multi-Source Configuration**: YAML defaults + environment variables + CLI overrides
+- ✅ **Docker Support**: Production-ready containerized scanning
 
 #### AI-Powered Analysis (3 Providers)
 
--   ✅ **OpenAI GPT-4 Turbo**: Premium quality analysis via Python bridge
--   ✅ **Anthropic Claude**: Privacy-focused alternative
--   ✅ **Ollama (Local Models)**: 100% offline analysis
--   ✅ **Executive Summaries**: Non-technical reports for management
--   ✅ **Technical Remediation Guides**: Step-by-step PowerShell/Bash commands
--   ✅ **Dual-Tone Mode**: Both executive and technical analysis
--   ✅ **Automatic Sanitization**: Zero credentials leaked to AI providers
+- ✅ **OpenAI GPT-4 Turbo**: Premium quality analysis via Python bridge
+- ✅ **Anthropic Claude**: Privacy-focused alternative
+- ✅ **Ollama (Local Models)**: 100% offline analysis
+- ✅ **Executive Summaries**: Non-technical reports for management
+- ✅ **Technical Remediation Guides**: Step-by-step PowerShell/Bash commands
+- ✅ **Dual-Tone Mode**: Both executive and technical analysis
+- ✅ **Automatic Sanitization**: Zero credentials leaked to AI providers
 
 #### Authentication & Credentials
 
--   ✅ **Basic Authentication**: user:pass or DOMAIN\user:pass
--   ✅ **NTLM Hash Authentication**: Pass-the-hash for SMB
--   ✅ **Kerberos**: user:pass@REALM (Windows native SSPI)
--   ✅ **SSH Credentials**: Remote Linux auditing via SSH.NET
+- ✅ **Basic Authentication**: user:pass or DOMAIN\user:pass
+- ✅ **NTLM Hash Authentication**: Pass-the-hash for SMB
+- ✅ **Kerberos**: user:pass@REALM (Windows native SSPI)
+- ✅ **SSH Credentials**: Remote Linux auditing via SSH.NET
 
 #### Resilience & Error Handling
 
--   ✅ **Connection Error Recovery**: Handles timeouts, DNS failures, refused connections
--   ✅ **Database Corruption Recovery**: Automatic backup and recreation
--   ✅ **Read-Only Mode**: Graceful degradation when database is locked
--   ✅ **Partial Scan Support**: Preserves results even if target goes offline mid-scan
--   ✅ **Ctrl+C Handling**: Graceful shutdown with result preservation
+- ✅ **Connection Error Recovery**: Handles timeouts, DNS failures, refused connections
+- ✅ **Database Corruption Recovery**: Automatic backup and recreation
+- ✅ **Read-Only Mode**: Graceful degradation when database is locked
+- ✅ **Partial Scan Support**: Preserves results even if target goes offline mid-scan
+- ✅ **Ctrl+C Handling**: Graceful shutdown with result preservation
 
 #### Developer Experience
 
--   ✅ **Rich CLI Interface**: Colored output, progress tracking, ASCII art Minotaur branding
--   ✅ **Verbosity Levels**: `-v` (verbose) for detailed logging
--   ✅ **Comprehensive Help**: Built-in documentation with examples
--   ✅ **Flexible Deployment**: Native .NET, Docker, or cross-platform
+- ✅ **Rich CLI Interface**: Colored output, progress tracking, ASCII art Minotaur branding
+- ✅ **Verbosity Levels**: `-v` (verbose) for detailed logging
+- ✅ **Comprehensive Help**: Built-in documentation with examples
+- ✅ **Flexible Deployment**: Native .NET, Docker, or cross-platform
 
 ### Performance Benchmarks (v0.1.0)
 
--   **Scan Duration**: 15-90 seconds (depending on target count and ports)
--   **Database Efficiency**: Shared with Argos Suite (2.0 MB for 5,000+ findings across all tools)
--   **Query Performance**: 5-50ms for complex aggregations
--   **Concurrent Target Scanning**: 5-20 simultaneous targets
--   **Scalability**: Tested up to 1,000+ targets with linear performance
+- **Scan Duration**: 15-90 seconds (depending on target count and ports)
+- **Database Efficiency**: Shared with Argos Suite (2.0 MB for 5,000+ findings across all tools)
+- **Query Performance**: 5-50ms for complex aggregations
+- **Concurrent Target Scanning**: 5-20 simultaneous targets
+- **Scalability**: Tested up to 1,000+ targets with linear performance
 
 ---
 
-## v0.2.0 - Remote System Auditing & Enhanced Detection
+## v0.2.0 ✅ RELEASED — Remote System Auditing & Enhanced Detection
 
 **Theme:** Remote Windows/Linux Auditing + Advanced Network Checks
-**Target Release:** Q2 2026 (April-May)
-**Focus:** WinRM support, enhanced remote checks, aggressive mode differentiation
+**Release Date:** May 2026
+**Status:** ✅ **PRODUCTION READY**
+**Focus:** WinRM support, enhanced remote checks, aggressive mode differentiation, AI enhancements, attack chains, diff reports
 
 ---
 
-### 🔍 Remote Windows System Checks (WinRM)
+### 🔍 Remote Windows System Checks (WinRM) ✅ COMPLETED
 
 **Ticket:** AST-FEATURE-001
 **Priority:** High
+**Status:** ✅ Shipped in v0.2.0 — `WinRmConnectionManager.cs`, `WinRmChecks.cs`, `--winrm` flag
 
 #### Problem Statement
 
 Currently, Windows-specific checks (firewall, registry, services) only work when:
 
--   Running Asterion **on Windows locally** (ASP.NET WMI)
--   Running via SSH on Linux targets
+- Running Asterion **on Windows locally** (ASP.NET WMI)
+- Running via SSH on Linux targets
 
 Windows remote auditing requires **WinRM (Windows Remote Management)**.
 
@@ -257,7 +259,7 @@ private async Task<List<Finding>> CheckRemoteFirewallViaWinRMAsync(string target
     {
         findings.Add(new Finding
         {
-            Id = "AST-FW-001",
+            Id = "AST-FW-WIN-001",
             Title = "Windows Firewall disabled",
             Severity = Severity.High,
             Evidence = new Evidence { Type = "powershell", Value = result },
@@ -294,35 +296,36 @@ authentication:
 
 #### Checks Enabled by WinRM
 
--   ✅ **WinFirewallCheck** (remote)
--   ✅ **WinRegistryCheck** (remote)
--   ✅ **AdPolicyCheck** (remote domain queries)
--   ✅ **WinServicesCheck** (remote)
--   ✅ **PrivEscCheckWin** (remote privilege escalation vectors)
+- ✅ **WinFirewallCheck** (remote)
+- ✅ **WinRegistryCheck** (remote)
+- ✅ **AdPolicyCheck** (remote domain queries)
+- ✅ **WinServicesCheck** (remote)
+- ✅ **PrivEscCheckWin** (remote privilege escalation vectors)
 
 #### Benefits
 
--   **True Remote Auditing**: Scan Windows servers from Linux/macOS
--   **Enterprise AD Scanning**: Audit domain controllers without local access
--   **Consistent Results**: Same checks work locally and remotely
--   **Credential Reuse**: Use same domain credentials for SMB + WinRM
+- **True Remote Auditing**: Scan Windows servers from Linux/macOS
+- **Enterprise AD Scanning**: Audit domain controllers without local access
+- **Consistent Results**: Same checks work locally and remotely
+- **Credential Reuse**: Use same domain credentials for SMB + WinRM
 
 **Target Release:** v0.2.0
 
 ---
 
-### 🔍 Enhanced Linux Remote Checks (SSH)
+### 🔍 Enhanced Linux Remote Checks (SSH) ✅ COMPLETED
 
 **Ticket:** AST-FEATURE-002
 **Priority:** Medium
+**Status:** ✅ Shipped in v0.2.0 — `--ssh-key`, `--sudo-password`, `--bastion` flags
 
 #### Current Limitations
 
 SSH remote checks work, but some improvements needed:
 
--   No SSH key-based authentication (only password)
--   No multi-hop SSH (bastion/jump hosts)
--   No automatic sudo elevation
+- No SSH key-based authentication (only password)
+- No multi-hop SSH (bastion/jump hosts)
+- No automatic sudo elevation
 
 #### Planned Enhancements
 
@@ -443,32 +446,33 @@ ast scan --target internal.corp.local \
 
 **Benefits:**
 
--   **Enterprise SSH Access**: Support for bastion hosts
--   **Security**: Key-based authentication preferred over passwords
--   **Privilege Escalation**: Automatic sudo elevation for privileged checks
--   **Large File Support**: Chunked reading for big config files
+- **Enterprise SSH Access**: Support for bastion hosts
+- **Security**: Key-based authentication preferred over passwords
+- **Privilege Escalation**: Automatic sudo elevation for privileged checks
+- **Large File Support**: Chunked reading for big config files
 
 **Target Release:** v0.2.0
 
 ---
 
-### 🔍 Advanced Target OS Detection
+### 🔍 Advanced Target OS Detection ✅ COMPLETED
 
 **Ticket:** AST-FEATURE-003
 **Priority:** Medium
+**Status:** ✅ Shipped in v0.2.0 — `OsDetector.cs`, Phase 0 detection per target (SSH banner + SMB/RDP port heuristics + ICMP TTL fallback)
 
 #### Problem Statement
 
 Currently, OS-specific checks are registered globally:
 
--   Windows checks run only if **Asterion is running on Windows**
--   Linux checks run only if **Asterion is running on Linux**
+- Windows checks run only if **Asterion is running on Windows**
+- Linux checks run only if **Asterion is running on Linux**
 
 We need **per-target OS detection** to enable:
 
--   Scanning Windows targets from Linux (via WinRM)
--   Scanning Linux targets from Windows (via SSH)
--   Mixed-OS environments in single scan
+- Scanning Windows targets from Linux (via WinRM)
+- Scanning Linux targets from Windows (via SSH)
+- Mixed-OS environments in single scan
 
 #### Planned Implementation
 
@@ -609,19 +613,20 @@ os_detection:
 
 #### Benefits
 
--   **Flexible Scanning**: Scan any OS from any OS
--   **Automatic Check Selection**: Right checks for right targets
--   **Mixed Environments**: Single scan for Windows + Linux infrastructure
--   **Accurate Detection**: 90%+ accuracy with multi-method approach
+- **Flexible Scanning**: Scan any OS from any OS
+- **Automatic Check Selection**: Right checks for right targets
+- **Mixed Environments**: Single scan for Windows + Linux infrastructure
+- **Accurate Detection**: 90%+ accuracy with multi-method approach
 
 **Target Release:** v0.2.0
 
 ---
 
-### 🚀 Better Aggressive Mode
+### 🚀 Better Aggressive Mode ✅ COMPLETED
 
 **Ticket:** AST-FEATURE-004
 **Priority:** High
+**Status:** ✅ Shipped in v0.2.0 — `AdAggressiveCheck.cs` (AS-REP, delegation, ACLs, AdminCount, LAPS), Linux aggressive privesc checks (Docker socket, systemd units, cred files)
 
 #### Planned Aggressive Mode Enhancements
 
@@ -857,19 +862,20 @@ private async Task<List<Finding>> CheckKernelExploitsAsync(List<string> targets,
 
 #### Benefits
 
--   **Real Value Differentiation**: Aggressive mode provides significantly more checks
--   **Penetration Testing Ready**: Checks commonly used in offensive security
--   **Configurable Aggression**: Disable specific aggressive checks via config
--   **Respects Consent**: Requires verified consent token
+- **Real Value Differentiation**: Aggressive mode provides significantly more checks
+- **Penetration Testing Ready**: Checks commonly used in offensive security
+- **Configurable Aggression**: Disable specific aggressive checks via config
+- **Respects Consent**: Requires verified consent token
 
 **Target Release:** v0.2.0
 
 ---
 
-### 💰 AI Cost Tracking & Budget Limits
+### 💰 AI Cost Tracking & Budget Limits ✅ COMPLETED
 
 **Ticket:** IMPROV-005 _(Shared with Argos Suite)_
 **Priority:** Medium
+**Status:** ✅ Shipped in v0.2.0 — `AICostTracker.save_to_db()`, `~/.argos/costs.json`, `--ai-budget` flag, `ai_costs` table in argos.db
 
 #### Configuration
 
@@ -901,19 +907,20 @@ ast scan --target 10.0.0.0/24 --use-ai
 
 **Benefits:**
 
--   Cost transparency
--   Budget enforcement
--   Monthly projections
--   Enterprise compliance
+- Cost transparency
+- Budget enforcement
+- Monthly projections
+- Enterprise compliance
 
 **Target Release:** v0.2.0
 
 ---
 
-### 🌊 AI Streaming Responses
+### 🌊 AI Streaming Responses ✅ COMPLETED
 
 **Ticket:** IMPROV-006 _(Shared with Argos Suite)_
 **Priority:** Low
+**Status:** ✅ Shipped in v0.2.0 — `--ai-stream` flag (OpenAI, Anthropic, Ollama)
 
 #### Current vs Streaming Behavior
 
@@ -941,18 +948,19 @@ ast scan --target 10.0.0.0/24 --use-ai
 
 **Benefits:**
 
--   Improved UX (see progress)
--   Reduced perceived latency
--   Error detection (know immediately if AI stalls)
+- Improved UX (see progress)
+- Reduced perceived latency
+- Error detection (know immediately if AI stalls)
 
 **Target Release:** v0.2.0
 
 ---
 
-### 📊 Enhanced HTML Reporting
+### 📊 Enhanced HTML Reporting ✅ COMPLETED
 
 **Ticket:** IMPROV-002 _(Shared with Argos Suite)_
 **Priority:** High
+**Status:** ✅ Shipped in v0.2.0 — filter bar, CVE/CWE badges, OWASP badges, compliance badges, attack chains section, AI tabs, Risk Score card
 
 #### Planned Improvements
 
@@ -1015,49 +1023,82 @@ client signing = mandatory</code></pre>
 
 **Benefits:**
 
--   Actionable insights (copy-paste PowerShell/Bash commands)
--   Clear vulnerability correlation (CVE/CWE mapping)
--   Better organization (filtering and grouping)
+- Actionable insights (copy-paste PowerShell/Bash commands)
+- Clear vulnerability correlation (CVE/CWE mapping)
+- Better organization (filtering and grouping)
 
 **Target Release:** v0.2.0
 
 ---
 
-### 📚 Additional v0.2.0 Features
+### 📚 Additional v0.2.0 Features ✅ COMPLETED
 
-#### Multi-Credential Support
+#### Multi-Credential File Support ✅
 
 ```bash
-# Scan multiple targets with different credentials
-ast scan --target targets.txt --creds-file credentials.yaml
+# Load all credentials from a YAML file
+ast scan --target 192.168.1.10 --creds-file credentials.yaml
 
 # credentials.yaml format:
-10.0.0.5:
-  winrm: "CORP\admin:P@ssw0rd"
-
-10.0.0.10-20:
-  ssh: "root:toor"
-
-dc01.corp.local:
-  kerberos: "admin:password@CORP.LOCAL"
+auth: "CORP\\admin:P@ssw0rd"
+ssh: "root:toor"
+winrm: "admin:P@ssw0rd"
+sudo_password: "sudopass"
 ```
 
-#### LDAP Advanced Queries
+CLI flags always override `--creds-file` values.
 
--   Domain trust enumeration
--   Service Principal Name (SPN) discovery
--   Group membership analysis
--   Delegation chain detection
+#### TLS Scanner ✅
 
-**Breaking Changes:** None (fully backward compatible)
+- `TlsScanner.cs` — expired certs, self-signed, TLS 1.0/1.1, weak ciphers (`AST-TLS-001..004`)
+- Probes: 443, 8443, 636 (LDAPS), 3389 (RDP), 21 (FTPS), 465/587 (SMTPS)
+
+#### SYSVOL / GPP Credential Check ✅
+
+- `SysvolCheck.cs` — SMB enumeration for Group Policy Preferences `cpassword`, legacy creds
+- Finding codes: `AST-SYSVOL-001..003`
+
+#### Attack Chain Correlation ✅
+
+- `AttackChainAnalyzer.cs` — 8 multi-step attack vectors with MITRE technique IDs
+- `AST-CHAIN-001..008` appear in JSON `attackChains[]` and HTML report section
+
+#### Diff Reports ✅
+
+- `--diff last` — compare current scan against the previous scan for same target
+- `--diff <scan_id>` — compare against a specific past scan
+- JSON `diff` object: `refScanId`, `new`, `fixed`, `persisting`
+
+#### AI Agent Mode ✅
+
+- `--ai-agent` — LangChain agent with NVD CVE lookup tool; `agentAnalysis` in JSON
+
+#### AI Compare Mode ✅
+
+- `--ai-compare "openai/gpt-4o-mini,anthropic/claude-3-5-haiku-20241022"` — multi-model comparison; `compareResults[]` in JSON
+
+#### CVE Enrichment ✅
+
+- NVD API v2 + CIRCL fallback; `vulnerabilities[]` per finding with CVE/CWE/CVSS data
+
+#### OWASP + Compliance Mapping ✅
+
+- All `AST-*` codes mapped to OWASP Top 10 2021 + CIS / NIST / PCI DSS
+
+#### LDAP Advanced Queries (Moved to v0.3.0)
+
+- Domain trust enumeration, SPN discovery, group membership, delegation chains
+- Complexity warranted deferral to v0.3.0
+
+**Breaking Changes:** Finding code prefixes normalized (e.g. `AST-FW-WIN-*` instead of `AST-FW-*`). All JSON reports validated against updated `schema/report.schema.json`.
 
 ---
 
 ## v0.3.0 - Enterprise & Interactive Features
 
-**Theme:** Usability, Scale, and Conversational AI
-**Target Release:** Q3 2026 (July-August)
-**Focus:** Metasploit-style CLI, multi-site scanning, interactive AI
+**Theme:** Usability, Scale, Conversational AI, and Advanced AD Enumeration
+**Target Release:** Q3–Q4 2026
+**Focus:** Metasploit-style CLI, interactive DB, LDAP advanced queries, BloodHound export, multi-site scanning
 
 ---
 
@@ -1129,10 +1170,10 @@ $ ast scan --target 10.0.0.0/24 --profile pentest-corp
 
 **Benefits:**
 
--   No YAML editing
--   Credential profiles for different environments
--   Runtime switching
--   Team collaboration (share profiles)
+- No YAML editing
+- Credential profiles for different environments
+- Runtime switching
+- Team collaboration (share profiles)
 
 **Target Release:** v0.3.0
 
@@ -1195,9 +1236,9 @@ $ ast db findings export --format csv --output findings.csv
 
 **Benefits:**
 
--   No SQL knowledge required
--   Rapid auditing across all Argos Suite tools
--   Automation-friendly
+- No SQL knowledge required
+- Rapid auditing across all Argos Suite tools
+- Automation-friendly
 
 **Target Release:** v0.3.0
 
@@ -1282,11 +1323,11 @@ AI: Yes, for the unconstrained delegation finding on WEB01$:
 
 **Features:**
 
--   Natural language queries
--   PowerShell/Bash command generation
--   BloodHound integration
--   Attack path explanation
--   Step-by-step remediation
+- Natural language queries
+- PowerShell/Bash command generation
+- BloodHound integration
+- Attack path explanation
+- Step-by-step remediation
 
 **Target Release:** v0.3.0
 
@@ -1398,25 +1439,25 @@ public class ScanController : ControllerBase
 
 #### Automated Remediation
 
--   PowerShell DSC integration for Windows auto-fixing
--   Ansible playbook generation for Linux
--   Safe auto-patching with approval workflow
--   Dry-run mode (simulate fixes without applying)
--   Rollback capability
+- PowerShell DSC integration for Windows auto-fixing
+- Ansible playbook generation for Linux
+- Safe auto-patching with approval workflow
+- Dry-run mode (simulate fixes without applying)
+- Rollback capability
 
 #### ML-Based Detection
 
--   Anomaly detection (unusual AD configurations)
--   False positive reduction (learn from user feedback)
--   Behavioral analysis (detect lateral movement patterns)
--   Custom model training on historical scan data
+- Anomaly detection (unusual AD configurations)
+- False positive reduction (learn from user feedback)
+- Behavioral analysis (detect lateral movement patterns)
+- Custom model training on historical scan data
 
 #### Distributed Scanning
 
--   Worker nodes for large-scale environments (1000+ hosts)
--   Redis queue for task distribution
--   Master/worker architecture
--   Progress aggregation
+- Worker nodes for large-scale environments (1000+ hosts)
+- Redis queue for task distribution
+- Master/worker architecture
+- Progress aggregation
 
 **Breaking Changes:** Configuration schema v2
 **Migration:** Automatic upgrade
@@ -1436,7 +1477,7 @@ public class ScanController : ControllerBase
 
 ## Community Requests
 
-Vote on features at **[GitHub Discussions](https://github.com/rodhnin/hephaestus-server-forger/discussions)**
+Vote on features at **[GitHub Discussions](https://github.com/rodhnin/asterion-network-minotaur/discussions)**
 
 **Have an idea?** Open a discussion!
 
@@ -1455,9 +1496,9 @@ Asterion development follows these principles:
 
 ### Commitments
 
--   ✅ **Quarterly feature releases** with new capabilities
--   ✅ **Open development** with public roadmap
--   ✅ **Responsive support** on GitHub (48h response)
+- ✅ **Quarterly feature releases** with new capabilities
+- ✅ **Open development** with public roadmap
+- ✅ **Responsive support** on GitHub (48h response)
 
 ---
 
@@ -1474,5 +1515,5 @@ Consider Pro Track or sponsor the project
 
 ---
 
-_Last updated: November 2025_
-_Roadmap version: 1.0 (v0.1.0)_
+_Last updated: May 2026_
+_Roadmap version: 2.0 (v0.2.0)_

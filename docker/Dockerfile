@@ -9,14 +9,14 @@ FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /src
 
 # Copy solution and project files
-COPY ../Asterion.sln .
-COPY ../src/Asterion/Asterion.csproj src/Asterion/
+COPY Asterion.sln .
+COPY src/Asterion/Asterion.csproj src/Asterion/
 
 # Restore dependencies
 RUN dotnet restore Asterion.sln
 
 # Copy all source code
-COPY ../ .
+COPY . .
 
 # Build application
 WORKDIR /src/src/Asterion
@@ -28,7 +28,7 @@ FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS runtime
 
 # Labels
 LABEL maintainer="Rodney Dhavid Jimenez Chacin (rodhnin)"
-LABEL version="0.1.0"
+LABEL version="0.2.0"
 LABEL description="Asterion Network Security Auditor - The Minotaur of the Argos Suite"
 
 # Install system dependencies
@@ -55,12 +55,12 @@ WORKDIR /app
 COPY --from=build /app/publish .
 
 # Copy Python scripts, config, templates, and assets
-COPY ../scripts/ /app/scripts/
-COPY ../config/ /app/config/
-COPY ../templates/ /app/templates/
-COPY ../schema/ /app/schema/
-COPY ../db/ /app/db/
-COPY ../assets/ /app/assets/
+COPY scripts/ /app/scripts/
+COPY config/ /app/config/
+COPY templates/ /app/templates/
+COPY schema/ /app/schema/
+COPY db/ /app/db/
+COPY assets/ /app/assets/
 
 # Install Python dependencies
 RUN pip3 install --no-cache-dir -r /app/scripts/requirements.txt --break-system-packages

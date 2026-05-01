@@ -142,7 +142,8 @@ namespace Asterion.Core
                 command.Parameters.AddWithValue("@tool", report.Tool);
                 command.Parameters.AddWithValue("@domain", ExtractDomain(report.Target));
                 command.Parameters.AddWithValue("@target_url", report.Target);
-                command.Parameters.AddWithValue("@mode", report.Mode);
+                var dbMode = report.Mode == "aggressive" ? "aggressive" : "safe";
+                command.Parameters.AddWithValue("@mode", dbMode);
                 command.Parameters.AddWithValue("@started_at", report.Date);
                 command.Parameters.AddWithValue("@finished_at", DateTime.UtcNow.ToString("o"));
                 command.Parameters.AddWithValue("@status", status);
@@ -151,7 +152,10 @@ namespace Asterion.Core
                 command.Parameters.AddWithValue("@report_html_path", htmlPath ?? (object)DBNull.Value);
                 command.Parameters.AddWithValue("@error_message", result.ErrorMessage ?? (object)DBNull.Value);
                 
-                var scanId = Convert.ToInt32(await command.ExecuteScalarAsync());
+                var scalar = await command.ExecuteScalarAsync();
+                if (scalar == null || scalar is DBNull)
+                    throw new InvalidOperationException("Database INSERT did not return a scan_id (ExecuteScalarAsync returned null)");
+                var scanId = (int)Convert.ToInt64(scalar); // SQLite last_insert_rowid() returns long → safe cast to int
                 Log.Information("Inserted scan record with ID: {ScanId}", scanId);
                 
                 // Insert findings
@@ -384,6 +388,149 @@ namespace Asterion.Core
         }
 
         /// <summary>
+        /// Get the most recent completed scan for the same target (tool='asterion'),
+        /// excluding the current scan. Used by --diff last.
+        /// Returns (scan_id, started_at, target_url, mode) or null if not found.
+        /// </summary>
+        public async Task<(int ScanId, string Date, string Target, string Mode)?> GetPreviousScanAsync(
+            string target, int excludeScanId)
+        {
+            try
+            {
+                using var connection = new SqliteConnection(_connectionString);
+                await connection.OpenAsync();
+
+                var command = connection.CreateCommand();
+                // Match same tool and same target. Use LIKE for partial IP match.
+                command.CommandText = @"
+                    SELECT scan_id, started_at, target_url, mode
+                    FROM scans
+                    WHERE tool = 'asterion'
+                      AND target_url = @target
+                      AND scan_id != @exclude_id
+                      AND status = 'completed'
+                    ORDER BY scan_id DESC
+                    LIMIT 1;
+                ";
+                command.Parameters.AddWithValue("@target", target);
+                command.Parameters.AddWithValue("@exclude_id", excludeScanId);
+
+                using var reader = await command.ExecuteReaderAsync();
+                if (await reader.ReadAsync())
+                {
+                    return (
+                        reader.GetInt32(0),
+                        reader.IsDBNull(1) ? string.Empty : reader.GetString(1),
+                        reader.IsDBNull(2) ? string.Empty : reader.GetString(2),
+                        reader.IsDBNull(3) ? string.Empty : reader.GetString(3)
+                    );
+                }
+                return null;
+            }
+            catch (Exception ex)
+            {
+                Log.Error(ex, "Failed to get previous scan for target {Target}", target);
+                return null;
+            }
+        }
+
+        /// <summary>
+        /// Get the most recent completed scan by explicit scan_id (for --diff {id}).
+        /// Returns (scan_id, started_at, target_url, mode) or null if not found.
+        /// </summary>
+        public async Task<(int ScanId, string Date, string Target, string Mode)?> GetScanMetaAsync(int scanId)
+        {
+            try
+            {
+                using var connection = new SqliteConnection(_connectionString);
+                await connection.OpenAsync();
+
+                var command = connection.CreateCommand();
+                command.CommandText = @"
+                    SELECT scan_id, started_at, target_url, mode
+                    FROM scans
+                    WHERE scan_id = @scan_id AND tool = 'asterion';
+                ";
+                command.Parameters.AddWithValue("@scan_id", scanId);
+
+                using var reader = await command.ExecuteReaderAsync();
+                if (await reader.ReadAsync())
+                {
+                    return (
+                        reader.GetInt32(0),
+                        reader.IsDBNull(1) ? string.Empty : reader.GetString(1),
+                        reader.IsDBNull(2) ? string.Empty : reader.GetString(2),
+                        reader.IsDBNull(3) ? string.Empty : reader.GetString(3)
+                    );
+                }
+                return null;
+            }
+            catch (Exception ex)
+            {
+                Log.Error(ex, "Failed to get scan meta for scan_id {ScanId}", scanId);
+                return null;
+            }
+        }
+
+        /// <summary>
+        /// Get minimal findings (code, title, severity) for a scan. Used for diff computation.
+        /// </summary>
+        public async Task<List<(string Code, string Title, string Severity)>> GetScanFindingsForDiffAsync(int scanId)
+        {
+            var results = new List<(string, string, string)>();
+            try
+            {
+                using var connection = new SqliteConnection(_connectionString);
+                await connection.OpenAsync();
+
+                var command = connection.CreateCommand();
+                command.CommandText = @"
+                    SELECT finding_code, title, severity
+                    FROM findings
+                    WHERE scan_id = @scan_id
+                    ORDER BY finding_code;
+                ";
+                command.Parameters.AddWithValue("@scan_id", scanId);
+
+                using var reader = await command.ExecuteReaderAsync();
+                while (await reader.ReadAsync())
+                {
+                    results.Add((
+                        reader.GetString(0),
+                        reader.GetString(1),
+                        reader.GetString(2)
+                    ));
+                }
+            }
+            catch (Exception ex)
+            {
+                Log.Error(ex, "Failed to get findings for diff on scan {ScanId}", scanId);
+            }
+            return results;
+        }
+
+        /// <summary>
+        /// Update html_path after HTML report is generated (called after InsertScanAsync when htmlPath was null)
+        /// </summary>
+        public async Task UpdateScanHtmlPathAsync(int scanId, string htmlPath)
+        {
+            try
+            {
+                using var connection = new SqliteConnection(_connectionString);
+                await connection.OpenAsync();
+                var command = connection.CreateCommand();
+                command.CommandText = "UPDATE scans SET report_html_path = @html_path WHERE scan_id = @scan_id;";
+                command.Parameters.AddWithValue("@html_path", htmlPath);
+                command.Parameters.AddWithValue("@scan_id", scanId);
+                await command.ExecuteNonQueryAsync();
+            }
+            catch (Exception ex)
+            {
+                Log.Error(ex, "Failed to update html_path for scan {ScanId}", scanId);
+            }
+        }
+
+        /// <summary>
         /// Extract domain from target URL
         /// </summary>
         private string ExtractDomain(string target)
@@ -571,7 +718,10 @@ namespace Asterion.Core
                 command.Parameters.AddWithValue("@created_at", DateTime.UtcNow.ToString("o"));
                 command.Parameters.AddWithValue("@expires_at", expiresAt.ToString("o"));
                 
-                var tokenId = Convert.ToInt32(await command.ExecuteScalarAsync());
+                var tokenScalar = await command.ExecuteScalarAsync();
+                if (tokenScalar == null || tokenScalar is DBNull)
+                    throw new InvalidOperationException("Database INSERT did not return a token_id (ExecuteScalarAsync returned null)");
+                var tokenId = (int)Convert.ToInt64(tokenScalar);
                 Log.Information("Inserted consent token with ID: {TokenId} (pending verification)", tokenId);
                 
                 return tokenId;

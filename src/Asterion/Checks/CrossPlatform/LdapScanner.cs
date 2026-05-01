@@ -93,6 +93,19 @@ namespace Asterion.Checks.CrossPlatform
                         
                         if (ldapInfo.NTLMv1Allowed)
                             findings.Add(CreateNTLMv1AllowedFinding(target, ldapInfo));
+
+                        // LDAP-ADV findings
+                        if (ldapInfo.UnconstrainedDelegationAccounts.Any())
+                            findings.Add(CreateUnconstrainedDelegationFinding(target, ldapInfo));
+
+                        if (ldapInfo.AdminCountAccounts.Any())
+                            findings.Add(CreateAdminCountFinding(target, ldapInfo));
+
+                        if (ldapInfo.LapsNotDeployed && ldapInfo.IsDomainController)
+                            findings.Add(CreateLapsNotDeployedFinding(target, ldapInfo));
+
+                        if (ldapInfo.DomainTrusts.Any())
+                            findings.Add(CreateDomainTrustsFinding(target, ldapInfo));
                     }
                 }
                 catch (Exception ex)
@@ -256,7 +269,7 @@ namespace Asterion.Checks.CrossPlatform
                             Log.Information("[{CheckName}] Auto-fallback: Using Basic authentication (username/password)", Name);
                             Log.Debug("[{CheckName}] Technical: .NET on Linux lacks native GSSAPI for cross-platform Kerberos", Name);
                             
-                            connection.AuthType = AuthType.Basic;
+                            connection.AuthType = AuthType.Negotiate;
                         }
                         else
                         {
@@ -279,8 +292,12 @@ namespace Asterion.Checks.CrossPlatform
                         {
                             ReadPasswordPolicy(connection, info);
                             CheckPasswordNeverExpires(connection, info);
+                            CheckUnconstrainedDelegation(connection, info);
+                            CheckAdminCountAccounts(connection, info);
+                            CheckLapsDeployment(connection, info);
+                            CheckDomainTrusts(connection, info);
                         }
-                        
+
                         return true;
                     }
                 }
@@ -298,7 +315,7 @@ namespace Asterion.Checks.CrossPlatform
                 }
             });
         }
-        
+
         private async Task<bool> TryBasicBindAsync(string host, string username, string password, string? domain, LdapInfo info)
         {
             return await Task.Run(() =>
@@ -309,7 +326,7 @@ namespace Asterion.Checks.CrossPlatform
                     {
                         connection.Timeout = TimeSpan.FromSeconds(_config.Ldap.TimeoutSeconds);
                         connection.SessionOptions.ReferralChasing = ReferralChasingOptions.None;
-                        connection.AuthType = AuthType.Basic;
+                        connection.AuthType = AuthType.Negotiate;
                         
                         var credentials = new NetworkCredential(username, password, domain);
                         connection.Credential = credentials;
@@ -750,6 +767,330 @@ namespace Asterion.Checks.CrossPlatform
             )
             .WithCve("CVE-2019-1040");
         }
+
+        // ─── LDAP-ADV checks (v0.2.0) ────────────────────────────────────────
+
+        /// <summary>
+        /// Enumerate accounts/computers with unconstrained Kerberos delegation.
+        /// UAC flag TRUSTED_FOR_DELEGATION (0x80000 = 524288).
+        /// Domain Controllers are expected to have this flag — excluded.
+        /// </summary>
+        private void CheckUnconstrainedDelegation(LdapConnection connection, LdapInfo info)
+        {
+            try
+            {
+                // Exclude DCs (primaryGroupID=516) and KRBTGT
+                var filter = "(&(userAccountControl:1.2.840.113556.1.4.803:=524288)" +
+                             "(!(primaryGroupID=516))(!(sAMAccountName=krbtgt)))";
+                var req = new SearchRequest(
+                    info.DefaultNamingContext,
+                    filter,
+                    SearchScope.Subtree,
+                    new[] { "sAMAccountName", "objectClass" }
+                );
+                req.SizeLimit = 200;
+
+                var resp = (SearchResponse)connection.SendRequest(req);
+                foreach (SearchResultEntry entry in resp.Entries)
+                {
+                    var sam = entry.Attributes.Contains("sAMAccountName")
+                        ? entry.Attributes["sAMAccountName"][0]?.ToString()
+                        : null;
+                    if (!string.IsNullOrEmpty(sam))
+                        info.UnconstrainedDelegationAccounts.Add(sam);
+                }
+
+                if (info.UnconstrainedDelegationAccounts.Any())
+                    Log.Warning("[{CheckName}] {Count} account(s) with unconstrained delegation",
+                        Name, info.UnconstrainedDelegationAccounts.Count);
+            }
+            catch (Exception ex)
+            {
+                Log.Debug(ex, "[{CheckName}] CheckUnconstrainedDelegation failed", Name);
+            }
+        }
+
+        /// <summary>
+        /// Enumerate accounts protected by AdminSDHolder (adminCount=1).
+        /// Includes user accounts only (groups and built-ins excluded for brevity).
+        /// </summary>
+        private void CheckAdminCountAccounts(LdapConnection connection, LdapInfo info)
+        {
+            try
+            {
+                var filter = "(&(adminCount=1)(objectCategory=person)(objectClass=user))";
+                var req = new SearchRequest(
+                    info.DefaultNamingContext,
+                    filter,
+                    SearchScope.Subtree,
+                    new[] { "sAMAccountName" }
+                );
+                req.SizeLimit = 300;
+
+                var resp = (SearchResponse)connection.SendRequest(req);
+                foreach (SearchResultEntry entry in resp.Entries)
+                {
+                    var sam = entry.Attributes.Contains("sAMAccountName")
+                        ? entry.Attributes["sAMAccountName"][0]?.ToString()
+                        : null;
+                    if (!string.IsNullOrEmpty(sam))
+                        info.AdminCountAccounts.Add(sam);
+                }
+
+                Log.Debug("[{CheckName}] adminCount=1 accounts: {Count}", Name, info.AdminCountAccounts.Count);
+            }
+            catch (Exception ex)
+            {
+                Log.Debug(ex, "[{CheckName}] CheckAdminCountAccounts failed", Name);
+            }
+        }
+
+        /// <summary>
+        /// Check if LAPS (Local Administrator Password Solution) is deployed.
+        /// Detection: search for computers that have the ms-Mcs-AdmPwd attribute schema entry.
+        /// If the attribute doesn't exist in schema, LAPS is not deployed at all.
+        /// If it exists but no computers have it, LAPS may be partially deployed.
+        /// </summary>
+        private void CheckLapsDeployment(LdapConnection connection, LdapInfo info)
+        {
+            try
+            {
+                // Check if LAPS attribute exists in schema
+                var schemaReq = new SearchRequest(
+                    $"CN=Schema,CN=Configuration,{info.RootDomainNamingContext ?? info.DefaultNamingContext}",
+                    "(lDAPDisplayName=ms-Mcs-AdmPwd)",
+                    SearchScope.OneLevel,
+                    new[] { "lDAPDisplayName" }
+                );
+                schemaReq.SizeLimit = 1;
+
+                var schemaResp = (SearchResponse)connection.SendRequest(schemaReq);
+                if (schemaResp.Entries.Count == 0)
+                {
+                    // LAPS schema extension not present
+                    info.LapsNotDeployed = true;
+                    Log.Warning("[{CheckName}] LAPS schema attribute ms-Mcs-AdmPwd not found — LAPS not deployed", Name);
+                    return;
+                }
+
+                // Schema present — check if any computers have the password set
+                var compReq = new SearchRequest(
+                    info.DefaultNamingContext,
+                    "(&(objectClass=computer)(ms-Mcs-AdmPwd=*))",
+                    SearchScope.Subtree,
+                    new[] { "sAMAccountName" }
+                );
+                compReq.SizeLimit = 1;
+                var compResp = (SearchResponse)connection.SendRequest(compReq);
+                if (compResp.Entries.Count == 0)
+                {
+                    // Schema present but no machines managed — effectively not deployed
+                    info.LapsNotDeployed = true;
+                    Log.Warning("[{CheckName}] LAPS schema present but no computers managed by LAPS", Name);
+                }
+            }
+            catch (DirectoryOperationException ex) when (ex.Message.Contains("noSuchAttribute") ||
+                                                          ex.Message.Contains("0000208D"))
+            {
+                // Schema path not accessible or attribute unknown — assume not deployed
+                info.LapsNotDeployed = true;
+                Log.Debug("[{CheckName}] LAPS schema query returned noSuchAttribute — not deployed", Name);
+            }
+            catch (Exception ex)
+            {
+                Log.Debug(ex, "[{CheckName}] CheckLapsDeployment failed", Name);
+            }
+        }
+
+        /// <summary>
+        /// Enumerate domain trusts via LDAP (CN=System container).
+        /// </summary>
+        private void CheckDomainTrusts(LdapConnection connection, LdapInfo info)
+        {
+            try
+            {
+                var systemDn = $"CN=System,{info.DefaultNamingContext}";
+                var req = new SearchRequest(
+                    systemDn,
+                    "(objectClass=trustedDomain)",
+                    SearchScope.OneLevel,
+                    new[] { "name", "trustDirection", "trustType" }
+                );
+                req.SizeLimit = 100;
+
+                var resp = (SearchResponse)connection.SendRequest(req);
+                foreach (SearchResultEntry entry in resp.Entries)
+                {
+                    var name = entry.Attributes.Contains("name")
+                        ? entry.Attributes["name"][0]?.ToString() ?? "unknown"
+                        : "unknown";
+
+                    var dirRaw = entry.Attributes.Contains("trustDirection")
+                        ? entry.Attributes["trustDirection"][0]?.ToString()
+                        : null;
+                    var direction = int.TryParse(dirRaw, out var d) ? d switch
+                    {
+                        1 => "Inbound",
+                        2 => "Outbound",
+                        3 => "Bidirectional",
+                        _ => "Unknown"
+                    } : "Unknown";
+
+                    var typeRaw = entry.Attributes.Contains("trustType")
+                        ? entry.Attributes["trustType"][0]?.ToString()
+                        : null;
+                    var trustType = int.TryParse(typeRaw, out var t) ? t switch
+                    {
+                        1 => "Windows Non-Active Directory",
+                        2 => "Active Directory",
+                        3 => "MIT Kerberos",
+                        4 => "DCE",
+                        _ => "Unknown"
+                    } : "Unknown";
+
+                    info.DomainTrusts.Add((name, direction, trustType));
+                    Log.Information("[{CheckName}] Domain trust: {Name} ({Type}, {Dir})", Name, name, trustType, direction);
+                }
+            }
+            catch (Exception ex)
+            {
+                Log.Debug(ex, "[{CheckName}] CheckDomainTrusts failed", Name);
+            }
+        }
+
+        // ─── LDAP-ADV findings ────────────────────────────────────────────────
+
+        private Finding CreateUnconstrainedDelegationFinding(string target, LdapInfo info)
+        {
+            var accounts = string.Join(", ", info.UnconstrainedDelegationAccounts.Take(15));
+            if (info.UnconstrainedDelegationAccounts.Count > 15)
+                accounts += $" (+{info.UnconstrainedDelegationAccounts.Count - 15} more)";
+
+            return CreateFinding(
+                id: "AST-AD-011",
+                title: $"Unconstrained Kerberos delegation enabled ({info.UnconstrainedDelegationAccounts.Count} account(s))",
+                severity: "high",
+                recommendation:
+                    "Migrate from unconstrained to constrained delegation (KCD) or resource-based constrained delegation (RBCD):\n" +
+                    "1. Identify accounts: Get-ADComputer -Filter {TrustedForDelegation -eq $true}\n" +
+                    "2. For service accounts: set msDS-AllowedToDelegateTo instead of full trust.\n" +
+                    "3. Enable Protected Users group for sensitive accounts.\n" +
+                    "4. Consider 'Account is sensitive and cannot be delegated' flag on admin accounts.",
+                description:
+                    $"Found {info.UnconstrainedDelegationAccounts.Count} account(s) with unconstrained Kerberos delegation (TRUSTED_FOR_DELEGATION). " +
+                    "If any of these services is compromised, an attacker can extract Kerberos TGTs cached by the service for ANY domain user, " +
+                    "enabling full domain compromise (printer bug / SpoolSample attack).",
+                evidence: new Evidence
+                {
+                    Type = "ldap",
+                    Value = $"Accounts with TRUSTED_FOR_DELEGATION: {accounts}",
+                    Context = $"Domain: {info.DefaultNamingContext} | LDAP filter: userAccountControl:TRUSTED_FOR_DELEGATION"
+                },
+                affectedComponent: $"Domain: {info.DefaultNamingContext}"
+            )
+            .WithReferences(
+                "https://attack.mitre.org/techniques/T1558/",
+                "https://docs.microsoft.com/en-us/windows-server/security/kerberos/kerberos-constrained-delegation-overview"
+            );
+        }
+
+        private Finding CreateAdminCountFinding(string target, LdapInfo info)
+        {
+            var accounts = string.Join(", ", info.AdminCountAccounts.Take(20));
+            if (info.AdminCountAccounts.Count > 20)
+                accounts += $" (+{info.AdminCountAccounts.Count - 20} more)";
+
+            return CreateFinding(
+                id: "AST-AD-013",
+                title: $"AdminSDHolder-protected accounts ({info.AdminCountAccounts.Count}) — ACL inheritance disabled",
+                severity: "medium",
+                recommendation:
+                    "Review the list of privileged accounts and reduce attack surface:\n" +
+                    "1. List: Get-ADUser -Filter {adminCount -eq 1} | Select sAMAccountName\n" +
+                    "2. Remove from privileged groups any account that no longer needs access.\n" +
+                    "3. For service accounts: use Group Managed Service Accounts (gMSA).\n" +
+                    "4. Reset adminCount to 0 for removed accounts: Set-ADUser -Identity X -Replace @{adminCount=0}",
+                description:
+                    $"Found {info.AdminCountAccounts.Count} user accounts with adminCount=1, indicating they are or were members of privileged groups " +
+                    "(Domain Admins, Enterprise Admins, etc.). AdminSDHolder disables ACL inheritance for these accounts, which can hide " +
+                    "malicious permission grants and complicates security auditing.",
+                evidence: new Evidence
+                {
+                    Type = "ldap",
+                    Value = $"adminCount=1 user accounts: {accounts}",
+                    Context = $"Domain: {info.DefaultNamingContext} | LDAP filter: (adminCount=1)(objectCategory=person)"
+                },
+                affectedComponent: $"Domain: {info.DefaultNamingContext}"
+            )
+            .WithReferences(
+                "https://attack.mitre.org/techniques/T1078/002/",
+                "https://docs.microsoft.com/en-us/windows-server/identity/ad-ds/plan/security-best-practices/appendix-c--protected-accounts-and-groups-in-active-directory"
+            );
+        }
+
+        private Finding CreateLapsNotDeployedFinding(string target, LdapInfo info)
+        {
+            return CreateFinding(
+                id: "AST-AD-015",
+                title: "LAPS (Local Administrator Password Solution) not deployed",
+                severity: "medium",
+                recommendation:
+                    "Deploy Microsoft LAPS or Windows LAPS (built-in since Windows Server 2022/Windows 11):\n" +
+                    "1. Download LAPS from Microsoft and extend the AD schema.\n" +
+                    "2. Install the LAPS GPO on all workstations and servers.\n" +
+                    "3. Set password complexity, length and expiration via GPO.\n" +
+                    "4. Restrict ms-Mcs-AdmPwd read permissions to IT admins only.\n" +
+                    "5. Windows LAPS (KB5025175): Configure via 'Local Administrator Password Solution' GPO.",
+                description:
+                    "LAPS is not deployed in this domain. Without LAPS, local administrator accounts typically " +
+                    "share the same password across all workstations, enabling lateral movement (pass-the-hash) " +
+                    "once a single machine is compromised. LAPS enforces unique, rotated local admin passwords.",
+                evidence: new Evidence
+                {
+                    Type = "ldap",
+                    Value = "LAPS schema attribute ms-Mcs-AdmPwd not found or no computers managed by LAPS",
+                    Context = $"Domain: {info.DefaultNamingContext}"
+                },
+                affectedComponent: $"Domain: {info.DefaultNamingContext}"
+            )
+            .WithReferences(
+                "https://attack.mitre.org/techniques/T1021/002/",
+                "https://docs.microsoft.com/en-us/windows-server/identity/laps/laps-overview"
+            );
+        }
+
+        private Finding CreateDomainTrustsFinding(string target, LdapInfo info)
+        {
+            var trustList = string.Join("\n", info.DomainTrusts.Select(t =>
+                $"  • {t.Name} — {t.TrustType}, {t.Direction}"));
+
+            return CreateFinding(
+                id: "AST-LDAP-003",
+                title: $"Domain trust relationships detected ({info.DomainTrusts.Count})",
+                severity: "info",
+                recommendation:
+                    "Review domain trust relationships and ensure they follow the principle of least privilege:\n" +
+                    "1. Audit trusts: Get-ADTrust -Filter * | Select Name,TrustType,Direction,IntraForest\n" +
+                    "2. Remove unnecessary trusts (external trusts increase attack surface).\n" +
+                    "3. For required trusts: enable Selective Authentication to limit exposure.\n" +
+                    "4. Enable SID Filtering (Quarantine) on external trusts to prevent SID history attacks.",
+                description:
+                    $"Found {info.DomainTrusts.Count} domain trust relationship(s). " +
+                    "Trust relationships extend the authentication boundary — a compromise in a trusted domain " +
+                    "can lead to lateral movement into this domain. Bidirectional trusts are particularly risky.",
+                evidence: new Evidence
+                {
+                    Type = "ldap",
+                    Value = $"Domain trust relationships:\n{trustList}",
+                    Context = $"Domain: {info.DefaultNamingContext}"
+                },
+                affectedComponent: $"Domain: {info.DefaultNamingContext}"
+            )
+            .WithReferences(
+                "https://attack.mitre.org/techniques/T1482/",
+                "https://docs.microsoft.com/en-us/previous-versions/windows/it-pro/windows-server-2003/cc736874(v=ws.10)"
+            );
+        }
     }
     
     internal class LdapInfo
@@ -769,5 +1110,10 @@ namespace Asterion.Checks.CrossPlatform
         public bool LockoutDisabled { get; set; }
         public List<string> PasswordNeverExpiresAccounts { get; set; } = new List<string>();
         public bool NTLMv1Allowed { get; set; }
+        // LDAP-ADV (v0.2.0)
+        public List<string> UnconstrainedDelegationAccounts { get; set; } = new List<string>();
+        public List<string> AdminCountAccounts { get; set; } = new List<string>();
+        public bool LapsNotDeployed { get; set; }
+        public List<(string Name, string Direction, string TrustType)> DomainTrusts { get; set; } = new();
     }
 }

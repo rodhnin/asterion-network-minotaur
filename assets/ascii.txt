@@ -19,15 +19,17 @@
                         `:         : .::/
                             ;+_  :::. :..;;;
                             ;;;;,;;;;;;;;,;;
-       ╔═══════════════════════════════════════════════════════╗
-       ║              ASTERION — Network Minotaur              ║
-       ║                                                       ║
-       ║    Network Maze Mapping | Vulnerability Hunter        ║
-       ║    Author: Rodney Dhavid Jimenez Chacin (rodhnin)     ║
-       ║    Website: https://rodhnin.com                       ║
-       ╚═══════════════════════════════════════════════════════╝
-       "He walks the maze — every flaw meets the horned end..."
-╔═════════════════════════════════════════════════════════════════════╗
-║       ETHICAL USE ONLY - Use on authorized targets exclusively      ║
-║       Consent verification required for aggressive/AI modes         ║
-╚═════════════════════════════════════════════════════════════════════╝
+
+            ASTERION — Network Minotaur
+            Network Maze Mapping · Vulnerability Hunter
+
+            Author   : Rodney Dhavid Jimenez Chacin (rodhnin)
+            Website  : https://www.rodhnin.com
+
+╔══════════════════════════════════════════════════════════════════════╗
+║       "He walks the maze — every flaw meets the horned end..."       ║
+╠══════════════════════════════════════════════════════════════════════╣
+║  ETHICAL USE ONLY                                                    ║
+║  Use exclusively on systems you own or have explicit authorization.  ║
+║  Consent verification required for aggressive / AI scanning modes.   ║
+╚══════════════════════════════════════════════════════════════════════╝

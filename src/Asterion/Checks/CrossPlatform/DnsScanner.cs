@@ -167,7 +167,7 @@ namespace Asterion.Checks.CrossPlatform
                                 "Attackers can use this information for reconnaissance to map the internal network and identify potential targets.",
                             evidence: new Evidence
                             {
-                                Type = "dns_query",
+                                Type = "other",
                                 Value = $"AXFR query succeeded for zone '{domain}' on {host}",
                                 Context = $"Retrieved {records.Count} DNS records"
                             },

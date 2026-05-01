@@ -328,7 +328,6 @@ namespace Asterion.Checks.Linux
                     if (output.Contains("accept") && output.Contains("0.0.0.0"))
                     {
                         Log.Information("[{CheckName}] nftables has permissive rules - detailed analysis not implemented", Name);
-                        // TODO: Implement detailed nftables rule parsing
                     }
                 }
             }
@@ -501,7 +500,6 @@ namespace Asterion.Checks.Linux
                             if (serviceCount > 10)
                             {
                                 Log.Information("[{CheckName}] firewalld public zone has many services enabled", Name);
-                                // TODO: Create finding if too many services exposed
                             }
                         }
                     }

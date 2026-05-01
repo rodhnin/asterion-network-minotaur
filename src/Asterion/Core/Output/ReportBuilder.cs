@@ -67,6 +67,23 @@ namespace Asterion.Core.Output
                 report.AiAnalysis = aiAnalysis;
             }
 
+            // Compute aggregate risk score (0-10) from severity weights
+            // Critical=3.5, High=1.5, Medium=0.3, Low=0.05 — capped at 10.0
+            double rawScore = summary.Critical * 3.5
+                            + summary.High     * 1.5
+                            + summary.Medium   * 0.3
+                            + summary.Low      * 0.05;
+            report.RiskScore = Math.Round(Math.Min(10.0, rawScore), 1);
+            report.RiskLabel = report.RiskScore switch
+            {
+                >= 8.0 => "Critical Risk",
+                >= 6.0 => "High Risk",
+                >= 4.0 => "Medium Risk",
+                >= 2.0 => "Low Risk",
+                >  0.0 => "Minimal Risk",
+                _      => "Secure"
+            };
+
             return report;
         }
 
@@ -200,6 +217,7 @@ namespace Asterion.Core.Output
                 {
                     FileName = pythonCmd,
                     Arguments = args,
+                    WorkingDirectory = Path.GetDirectoryName(scriptPath) ?? AppDomain.CurrentDomain.BaseDirectory,
                     RedirectStandardOutput = true,
                     RedirectStandardError = true,
                     UseShellExecute = false,

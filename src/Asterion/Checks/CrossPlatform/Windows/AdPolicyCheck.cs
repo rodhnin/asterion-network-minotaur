@@ -769,20 +769,20 @@ namespace Asterion.Checks.CrossPlatform.Windows
 
                     ldapConnection.Bind();
 
-                    // Query for configuration naming context
-                    var rootDseRequest = new SearchRequest(null, "(objectClass=*)", SearchScope.Base, "configurationNamingContext");
+                    // Query for domain naming context (trustedDomain objects live in CN=System,<domainNC>)
+                    var rootDseRequest = new SearchRequest(null, "(objectClass=*)", SearchScope.Base, "defaultNamingContext");
                     var rootDseResponse = (SearchResponse)ldapConnection.SendRequest(rootDseRequest);
-                    
+
                     if (rootDseResponse.Entries.Count == 0)
                         return;
 
-                    var configNamingContext = rootDseResponse.Entries[0].Attributes["configurationNamingContext"]?[0]?.ToString();
-                    if (string.IsNullOrEmpty(configNamingContext))
+                    var defaultNamingContext = rootDseResponse.Entries[0].Attributes["defaultNamingContext"]?[0]?.ToString();
+                    if (string.IsNullOrEmpty(defaultNamingContext))
                         return;
 
                     // Query for trusted domain objects
                     var trustSearchRequest = new SearchRequest(
-                        $"CN=System,{configNamingContext}",
+                        $"CN=System,{defaultNamingContext}",
                         "(objectClass=trustedDomain)",
                         SearchScope.Subtree,
                         "cn", "trustDirection", "trustType"

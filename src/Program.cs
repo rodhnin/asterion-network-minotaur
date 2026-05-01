@@ -78,7 +78,7 @@ namespace Asterion
                     Console.WriteLine(@"
             ╔═══════════════════════════════════════════════════════════════╗
             ║                                                               ║
-            ║              Network Security Auditor v0.1.0                  ║
+            ║              Network Security Auditor v0.2.0                  ║
             ║              The Minotaur of the Argos Suite                  ║
             ║                                                               ║
             ╚═══════════════════════════════════════════════════════════════╝
@@ -90,7 +90,7 @@ namespace Asterion
             {
                 Log.Warning(ex, "Failed to load ASCII banner, using fallback");
                 // Use fallback banner (same as above)
-                Console.WriteLine("ASTERION - Network Security Auditor v0.1.0");
+                Console.WriteLine("ASTERION - Network Security Auditor v0.2.0");
             }
             
             Console.WriteLine();

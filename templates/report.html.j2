@@ -7,1054 +7,1392 @@
     <title>Asterion Security Report — {{ report.target }}</title>
     <style>
         /* ============================================================================
-           ASTERION NETWORK SECURITY AUDITOR — LABYRINTH THEME
-           Colors: Stone Gray → Terracotta → Golden Bronze
-           Inspired by ancient Cretan labyrinths and the Minotaur legend
+           ASTERION NETWORK SECURITY AUDITOR — MINOTAUR THEME
+           Colors: Blood Red #c0392b · Fire Orange #e67e22 · Deep Purple #8e44ad
            ============================================================================ */
-        
         :root {
-            --maze-stone: #5a5a5a;          /* Stone walls */
-            --maze-terracotta: #c1440e;     /* Terracotta red */
-            --maze-bronze: #cd7f32;         /* Bronze accents */
-            --maze-gold: #d4af37;           /* Golden highlights */
-            --maze-dark: #2c2416;           /* Deep shadow */
-            --critical: #b91c1c;            /* Deep red */
-            --high: #ea580c;                /* Orange */
-            --medium: #f59e0b;              /* Amber */
-            --low: #3b82f6;                 /* Blue */
-            --info: #6b7280;                /* Gray */
-            --bg-light: #faf8f3;            /* Parchment */
-            --text-dark: #1f1f1f;
+            --mino-red:    #c0392b;
+            --mino-orange: #e67e22;
+            --mino-purple: #8e44ad;
+            --mino-dark:   #1a0a2e;
+            --mino-bg:     #fdf8ff;
+            --mino-soft:   #f5e6f8;
+            --border:      #d8b4e2;
+            --critical: #b91c1c;
+            --high:     #ea580c;
+            --medium:   #d97706;
+            --low:      #2563eb;
+            --info:     #6b7280;
+            --text-dark:  #1f1f1f;
             --text-light: #6b6b6b;
-            --border: #d4c5b9;              /* Sand */
         }
 
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
 
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
             line-height: 1.6;
             color: var(--text-dark);
-            background: var(--bg-light);
+            background: var(--mino-bg);
             padding: 20px;
         }
 
         .container {
-            max-width: 1200px;
+            max-width: 1260px;
             margin: 0 auto;
             background: white;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+            box-shadow: 0 4px 24px rgba(142, 68, 173, 0.18);
             border-radius: 8px;
             overflow: hidden;
             border: 2px solid var(--border);
         }
 
-        /* ============================================================================
-           HEADER - MINOTAUR LABYRINTH
-           ============================================================================ */
+        /* ── HEADER ─────────────────────────────────────────────────────────── */
         header {
-            background: linear-gradient(135deg, var(--maze-dark) 0%, var(--maze-stone) 50%, var(--maze-terracotta) 100%);
+            background: linear-gradient(135deg, var(--mino-dark) 0%, #3d0a1a 50%, var(--mino-red) 100%);
             color: white;
             padding: 50px;
             position: relative;
             overflow: hidden;
         }
 
-        /* Labyrinth pattern background */
         header::before {
             content: '';
             position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background-image: 
-                repeating-linear-gradient(90deg, transparent, transparent 20px, rgba(255,255,255,0.03) 20px, rgba(255,255,255,0.03) 40px),
-                repeating-linear-gradient(0deg, transparent, transparent 20px, rgba(255,255,255,0.03) 20px, rgba(255,255,255,0.03) 40px);
-            opacity: 0.3;
+            inset: 0;
+            background-image:
+                repeating-linear-gradient(45deg, transparent, transparent 20px, rgba(255,255,255,0.03) 20px, rgba(255,255,255,0.03) 40px),
+                repeating-linear-gradient(-45deg, transparent, transparent 20px, rgba(0,0,0,0.06) 20px, rgba(0,0,0,0.06) 40px);
         }
 
         header::after {
             content: '🐂';
             position: absolute;
-            top: 20px;
-            right: 50px;
+            top: 20px; right: 50px;
             font-size: 80px;
-            opacity: 0.15;
+            opacity: 0.13;
             transform: rotate(-15deg);
         }
 
-        .logo {
-            font-size: 60px;
-            margin-bottom: 10px;
-            text-shadow: 3px 3px 8px rgba(0,0,0,0.4);
-            position: relative;
-            z-index: 1;
-        }
+        .logo { font-size: 60px; margin-bottom: 10px; position: relative; z-index: 1; }
+        header h1 { font-size: 42px; margin-bottom: 12px; font-weight: 800; letter-spacing: 1px; position: relative; z-index: 1; text-shadow: 2px 2px 6px rgba(0,0,0,0.35); }
+        .subtitle { font-size: 18px; opacity: 0.95; margin-bottom: 6px; position: relative; z-index: 1; }
+        .tagline { font-size: 14px; font-style: italic; color: #f8c8e8; opacity: 0.9; position: relative; z-index: 1; }
 
-        header h1 {
-            font-size: 42px;
-            margin-bottom: 15px;
-            font-weight: 800;
-            text-shadow: 2px 2px 6px rgba(0,0,0,0.3);
-            letter-spacing: 1px;
-            position: relative;
-            z-index: 1;
-        }
+        .meta { display: flex; flex-wrap: wrap; gap: 20px; margin-top: 22px; font-size: 14px; opacity: 0.95; position: relative; z-index: 1; }
+        .meta-item { display: flex; align-items: center; gap: 6px; }
+        .meta-item strong { font-weight: 600; }
 
-        .subtitle {
-            font-size: 18px;
-            opacity: 0.95;
-            font-weight: 400;
-            margin-bottom: 8px;
-            position: relative;
-            z-index: 1;
-        }
-
-        .tagline {
-            font-size: 14px;
-            opacity: 0.85;
-            font-style: italic;
-            color: var(--maze-gold);
-            position: relative;
-            z-index: 1;
-        }
-
-        .meta {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 25px;
-            margin-top: 25px;
-            font-size: 14px;
-            opacity: 0.95;
-            position: relative;
-            z-index: 1;
-        }
-
-        .meta-item {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .meta-item strong {
-            font-weight: 600;
-        }
-
-        /* Summary Pills */
-        .summary-pills {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 12px;
-            margin-top: 25px;
-            position: relative;
-            z-index: 1;
-        }
-
-        .pill {
-            display: inline-flex;
-            align-items: center;
-            padding: 10px 18px;
-            border-radius: 20px;
-            font-size: 13px;
-            font-weight: 700;
-            color: white;
-            box-shadow: 0 3px 10px rgba(0,0,0,0.2);
-            transition: transform 0.2s, box-shadow 0.2s;
-        }
-
-        .pill:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
-        }
-
+        .summary-pills { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 22px; position: relative; z-index: 1; }
+        .pill { display: inline-flex; align-items: center; padding: 9px 16px; border-radius: 20px; font-size: 13px; font-weight: 700; color: white; box-shadow: 0 2px 8px rgba(0,0,0,0.25); transition: transform 0.2s, box-shadow 0.2s; }
+        .pill:hover { transform: translateY(-2px); box-shadow: 0 4px 14px rgba(0,0,0,0.35); }
         .pill-critical { background: var(--critical); }
-        .pill-high { background: var(--high); }
-        .pill-medium { background: var(--medium); color: #333; }
-        .pill-low { background: var(--low); }
-        .pill-info { background: var(--info); }
+        .pill-high     { background: var(--high); }
+        .pill-medium   { background: var(--medium); }
+        .pill-low      { background: var(--low); }
+        .pill-info     { background: var(--info); }
 
-        /* ============================================================================
-           CONTENT
-           ============================================================================ */
-        .content {
-            padding: 50px;
-        }
-
-        section {
-            margin-bottom: 50px;
-        }
+        /* ── CONTENT ─────────────────────────────────────────────────────────── */
+        .content { padding: 50px; }
+        section { margin-bottom: 50px; }
 
         h2 {
-            font-size: 28px;
-            color: var(--maze-terracotta);
-            margin-bottom: 25px;
-            padding-bottom: 15px;
+            font-size: 26px;
+            color: var(--mino-red);
+            margin-bottom: 22px;
+            padding-bottom: 12px;
             border-bottom: 3px solid var(--border);
             position: relative;
         }
-
         h2::before {
             content: '';
             position: absolute;
-            bottom: -3px;
-            left: 0;
-            width: 120px;
-            height: 3px;
-            background: var(--maze-terracotta);
+            bottom: -3px; left: 0;
+            width: 100px; height: 3px;
+            background: var(--mino-red);
         }
 
-        /* ============================================================================
-           OVERVIEW SECTION
-           ============================================================================ */
+        /* ── OVERVIEW ─────────────────────────────────────────────────────────── */
         .overview {
-            background: linear-gradient(135deg, #faf8f3 0%, #f5f0e8 100%);
-            border-radius: 8px;
-            padding: 30px;
-            margin-bottom: 40px;
-            border-left: 5px solid var(--maze-bronze);
-            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-        }
-
-        .overview-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 20px;
-            margin-top: 20px;
-        }
-
-        .overview-item {
-            background: white;
-            padding: 20px;
-            border-radius: 6px;
-            border-left: 3px solid var(--maze-bronze);
-            box-shadow: 0 1px 5px rgba(0,0,0,0.05);
-            transition: transform 0.2s, box-shadow 0.2s;
-        }
-
-        .overview-item:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 3px 12px rgba(0,0,0,0.1);
-        }
-
-        .overview-item label {
-            font-size: 12px;
-            color: var(--text-light);
-            text-transform: uppercase;
-            font-weight: 700;
-            letter-spacing: 0.5px;
-        }
-
-        .overview-item .value {
-            font-size: 20px;
-            font-weight: 700;
-            color: var(--maze-terracotta);
-            margin-top: 8px;
-        }
-
-        /* ============================================================================
-           AI ANALYSIS SECTION - WITH MARKDOWN SUPPORT
-           ============================================================================ */
-        .ai-analysis {
-            background: linear-gradient(135deg, #fff9f0 0%, #ffe8d6 100%);
-            border-radius: 8px;
-            padding: 35px;
-            margin-bottom: 40px;
-            border-left: 5px solid var(--maze-gold);
-            box-shadow: 0 2px 10px rgba(205, 127, 50, 0.15);
-        }
-
-        .ai-analysis h2 {
-            color: var(--maze-bronze);
-        }
-
-        .ai-tabs {
-            display: flex;
-            gap: 15px;
-            margin-bottom: 25px;
-            border-bottom: 3px solid var(--border);
-        }
-
-        .ai-tab {
-            padding: 12px 24px;
-            background: transparent;
-            border: none;
-            cursor: pointer;
-            font-weight: 700;
-            color: var(--text-light);
-            transition: all 0.3s;
-            border-bottom: 3px solid transparent;
-            font-size: 14px;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        .ai-tab:hover {
-            color: var(--maze-bronze);
-        }
-
-        .ai-tab.active {
-            color: var(--maze-bronze);
-            border-bottom-color: var(--maze-bronze);
-        }
-
-        .ai-content {
-            display: none;
-            padding: 25px;
-            background: white;
-            border-radius: 8px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-        }
-
-        .ai-content.active {
-            display: block;
-        }
-
-        /* Markdown styling in AI content */
-        .ai-content h3 {
-            color: var(--maze-terracotta);
-            margin-top: 25px;
-            margin-bottom: 15px;
-            font-size: 20px;
-        }
-
-        .ai-content h4 {
-            color: var(--maze-bronze);
-            margin-top: 20px;
-            margin-bottom: 12px;
-            font-size: 17px;
-            font-weight: 600;
-        }
-
-        .ai-content h5 {
-            color: var(--maze-stone);
-            margin-top: 15px;
-            margin-bottom: 10px;
-            font-size: 15px;
-            font-weight: 600;
-        }
-
-        .ai-content p {
-            margin-bottom: 15px;
-            line-height: 1.8;
-        }
-
-        .ai-content ul,
-        .ai-content ol {
-            margin-left: 30px;
-            margin-top: 12px;
-            margin-bottom: 15px;
-        }
-
-        .ai-content li {
-            margin-bottom: 10px;
-            line-height: 1.7;
-        }
-
-        .ai-content strong {
-            color: var(--maze-terracotta);
-            font-weight: 700;
-        }
-
-        .ai-content code {
-            background: #f5f0e8;
-            padding: 3px 8px;
-            border-radius: 4px;
-            font-family: 'Courier New', monospace;
-            font-size: 13px;
-            color: var(--maze-bronze);
-            border: 1px solid var(--border);
-        }
-
-        .ai-content pre {
-            background: var(--maze-dark);
-            color: #f9fafb;
-            padding: 20px;
-            border-radius: 8px;
-            overflow-x: auto;
-            margin: 20px 0;
-            border-left: 4px solid var(--maze-bronze);
-            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
-        }
-
-        .ai-content pre code {
-            background: none;
-            color: #f9fafb;
-            padding: 0;
-            border: none;
-        }
-
-        .ai-content blockquote {
-            border-left: 4px solid var(--maze-gold);
-            padding-left: 20px;
-            margin: 20px 0;
-            color: var(--text-light);
-            font-style: italic;
-            background: #faf8f3;
-            padding: 15px 20px;
-            border-radius: 4px;
-        }
-
-        .ai-content table {
-            width: 100%;
-            border-collapse: collapse;
-            margin: 20px 0;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-        }
-
-        .ai-content table th,
-        .ai-content table td {
-            border: 1px solid var(--border);
-            padding: 12px;
-            text-align: left;
-        }
-
-        .ai-content table th {
-            background: #f5f0e8;
-            font-weight: 700;
-            color: var(--maze-terracotta);
-        }
-
-        .ai-meta {
-            margin-top: 25px;
-            padding-top: 20px;
-            border-top: 2px solid var(--border);
-            font-size: 13px;
-            color: var(--text-light);
-            text-align: right;
-            font-style: italic;
-        }
-
-        /* ============================================================================
-           FINDINGS TABLE
-           ============================================================================ */
-        .findings {
-            background: white;
-            border-radius: 8px;
-            padding: 35px;
-            margin-bottom: 40px;
-            border: 1px solid var(--border);
-            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 25px;
-            box-shadow: 0 2px 15px rgba(0,0,0,0.08);
-            border-radius: 8px;
-            overflow: hidden;
-        }
-
-        thead {
-            background: linear-gradient(135deg, var(--maze-dark) 0%, var(--maze-stone) 100%);
-            color: white;
-        }
-
-        th {
-            text-align: left;
-            padding: 18px 20px;
-            font-weight: 700;
-            font-size: 13px;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        td {
-            padding: 18px 20px;
-            border-bottom: 1px solid var(--border);
-            vertical-align: top;
-            font-size: 14px;
-        }
-
-        tbody tr:hover {
-            background: #faf8f3;
-            transition: background 0.2s ease;
-        }
-
-        tr:last-child td {
-            border-bottom: none;
-        }
-
-        .severity-badge {
-            display: inline-block;
-            padding: 6px 14px;
-            border-radius: 16px;
-            font-size: 11px;
-            font-weight: 800;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            color: white;
-        }
-
-        .severity-badge.critical { background: var(--critical); }
-        .severity-badge.high { background: var(--high); }
-        .severity-badge.medium { background: var(--medium); color: #333; }
-        .severity-badge.low { background: var(--low); }
-        .severity-badge.info { background: var(--info); }
-
-        .confidence-badge {
-            display: inline-block;
-            padding: 5px 12px;
-            border-radius: 12px;
-            font-size: 11px;
-            background: #f5f0e8;
-            color: var(--text-dark);
-            border: 1px solid var(--border);
-            font-weight: 600;
-        }
-
-        /* ============================================================================
-           DETAILED FINDINGS - WITH MARKDOWN SUPPORT
-           ============================================================================ */
-        .finding-details {
-            margin-top: 30px;
-        }
-
-        .finding-card {
-            background: white;
-            border-radius: 8px;
-            padding: 30px;
-            margin-bottom: 25px;
-            box-shadow: 0 2px 12px rgba(0,0,0,0.08);
-            border-left: 5px solid;
-            transition: transform 0.2s, box-shadow 0.2s;
-        }
-
-        .finding-card:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 5px 20px rgba(0,0,0,0.12);
-        }
-
-        .finding-card.critical { border-left-color: var(--critical); }
-        .finding-card.high { border-left-color: var(--high); }
-        .finding-card.medium { border-left-color: var(--medium); }
-        .finding-card.low { border-left-color: var(--low); }
-        .finding-card.info { border-left-color: var(--info); }
-
-        .finding-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            margin-bottom: 20px;
-            padding-bottom: 15px;
-            border-bottom: 2px solid var(--border);
-        }
-
-        .finding-title {
-            font-size: 22px;
-            font-weight: 700;
-            color: var(--maze-terracotta);
-            line-height: 1.3;
-        }
-
-        .finding-id {
-            font-family: 'Courier New', monospace;
-            font-size: 13px;
-            color: var(--text-light);
-            background: #f5f0e8;
-            padding: 6px 12px;
-            border-radius: 6px;
-            border: 1px solid var(--border);
-        }
-
-        .finding-description {
-            margin-bottom: 20px;
-            color: var(--text-dark);
-            line-height: 1.8;
-        }
-
-        /* Markdown support in descriptions/recommendations */
-        .finding-description p,
-        .recommendation-box p {
-            margin-bottom: 12px;
-        }
-
-        .finding-description ul,
-        .finding-description ol,
-        .recommendation-box ul,
-        .recommendation-box ol {
-            margin-left: 25px;
-            margin-bottom: 12px;
-        }
-
-        .finding-description li,
-        .recommendation-box li {
-            margin-bottom: 8px;
-        }
-
-        .finding-description strong,
-        .recommendation-box strong {
-            color: var(--maze-terracotta);
-            font-weight: 700;
-        }
-
-        .finding-description code,
-        .recommendation-box code {
-            background: #f5f0e8;
-            padding: 2px 6px;
-            border-radius: 3px;
-            font-family: 'Courier New', monospace;
-            font-size: 13px;
-            color: var(--maze-bronze);
-        }
-
-        .finding-section {
-            margin-bottom: 25px;
-        }
-
-        .finding-section h4 {
-            color: var(--maze-bronze);
-            margin-bottom: 12px;
-            font-size: 15px;
-            text-transform: uppercase;
-            font-weight: 700;
-            letter-spacing: 0.5px;
-        }
-
-        .evidence-box {
-            background: #faf8f3;
-            border: 1px solid var(--border);
-            border-left: 4px solid var(--maze-bronze);
-            border-radius: 6px;
-            padding: 15px;
-            font-family: 'Courier New', monospace;
-            font-size: 13px;
-            overflow-x: auto;
-            white-space: pre-wrap;
-            word-break: break-all;
-        }
-
-        .recommendation-box {
-            background: linear-gradient(135deg, rgba(193, 68, 14, 0.05), rgba(205, 127, 50, 0.05));
-            border-left: 5px solid var(--maze-terracotta);
-            border-radius: 8px;
-            padding: 20px;
-            margin-bottom: 15px;
-            box-shadow: 0 1px 8px rgba(0,0,0,0.05);
-        }
-
-        .references-list {
-            list-style: none;
-            padding: 0;
-        }
-
-        .references-list li {
-            margin-bottom: 8px;
-        }
-
-        .references-list a {
-            color: var(--maze-bronze);
-            text-decoration: none;
-            font-weight: 600;
-            transition: color 0.2s;
-        }
-
-        .references-list a:hover {
-            color: var(--maze-terracotta);
-            text-decoration: underline;
-        }
-
-        .cve-tag {
-            display: inline-block;
-            background: var(--critical);
-            color: white;
-            padding: 5px 10px;
-            border-radius: 6px;
-            font-size: 11px;
-            font-weight: 800;
-            margin-right: 8px;
-            margin-bottom: 8px;
-            letter-spacing: 0.5px;
-        }
-
-        /* ============================================================================
-           CONSENT SECTION
-           ============================================================================ */
-        .consent {
-            background: linear-gradient(135deg, var(--maze-terracotta), var(--maze-bronze));
-            color: white;
-            border-radius: 8px;
-            padding: 30px;
-            margin-bottom: 40px;
-            box-shadow: 0 3px 15px rgba(193, 68, 14, 0.3);
-        }
-
-        .consent h2 {
-            margin-bottom: 20px;
-            font-size: 24px;
-            border-bottom: none;
-            color: white;
-        }
-
-        .consent-details {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 20px;
-            margin-top: 20px;
-        }
-
-        .consent-item {
-            background: rgba(255, 255, 255, 0.15);
-            padding: 18px;
-            border-radius: 8px;
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-        }
-
-        .consent-item label {
-            font-size: 12px;
-            opacity: 0.9;
-            text-transform: uppercase;
-            font-weight: 700;
-            letter-spacing: 0.5px;
-        }
-
-        .consent-item .value {
-            font-size: 16px;
-            margin-top: 8px;
-            font-weight: 700;
-        }
-
-        /* ============================================================================
-           FOOTER
-           ============================================================================ */
-        footer {
-            background: var(--maze-dark);
-            color: #e0e0e0;
-            padding: 35px 50px;
-            border-top: 5px solid var(--maze-bronze);
-            font-size: 13px;
-        }
-
-        footer strong {
-            color: var(--maze-gold);
-            font-weight: 700;
-        }
-
-        footer a {
-            color: var(--maze-bronze);
-            text-decoration: none;
-            font-weight: 600;
-        }
-
-        footer a:hover {
-            color: var(--maze-gold);
-            text-decoration: underline;
-        }
-
-        /* ============================================================================
-           RESPONSIVE
-           ============================================================================ */
+            background: linear-gradient(135deg, var(--mino-bg) 0%, var(--mino-soft) 100%);
+            border-radius: 8px; padding: 28px; margin-bottom: 38px;
+            border-left: 5px solid var(--mino-purple);
+            box-shadow: 0 2px 10px rgba(142,68,173,0.1);
+        }
+        .overview h2 { color: var(--mino-purple); }
+        .overview h2::before { background: var(--mino-purple); }
+        .overview-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 18px; margin-top: 18px; }
+        .overview-item { background: white; padding: 18px; border-radius: 6px; border-left: 3px solid var(--mino-orange); box-shadow: 0 1px 5px rgba(0,0,0,0.06); }
+        .overview-item label { font-size: 11px; color: var(--text-light); text-transform: uppercase; font-weight: 700; letter-spacing: 0.5px; }
+        .overview-item .value { font-size: 20px; font-weight: 700; color: var(--mino-red); margin-top: 6px; }
+
+        /* ── CONSENT ─────────────────────────────────────────────────────────── */
+        .consent { background: linear-gradient(135deg, var(--mino-red), var(--mino-orange)); color: white; border-radius: 8px; padding: 28px; margin-bottom: 38px; box-shadow: 0 3px 15px rgba(192,57,43,0.3); }
+        .consent h2 { color: white; border-bottom: none; margin-bottom: 18px; }
+        .consent h2::before { display: none; }
+        .consent-details { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 18px; margin-top: 16px; }
+        .consent-item { background: rgba(255,255,255,0.15); padding: 16px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.25); }
+        .consent-item label { font-size: 11px; opacity: 0.9; text-transform: uppercase; font-weight: 700; letter-spacing: 0.5px; }
+        .consent-item .value { font-size: 15px; margin-top: 7px; font-weight: 700; }
+
+        /* ── ATTACK CHAINS ────────────────────────────────────────────────────── */
+        .attack-chains { background: linear-gradient(135deg, #fff5f5 0%, #fff 100%); border-radius: 8px; padding: 35px; margin-bottom: 38px; border-left: 5px solid var(--mino-red); box-shadow: 0 2px 12px rgba(192,57,43,0.15); }
+        .attack-chains h2 { color: var(--mino-red); }
+        .attack-chains h2::before { background: var(--mino-red); }
+        .chain-card { background: #fff; border-radius: 6px; border: 1px solid #f5c6cb; padding: 20px 24px; margin-bottom: 18px; }
+        .chain-card.enhanced { border-color: var(--mino-red); box-shadow: 0 0 0 2px rgba(192,57,43,0.15); }
+        .chain-header { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; margin-bottom: 12px; }
+        .chain-id { font-size: 11px; font-weight: 700; letter-spacing: 0.5px; color: var(--mino-red); background: #fdecea; padding: 3px 8px; border-radius: 4px; white-space: nowrap; }
+        .chain-title { font-size: 15px; font-weight: 700; color: #222; flex: 1; min-width: 160px; }
+        .chain-mitre { font-size: 11px; color: #666; background: #f8f9fa; padding: 3px 8px; border-radius: 4px; }
+        .chain-enhanced-badge { font-size: 10px; font-weight: 700; background: var(--mino-red); color: #fff; padding: 2px 8px; border-radius: 10px; letter-spacing: 0.5px; white-space: nowrap; }
+        .chain-desc { font-size: 13px; color: #444; line-height: 1.65; margin-bottom: 14px; }
+        .chain-steps { background: #1e1e2e; border-radius: 6px; padding: 14px 18px; margin-bottom: 14px; }
+        .chain-steps p { color: #cdd6f4; font-family: 'Courier New', monospace; font-size: 12px; margin: 3px 0; line-height: 1.55; }
+        .chain-finding-ids { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 14px; }
+        .chain-finding-ids .fid { font-size: 11px; background: #fff3cd; color: #856404; border: 1px solid #ffc107; border-radius: 4px; padding: 2px 7px; font-weight: 700; }
+        .chain-remediation { font-size: 12px; color: #2c6e49; background: #d8f3dc; border-radius: 5px; padding: 10px 14px; white-space: pre-line; line-height: 1.6; }
+
+        /* ── AI ANALYSIS ──────────────────────────────────────────────────────── */
+        .ai-analysis { background: linear-gradient(135deg, #fff 0%, #fdf5ff 100%); border-radius: 8px; padding: 35px; margin-bottom: 38px; border-left: 5px solid var(--mino-purple); box-shadow: 0 2px 12px rgba(142,68,173,0.15); }
+        .ai-analysis h2 { color: var(--mino-purple); }
+        .ai-analysis h2::before { background: var(--mino-purple); }
+
+        .ai-tabs { display: flex; gap: 10px; margin-bottom: 22px; border-bottom: 3px solid var(--border); flex-wrap: wrap; }
+        .ai-tab { padding: 11px 22px; background: transparent; border: none; cursor: pointer; font-weight: 700; color: var(--text-light); transition: all 0.3s; border-bottom: 3px solid transparent; margin-bottom: -3px; font-size: 13px; text-transform: uppercase; letter-spacing: 0.5px; }
+        .ai-tab:hover { color: var(--mino-purple); }
+        .ai-tab.active { color: var(--mino-purple); border-bottom-color: var(--mino-purple); }
+
+        .ai-content { display: none; padding: 22px; background: white; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
+        .ai-content.active { display: block; }
+
+        .ai-content h3 { color: var(--mino-red); margin-top: 22px; margin-bottom: 14px; font-size: 19px; }
+        .ai-content h4 { color: var(--mino-orange); margin-top: 18px; margin-bottom: 11px; font-size: 16px; font-weight: 600; }
+        .ai-content p { margin-bottom: 14px; line-height: 1.8; }
+        .ai-content ul, .ai-content ol { margin-left: 28px; margin-top: 10px; margin-bottom: 14px; }
+        .ai-content li { margin-bottom: 9px; line-height: 1.7; }
+        .ai-content strong { color: var(--mino-red); font-weight: 700; }
+        .ai-content code { background: var(--mino-soft); padding: 2px 7px; border-radius: 4px; font-family: 'Courier New', monospace; font-size: 13px; color: var(--mino-purple); border: 1px solid var(--border); }
+        .ai-content pre { background: var(--mino-dark); color: #f9fafb; padding: 18px; border-radius: 8px; overflow-x: auto; margin: 18px 0; border-left: 4px solid var(--mino-orange); box-shadow: 0 2px 10px rgba(0,0,0,0.22); }
+        .ai-content pre code { background: none; color: #f9fafb; padding: 0; border: none; }
+        .ai-content blockquote { border-left: 4px solid var(--mino-orange); padding: 14px 18px; margin: 18px 0; color: var(--text-light); font-style: italic; background: var(--mino-bg); border-radius: 4px; }
+        .ai-content table { width: 100%; border-collapse: collapse; margin: 18px 0; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
+        .ai-content table th, .ai-content table td { border: 1px solid var(--border); padding: 10px; text-align: left; }
+        .ai-content table th { background: var(--mino-soft); font-weight: 700; color: var(--mino-purple); }
+        .ai-meta { margin-top: 22px; padding-top: 18px; border-top: 2px solid var(--border); font-size: 13px; color: var(--text-light); text-align: right; font-style: italic; }
+
+        /* ── FILTER BAR ──────────────────────────────────────────────────────── */
+        .filter-bar { display: flex; align-items: flex-start; gap: 12px; margin-bottom: 18px; flex-wrap: wrap; flex-direction: column; }
+        .filter-row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+        .filter-label { font-size: 11px; font-weight: 700; color: var(--text-light); text-transform: uppercase; letter-spacing: 0.5px; white-space: nowrap; min-width: 80px; }
+        .filter-btns { display: flex; flex-wrap: wrap; gap: 6px; }
+        .filter-btn { padding: 5px 13px; border-radius: 14px; border: 2px solid var(--border); background: white; color: var(--text-light); font-size: 12px; font-weight: 700; cursor: pointer; transition: all 0.2s; display: inline-flex; align-items: center; gap: 4px; }
+        .filter-btn:hover { border-color: var(--mino-red); color: var(--mino-red); }
+        .filter-btn.active { background: var(--mino-red); border-color: var(--mino-red); color: white; }
+        .filter-btn.f-critical.active { background: var(--critical); border-color: var(--critical); }
+        .filter-btn.f-high.active     { background: var(--high);     border-color: var(--high);     }
+        .filter-btn.f-medium.active   { background: var(--medium);   border-color: var(--medium);   }
+        .filter-btn.f-low.active      { background: var(--low);      border-color: var(--low);      }
+        .filter-btn.f-info.active     { background: var(--info);     border-color: var(--info);     }
+        .filter-btn.f-cat.active      { background: var(--mino-purple); border-color: var(--mino-purple); }
+        .filter-cnt { background: rgba(0,0,0,0.1); border-radius: 10px; padding: 1px 6px; font-size: 11px; }
+        .filter-btn:not(.active) .filter-cnt { background: var(--mino-soft); color: var(--text-dark); }
+
+        /* ── FINDINGS TABLE ──────────────────────────────────────────────────── */
+        .findings-wrap { background: white; border-radius: 8px; padding: 32px; margin-bottom: 38px; border: 1px solid var(--border); box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
+
+        table#findings { width: 100%; border-collapse: collapse; margin-top: 18px; box-shadow: 0 2px 14px rgba(192,57,43,0.1); border-radius: 8px; overflow: hidden; table-layout: fixed; }
+        table#findings thead { background: linear-gradient(135deg, var(--mino-dark) 0%, #3d0a1a 70%, var(--mino-red) 100%); color: white; }
+        table#findings th { text-align: left; padding: 14px 16px; font-weight: 700; font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px; }
+        table#findings td { padding: 14px 16px; border-bottom: 1px solid var(--border); vertical-align: top; font-size: 13px; word-break: break-word; overflow-wrap: anywhere; max-width: 0; }
+        table#findings tbody tr:hover { background: var(--mino-bg); transition: background 0.2s; }
+        table#findings tr:last-child td { border-bottom: none; }
+
+        .severity-badge { display: inline-block; padding: 3px 8px; border-radius: 12px; font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.4px; color: white; white-space: nowrap; }
+        .severity-critical { background: var(--critical); }
+        .severity-high     { background: var(--high); }
+        .severity-medium   { background: var(--medium); }
+        .severity-low      { background: var(--low); }
+        .severity-info     { background: var(--info); }
+
+        .confidence-badge { display: inline-block; padding: 4px 10px; border-radius: 10px; font-size: 11px; background: var(--mino-soft); color: var(--text-dark); border: 1px solid var(--border); font-weight: 600; }
+
+        /* Evidence box */
+        .evidence-box { background: var(--mino-bg); border: 1px solid var(--border); border-left: 4px solid var(--mino-orange); border-radius: 5px; padding: 10px 13px; font-family: 'Courier New', monospace; font-size: 12px; overflow-x: auto; white-space: pre-wrap; word-break: break-all; margin-top: 8px; }
+
+        /* OWASP badge */
+        .owasp-badge { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 700; background: #fff3e0; color: #bf360c; border: 1px solid #ffcc80; text-decoration: none; cursor: pointer; }
+        .owasp-badge:hover { background: #ffe0b2; text-decoration: underline; }
+
+        /* CVE / CWE badges */
+        .cve-badge { display: inline-block; padding: 2px 8px; border-radius: 10px; background: var(--critical); color: white; font-size: 11px; font-weight: 700; text-decoration: none; transition: opacity 0.2s; letter-spacing: 0.2px; }
+        .cve-badge:hover { opacity: 0.82; }
+        .cwe-badge { display: inline-block; padding: 2px 8px; border-radius: 10px; background: var(--mino-purple); color: white; font-size: 11px; font-weight: 700; letter-spacing: 0.2px; }
+        .cvss-badge { display: inline-block; padding: 2px 7px; border-radius: 4px; font-size: 11px; font-weight: 700; border: 1px solid; }
+
+        /* Expand toggles */
+        .expand-toggle { background: var(--mino-soft); border: 1px solid var(--border); border-radius: 5px; padding: 4px 11px; font-size: 12px; font-weight: 600; color: var(--mino-red); cursor: pointer; transition: all 0.2s; display: inline-flex; align-items: center; gap: 5px; }
+        .expand-toggle:hover { background: var(--border); }
+        .expand-arrow { transition: transform 0.2s; display: inline-block; font-size: 9px; }
+        .expand-toggle.open .expand-arrow { transform: rotate(90deg); }
+        .expand-panel { display: none; margin-top: 7px; border-radius: 5px; overflow: hidden; border: 1px solid var(--border); }
+
+        /* CVE detail items */
+        .vuln-item { padding: 9px 13px; border-bottom: 1px solid var(--border); background: white; font-size: 12px; }
+        .vuln-item:last-child { border-bottom: none; }
+        .vuln-header { display: flex; flex-wrap: wrap; align-items: center; gap: 5px; margin-bottom: 4px; }
+        .vuln-title-text { font-weight: 600; color: var(--text-dark); font-size: 12px; }
+        .vuln-desc { color: var(--text-light); font-size: 12px; line-height: 1.5; margin-top: 3px; }
+        .vuln-link { margin-top: 3px; font-size: 12px; }
+        .vuln-link a { color: var(--mino-orange); text-decoration: none; }
+        .vuln-link a:hover { text-decoration: underline; }
+
+        /* Config snippet panels */
+        .snippet-panel { background: var(--mino-dark); padding: 0; border-color: transparent; }
+        .snip-label { background: rgba(255,255,255,0.07); color: #a0aec0; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; padding: 4px 13px; border-bottom: 1px solid rgba(255,255,255,0.08); }
+        .snip-code { color: #e2e8f0; font-family: 'Courier New', monospace; font-size: 12px; padding: 9px 13px; margin: 0; white-space: pre-wrap; word-break: break-all; border-bottom: 1px solid rgba(255,255,255,0.06); background: transparent; display: block; }
+
+        /* Expandable recommendation */
+        .expand-rec-btn { background: none; border: none; color: var(--mino-orange); font-size: 12px; font-weight: 600; cursor: pointer; padding: 3px 0; display: block; margin-top: 4px; }
+        .expand-rec-btn:hover { text-decoration: underline; }
+
+        /* Badge row helper */
+        .badge-row { display: flex; flex-wrap: wrap; gap: 5px; align-items: center; margin-top: 6px; }
+        .badge-label { font-size: 11px; font-weight: 700; color: var(--text-light); text-transform: uppercase; letter-spacing: 0.4px; }
+
+        /* ── NOTES ───────────────────────────────────────────────────────────── */
+        .notes { background: var(--mino-bg); border-radius: 8px; padding: 28px; margin-bottom: 38px; border-left: 5px solid var(--mino-orange); box-shadow: 0 2px 10px rgba(230,126,34,0.1); }
+        .notes table { box-shadow: none; margin-top: 14px; }
+        .notes td { border: none; padding: 9px 0; font-size: 14px; }
+
+        /* ── FOOTER ──────────────────────────────────────────────────────────── */
+        footer { background: var(--mino-dark); color: #e0e0e0; padding: 35px 50px; border-top: 5px solid var(--mino-orange); font-size: 13px; }
+        footer strong { color: var(--mino-orange); font-weight: 700; }
+        footer a { color: var(--mino-orange); text-decoration: none; font-weight: 600; }
+        footer a:hover { color: #f0a500; text-decoration: underline; }
+
+        /* ── RESPONSIVE ──────────────────────────────────────────────────────── */
         @media (max-width: 768px) {
-            header, .content, footer {
-                padding: 25px;
-            }
-
-            header h1 {
-                font-size: 32px;
-            }
-
-            .logo {
-                font-size: 50px;
-            }
-
-            h2 {
-                font-size: 22px;
-            }
-
-            table {
-                font-size: 12px;
-            }
-
-            th, td {
-                padding: 12px 10px;
-            }
-
-            .finding-card {
-                padding: 20px;
-            }
-
-            .finding-title {
-                font-size: 18px;
-            }
+            header, .content, footer { padding: 25px; }
+            header h1 { font-size: 32px; }
+            .logo { font-size: 50px; }
+            h2 { font-size: 21px; }
+            table#findings { font-size: 12px; }
+            table#findings th, table#findings td { padding: 10px 8px; }
         }
-
-        /* ============================================================================
-           PRINT STYLES
-           ============================================================================ */
         @media print {
-            header {
-                background: var(--maze-terracotta);
-                -webkit-print-color-adjust: exact;
-                print-color-adjust: exact;
-            }
-
-            .finding-card {
-                page-break-inside: avoid;
-            }
+            header { background: var(--mino-red); -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+            .expand-panel { display: block !important; }
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <!-- HEADER -->
-        <header>
-            <div class="logo">🐂</div>
-            <h1>ASTERION</h1>
-            <div class="subtitle">Network Security Auditor — Maze Navigator</div>
-            <div class="tagline">"He walks the maze — every flaw meets the horned end..."</div>
+<div class="container">
 
-            <div class="meta">
-                <div class="meta-item"><strong>🎯 Target:</strong> {{ report.target }}</div>
-                <div class="meta-item"><strong>📅 Date:</strong> {{ report.date | datetime }}</div>
-                <div class="meta-item"><strong>🔒 Mode:</strong> {{ report.mode | upper }}</div>
-                <div class="meta-item"><strong>⚙️ Version:</strong> {{ report.tool }} {{ report.version }}</div>
-                {% if report.notes %}
-                <div class="meta-item"><strong>⏱️ Duration:</strong> {{ "%.1f"|format(report.notes.scan_duration_seconds) }}s</div>
-                <div class="meta-item"><strong>📡 Requests:</strong> {{ report.notes.requests_sent }}</div>
-                {% endif %}
-            </div>
-
-            <div class="summary-pills">
-                <div class="pill pill-critical">Critical: {{ report.summary.critical }}</div>
-                <div class="pill pill-high">High: {{ report.summary.high }}</div>
-                <div class="pill pill-medium">Medium: {{ report.summary.medium }}</div>
-                <div class="pill pill-low">Low: {{ report.summary.low }}</div>
-                <div class="pill pill-info">Info: {{ report.summary.info }}</div>
-            </div>
-        </header>
-
-        <div class="content">
-            <!-- OVERVIEW -->
-            <div class="overview">
-                <h2>📊 Scan Overview</h2>
-                <div class="overview-grid">
-                    <div class="overview-item">
-                        <label>Total Findings</label>
-                        <div class="value">{{ report.findings | length }}</div>
-                    </div>
-                    <div class="overview-item">
-                        <label>Scan Mode</label>
-                        <div class="value">{{ report.mode | upper }}</div>
-                    </div>
-                    {% if report.notes %}
-                    <div class="overview-item">
-                        <label>Rate Limited</label>
-                        <div class="value">{{ 'YES' if report.notes.rate_limit_applied else 'NO' }}</div>
-                    </div>
-                    {% endif %}
-                </div>
-            </div>
-
-            <!-- CONSENT -->
-            {% if report.consent %}
-            <div class="consent">
-                <h2>✅ Ownership Verified</h2>
-                <div class="consent-details">
-                    <div class="consent-item">
-                        <label>Method</label>
-                        <div class="value">{{ report.consent.method | upper }}</div>
-                    </div>
-                    <div class="consent-item">
-                        <label>Token</label>
-                        <div class="value">{{ report.consent.token }}</div>
-                    </div>
-                    <div class="consent-item">
-                        <label>Verified</label>
-                        <div class="value">{{ report.consent.verified_at | datetime }}</div>
-                    </div>
-                </div>
-            </div>
+    <!-- HEADER -->
+    <header>
+        <div class="logo">🐂</div>
+        <h1>ASTERION</h1>
+        <div class="subtitle">Network &amp; Domain Security Auditor</div>
+        <div class="tagline">"He walks the maze — every flaw meets the horned end..."</div>
+        <div class="meta">
+            <div class="meta-item"><strong>🎯 Target:</strong> {{ report.target }}</div>
+            <div class="meta-item"><strong>📅 Date:</strong> {{ report.date | datetime }}</div>
+            <div class="meta-item"><strong>🔒 Mode:</strong> {{ report.mode | upper }}</div>
+            <div class="meta-item"><strong>⚙️ Version:</strong> {{ report.tool }} {{ report.version }}</div>
+            {% if report.notes and report.notes.scan_duration_seconds %}
+            <div class="meta-item"><strong>⏱️ Duration:</strong> {{ "%.1f"|format(report.notes.scan_duration_seconds) }}s</div>
             {% endif %}
-
-            <!-- AI ANALYSIS -->
-            {% if report.aiAnalysis and (report.aiAnalysis.executiveSummary or report.aiAnalysis.technicalRemediation) %}
-            <div class="ai-analysis">
-                <h2>🤖 AI-Powered Security Analysis</h2>
-                {% set has_executive = report.aiAnalysis.executiveSummary and report.aiAnalysis.executiveSummary | length > 0 %}
-                {% set has_technical = report.aiAnalysis.technicalRemediation and report.aiAnalysis.technicalRemediation | length > 0 %}
-                
-                <!-- Show tabs only if both analyses exist -->
-                {% if has_executive and has_technical %}
-                <div class="ai-tabs">
-                    <button class="ai-tab active" onclick="showAiTab('executive')">Executive Summary</button>
-                    <button class="ai-tab" onclick="showAiTab('technical')">Technical Remediation</button>
-                </div>
-                {% endif %}
-                
-                <!-- Executive Summary Tab (show if present) -->
-                {% if has_executive %}
-                <div id="executive-tab" class="ai-content {% if not has_technical or has_executive %}active{% endif %}">
-                    {% if not has_technical %}
-                    <h3 style="color: var(--maze-bronze); margin-bottom: 20px;">📊 Executive Summary</h3>
-                    {% endif %}
-                    {{ report.aiAnalysis.executiveSummary | markdown | safe }}
-                </div>
-                {% endif %}
-                
-                <!-- Technical Remediation Tab (show if present) -->
-                {% if has_technical %}
-                <div id="technical-tab" class="ai-content {% if not has_executive %}active{% endif %}">
-                    {% if not has_executive %}
-                    <h3 style="color: var(--maze-bronze); margin-bottom: 20px;">🔧 Technical Remediation</h3>
-                    {% endif %}
-                    {{ report.aiAnalysis.technicalRemediation | markdown | safe }}
-                </div>
-                {% endif %}
-                
-                <!-- AI Metadata -->
-                <div class="ai-meta">
-                    Generated by <strong>{{ report.aiAnalysis.modelUsed }}</strong> at {{ report.aiAnalysis.generatedAt | datetime }}
-                    {% if report.aiAnalysis.tone %}
-                    | Tone: <strong>{{ report.aiAnalysis.tone }}</strong>
-                    {% endif %}
-                </div>
-            </div>
+            {% if report.notes and report.notes.requests_sent %}
+            <div class="meta-item"><strong>📡 Checks:</strong> {{ report.notes.requests_sent }}</div>
             {% endif %}
+        </div>
+        <div class="summary-pills">
+            {% if report.summary.critical > 0 %}<div class="pill pill-critical">Critical: {{ report.summary.critical }}</div>{% endif %}
+            {% if report.summary.high > 0 %}<div class="pill pill-high">High: {{ report.summary.high }}</div>{% endif %}
+            {% if report.summary.medium > 0 %}<div class="pill pill-medium">Medium: {{ report.summary.medium }}</div>{% endif %}
+            {% if report.summary.low > 0 %}<div class="pill pill-low">Low: {{ report.summary.low }}</div>{% endif %}
+            {% if report.summary.info > 0 %}<div class="pill pill-info">Info: {{ report.summary.info }}</div>{% endif %}
+        </div>
+    </header>
 
-            <!-- FINDINGS TABLE -->
-            <div class="findings">
-                <h2>🔍 Security Findings ({{ report.findings | length }})</h2>
+    <div class="content">
 
-                {% if report.findings %}
-                <table style="table-layout: fixed;">
-                    <thead>
-                        <tr>
-                            <th style="width: 15%">ID</th>
-                            <th style="width: 30%">Title</th>
-                            <th style="width: 15%">Severity</th>
-                            <th style="width: 15%">Confidence</th>
-                            <th style="width: 25%">Component</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for finding in report.findings %}
-                        <tr>
-                            <td><code>{{ finding.id }}</code></td>
-                            <td><strong>{{ finding.title }}</strong></td>
-                            <td><span class="severity-badge {{ finding.severity }}">{{ finding.severity }}</span></td>
-                            <td><span class="confidence-badge">{{ finding.confidence }}</span></td>
-                            <td>{{ finding.affectedComponent or 'N/A' }}</td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-                {% else %}
-                <p style="text-align: center; color: var(--text-light); padding: 3rem; font-size: 16px;">
-                    ✅ No security findings detected. Target appears secure.
-                </p>
+        <!-- OVERVIEW -->
+        <div class="overview">
+            <h2>📊 Scan Overview</h2>
+            <div class="overview-grid">
+                <div class="overview-item">
+                    <label>Total Findings</label>
+                    <div class="value">{{ report.findings | length }}</div>
+                </div>
+                <div class="overview-item">
+                    <label>Scan Mode</label>
+                    <div class="value">{{ report.mode | upper }}</div>
+                </div>
+                <div class="overview-item">
+                    <label>Target Type</label>
+                    <div class="value">Network / AD</div>
+                </div>
+                {% if report.notes and report.notes.scan_duration_seconds %}
+                <div class="overview-item">
+                    <label>Duration</label>
+                    <div class="value">{{ report.notes.scan_duration_seconds | int }}s</div>
+                </div>
+                {% endif %}
+                {% if report.notes and report.notes.rate_limit_applied %}
+                <div class="overview-item">
+                    <label>Rate Limited</label>
+                    <div class="value">{{ 'YES' if report.notes.rate_limit_applied else 'NO' }}</div>
+                </div>
+                {% endif %}
+                {% if report.riskScore is not none %}
+                <div class="overview-item" style="border:2px solid {% if report.riskScore >= 8 %}var(--critical){% elif report.riskScore >= 6 %}var(--high){% elif report.riskScore >= 4 %}var(--medium){% elif report.riskScore >= 2 %}var(--low){% else %}#27ae60{% endif %};">
+                    <label>Risk Score</label>
+                    <div class="value" style="color:{% if report.riskScore >= 8 %}var(--critical){% elif report.riskScore >= 6 %}var(--high){% elif report.riskScore >= 4 %}var(--medium){% elif report.riskScore >= 2 %}var(--low){% else %}#27ae60{% endif %};">{{ "%.1f"|format(report.riskScore) }}/10</div>
+                    <div style="font-size:11px;color:var(--text-light);margin-top:2px;">{{ report.riskLabel }}</div>
+                </div>
                 {% endif %}
             </div>
+        </div>
 
-            <!-- DETAILED FINDINGS -->
-            {% if report.findings %}
-            <div class="finding-details">
-                <h2>📋 Detailed Findings</h2>
-
-                {% for finding in report.findings %}
-                <div class="finding-card {{ finding.severity }}">
-                    <div class="finding-header">
-                        <div>
-                            <div class="finding-title">{{ finding.title }}</div>
-                            <div style="margin-top: 10px;">
-                                <span class="severity-badge {{ finding.severity }}">{{ finding.severity }}</span>
-                                <span class="confidence-badge">{{ finding.confidence }} confidence</span>
-                            </div>
-                        </div>
-                        <div class="finding-id">{{ finding.id }}</div>
-                    </div>
-
-                    {% if finding.description %}
-                    <div class="finding-description">
-                        {{ finding.description | markdown | safe }}
-                    </div>
-                    {% endif %}
-
-                    {% if finding.affectedComponent %}
-                    <div class="finding-section">
-                        <h4>🎯 Affected Component</h4>
-                        <p><code>{{ finding.affectedComponent }}</code></p>
-                    </div>
-                    {% endif %}
-
-                    {% if finding.evidence %}
-                    <div class="finding-section">
-                        <h4>🔬 Evidence</h4>
-                        <div class="evidence-box">{{ finding.evidence.value }}</div>
-                    </div>
-                    {% endif %}
-
-                    {% if finding.recommendation %}
-                    <div class="finding-section">
-                        <h4>💡 Recommendation</h4>
-                        <div class="recommendation-box">
-                            {{ finding.recommendation | markdown | safe }}
-                        </div>
-                    </div>
-                    {% endif %}
-
-                    {% if finding.cve %}
-                    <div class="finding-section">
-                        <h4>🛡️ Related CVEs</h4>
-                        <div>
-                            {% for cve in finding.cve %}
-                            <span class="cve-tag">{{ cve }}</span>
-                            {% endfor %}
-                        </div>
-                    </div>
-                    {% endif %}
-
-                    {% if finding.references %}
-                    <div class="finding-section">
-                        <h4>📚 References</h4>
-                        <ul class="references-list">
-                            {% for ref in finding.references %}
-                            <li><a href="{{ ref }}" target="_blank">{{ ref }}</a></li>
-                            {% endfor %}
-                        </ul>
-                    </div>
-                    {% endif %}
+        <!-- CONSENT -->
+        {% if report.consent %}
+        <div class="consent">
+            <h2>✅ Ownership Verified</h2>
+            <div class="consent-details">
+                <div class="consent-item">
+                    <label>Method</label>
+                    <div class="value">{{ report.consent.method | upper }}</div>
                 </div>
+                <div class="consent-item">
+                    <label>Token</label>
+                    <div class="value"><code style="color:white;background:rgba(255,255,255,0.15);border:none;padding:3px 8px;border-radius:4px;">{{ report.consent.token }}</code></div>
+                </div>
+                <div class="consent-item">
+                    <label>Verified At</label>
+                    <div class="value">{{ report.consent.verified_at | datetime }}</div>
+                </div>
+                {% if report.consent.proof %}
+                <div class="consent-item">
+                    <label>Proof</label>
+                    <div class="value" style="font-size:13px;font-weight:400;">{{ report.consent.proof }}</div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- ATTACK CHAINS — Multi-step attack vector correlation -->
+        {% if report.attackChains and report.attackChains | length > 0 %}
+        <div class="attack-chains">
+            <h2>⛓  Attack Chains
+                <span style="font-size:13px;font-weight:400;color:#888;margin-left:10px;">{{ report.attackChains | length }} multi-step vector(s) detected</span>
+            </h2>
+            <p style="font-size:13px;color:#555;margin-bottom:22px;">
+                The following combinations of findings enable chained attack scenarios.
+                Each chain requires ALL listed findings to be present and represents an
+                end-to-end exploitation path an attacker could realistically execute.
+            </p>
+            {% for chain in report.attackChains %}
+            <div class="chain-card {% if chain.enhanced %}enhanced{% endif %}">
+                <div class="chain-header">
+                    <span class="chain-id">{{ chain.id }}</span>
+                    <span class="chain-title">{{ chain.title }}</span>
+                    <span class="badge sev-{{ chain.severity }}">{{ chain.severity | upper }}</span>
+                    {% if chain.enhanced %}<span class="chain-enhanced-badge">⚡ ENHANCED</span>{% endif %}
+                    <span class="chain-mitre">{{ chain.mitre }}</span>
+                </div>
+                <p class="chain-desc">{{ chain.description }}</p>
+                <div class="chain-finding-ids">
+                    <span style="font-size:11px;color:#888;margin-right:4px;align-self:center;">Requires:</span>
+                    {% for fid in chain.findingIds %}
+                    <span class="fid">{{ fid }}</span>
+                    {% endfor %}
+                </div>
+                <div class="chain-steps">
+                    {% for step in chain.steps %}
+                    <p>{{ step }}</p>
+                    {% endfor %}
+                </div>
+                <div class="chain-remediation">{{ chain.remediation }}</div>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        <!-- AI ANALYSIS — TABS: Standard / Agent / Compare -->
+        {% if report.aiAnalysis %}
+        {% set ai = report.aiAnalysis %}
+        {% set has_exec    = ai.executiveSummary and ai.executiveSummary | length > 0 %}
+        {% set has_tech    = ai.technicalRemediation and ai.technicalRemediation | length > 0 %}
+        {% set has_agent   = ai.agentAnalysis and ai.agentAnalysis | length > 0 %}
+        {% set has_compare = ai.compareResults and ai.compareResults | length > 0 %}
+        {% if has_exec or has_tech or has_agent or has_compare %}
+        <div class="ai-analysis">
+            <h2>🤖 AI-Powered Security Analysis</h2>
+
+            {% if has_compare %}
+            {# ── COMPARE MODE: one tab per provider ── #}
+            <div class="ai-tabs">
+                {% set providers = ai.compareResults.results.keys() | list %}
+                {% for provider in providers %}
+                <button class="ai-tab {% if loop.first %}active{% endif %}"
+                        onclick="showAiTab('cmp-{{ loop.index }}', this)">{{ provider }}</button>
                 {% endfor %}
             </div>
+            {% for provider, pdata in ai.compareResults.results.items() %}
+            <div id="cmp-{{ loop.index }}-tab" class="ai-content {% if loop.first %}active{% endif %}">
+                <h3 style="color:var(--mino-orange);margin-bottom:14px;">{{ provider }}</h3>
+                {% if pdata.executiveSummary %}
+                <h4>📊 Executive Summary</h4>{{ pdata.executiveSummary | markdown | safe }}
+                {% endif %}
+                {% if pdata.technicalRemediation %}
+                <h4>🔧 Technical Remediation</h4>{{ pdata.technicalRemediation | markdown | safe }}
+                {% endif %}
+                {% if pdata.agentAnalysis %}
+                <h4>🔬 Agent Analysis</h4>{{ pdata.agentAnalysis | markdown | safe }}
+                {% endif %}
+            </div>
+            {% endfor %}
+            {% if ai.cost %}
+            <div class="ai-meta">Compare mode &mdash; Total cost: ${{ "%.4f" | format(ai.cost.total_usd) }} &mdash; {{ ai.generatedAt | datetime }}</div>
+            {% endif %}
+
+            {% elif has_agent %}
+            {# ── AGENT MODE ── #}
+            {% if has_exec or has_tech %}
+            <div class="ai-tabs">
+                <button class="ai-tab active" onclick="showAiTab('agent', this)">🔬 Agent Analysis</button>
+                {% if has_exec %}<button class="ai-tab" onclick="showAiTab('executive', this)">Executive Summary</button>{% endif %}
+                {% if has_tech %}<button class="ai-tab" onclick="showAiTab('technical', this)">Technical Remediation</button>{% endif %}
+            </div>
+            {% endif %}
+            <div id="agent-tab" class="ai-content active">
+                <h3 style="color:var(--mino-orange);margin-bottom:18px;">🔬 NVD-Enriched Agent Analysis</h3>
+                {{ ai.agentAnalysis | markdown | safe }}
+            </div>
+            {% if has_exec %}
+            <div id="executive-tab" class="ai-content">
+                {{ ai.executiveSummary | markdown | safe }}
+            </div>
+            {% endif %}
+            {% if has_tech %}
+            <div id="technical-tab" class="ai-content">
+                {{ ai.technicalRemediation | markdown | safe }}
+            </div>
+            {% endif %}
+            {% if ai.modelUsed %}
+            <div class="ai-meta">
+                Generated by <strong>{{ ai.modelUsed }}</strong> (agent mode) at {{ ai.generatedAt | datetime }}
+                {% if ai.cost %} &mdash; cost: ${{ "%.4f" | format(ai.cost.total_usd) }}{% endif %}
+            </div>
+            {% endif %}
+
+            {% else %}
+            {# ── STANDARD MODE: executive / technical tabs ── #}
+            {% if has_exec and has_tech %}
+            <div class="ai-tabs">
+                <button class="ai-tab active" onclick="showAiTab('executive', this)">📊 Executive Summary</button>
+                <button class="ai-tab" onclick="showAiTab('technical', this)">🔧 Technical Remediation</button>
+            </div>
+            {% endif %}
+            {% if has_exec %}
+            <div id="executive-tab" class="ai-content {% if not has_tech %}active{% else %}active{% endif %}">
+                {% if not has_tech %}<h3 style="color:var(--mino-orange);margin-bottom:18px;">📊 Executive Summary</h3>{% endif %}
+                {{ ai.executiveSummary | markdown | safe }}
+            </div>
+            {% endif %}
+            {% if has_tech %}
+            <div id="technical-tab" class="ai-content {% if not has_exec %}active{% endif %}">
+                {% if not has_exec %}<h3 style="color:var(--mino-orange);margin-bottom:18px;">🔧 Technical Remediation</h3>{% endif %}
+                {{ ai.technicalRemediation | markdown | safe }}
+            </div>
+            {% endif %}
+            {% if ai.modelUsed %}
+            <div class="ai-meta">
+                Generated by <strong>{{ ai.modelUsed }}</strong> at {{ ai.generatedAt | datetime }}
+                {% if ai.tone %} | Tone: <strong>{{ ai.tone }}</strong>{% endif %}
+                {% if ai.cost %} | Cost: ${{ "%.4f" | format(ai.cost.total_usd) }}{% endif %}
+            </div>
+            {% endif %}
+            {% endif %}
+        </div>
+        {% endif %}
+        {% endif %}
+
+        <!-- FINDINGS TABLE -->
+        <div class="findings-wrap">
+            <h2>🔍 Security Findings ({{ report.findings | length }})</h2>
+
+            {% if report.findings %}
+
+            {# ── Counts for filter bar ── #}
+            {% set crit_n = report.findings | selectattr('severity','equalto','critical') | list | length %}
+            {% set high_n = report.findings | selectattr('severity','equalto','high')     | list | length %}
+            {% set med_n  = report.findings | selectattr('severity','equalto','medium')   | list | length %}
+            {% set low_n  = report.findings | selectattr('severity','equalto','low')      | list | length %}
+            {% set info_n = report.findings | selectattr('severity','equalto','info')     | list | length %}
+
+            {# ── Category counts ── #}
+            {% set ns = namespace(smb=0,rdp=0,ad=0,krb=0,snmp=0,dns=0,ftp=0,fw=0,win=0,priv=0,ssh=0,nfs=0,other=0) %}
+            {% for f in report.findings %}
+                {% set fid = f.id %}
+                {% if fid.startswith('AST-SMB') %}{% set ns.smb = ns.smb + 1 %}
+                {% elif fid.startswith('AST-RDP') %}{% set ns.rdp = ns.rdp + 1 %}
+                {% elif fid.startswith('AST-LDAP') or fid.startswith('AST-AD') or fid.startswith('AST-KRB') %}{% set ns.ad = ns.ad + 1 %}
+                {% elif fid.startswith('AST-SNMP') %}{% set ns.snmp = ns.snmp + 1 %}
+                {% elif fid.startswith('AST-NET') or fid.startswith('AST-DNS') %}{% set ns.dns = ns.dns + 1 %}
+                {% elif fid.startswith('AST-FTP') %}{% set ns.ftp = ns.ftp + 1 %}
+                {% elif fid.startswith('AST-FW') or fid.startswith('AST-LNX') %}{% set ns.fw = ns.fw + 1 %}
+                {% elif fid.startswith('AST-WIN') or fid.startswith('AST-REG') or fid.startswith('AST-IIS') or fid.startswith('AST-SQL') %}{% set ns.win = ns.win + 1 %}
+                {% elif fid.startswith('AST-PRV') or fid.startswith('AST-PRIV') %}{% set ns.priv = ns.priv + 1 %}
+                {% elif fid.startswith('AST-SSH') %}{% set ns.ssh = ns.ssh + 1 %}
+                {% elif fid.startswith('AST-NFS') or fid.startswith('AST-SAMBA') %}{% set ns.nfs = ns.nfs + 1 %}
+                {% else %}{% set ns.other = ns.other + 1 %}{% endif %}
+            {% endfor %}
+
+            <div class="filter-bar">
+                <div class="filter-row">
+                    <span class="filter-label">Severity:</span>
+                    <div class="filter-btns">
+                        <button class="filter-btn active" onclick="filterFindings('sev','all',this)">All <span class="filter-cnt">{{ report.findings | length }}</span></button>
+                        {% if crit_n > 0 %}<button class="filter-btn f-critical" onclick="filterFindings('sev','critical',this)">Critical <span class="filter-cnt">{{ crit_n }}</span></button>{% endif %}
+                        {% if high_n > 0 %}<button class="filter-btn f-high"     onclick="filterFindings('sev','high',this)">High <span class="filter-cnt">{{ high_n }}</span></button>{% endif %}
+                        {% if med_n  > 0 %}<button class="filter-btn f-medium"   onclick="filterFindings('sev','medium',this)">Medium <span class="filter-cnt">{{ med_n }}</span></button>{% endif %}
+                        {% if low_n  > 0 %}<button class="filter-btn f-low"      onclick="filterFindings('sev','low',this)">Low <span class="filter-cnt">{{ low_n }}</span></button>{% endif %}
+                        {% if info_n > 0 %}<button class="filter-btn f-info"     onclick="filterFindings('sev','info',this)">Info <span class="filter-cnt">{{ info_n }}</span></button>{% endif %}
+                    </div>
+                </div>
+                <div class="filter-row">
+                    <span class="filter-label">Protocol:</span>
+                    <div class="filter-btns">
+                        <button class="filter-btn f-cat active" onclick="filterFindings('cat','all',this)">All</button>
+                        {% if ns.smb  > 0 %}<button class="filter-btn f-cat" onclick="filterFindings('cat','smb',this)">SMB <span class="filter-cnt">{{ ns.smb }}</span></button>{% endif %}
+                        {% if ns.rdp  > 0 %}<button class="filter-btn f-cat" onclick="filterFindings('cat','rdp',this)">RDP <span class="filter-cnt">{{ ns.rdp }}</span></button>{% endif %}
+                        {% if ns.ad   > 0 %}<button class="filter-btn f-cat" onclick="filterFindings('cat','ad',this)">LDAP/AD/Kerberos <span class="filter-cnt">{{ ns.ad }}</span></button>{% endif %}
+                        {% if ns.snmp > 0 %}<button class="filter-btn f-cat" onclick="filterFindings('cat','snmp',this)">SNMP <span class="filter-cnt">{{ ns.snmp }}</span></button>{% endif %}
+                        {% if ns.dns  > 0 %}<button class="filter-btn f-cat" onclick="filterFindings('cat','dns',this)">DNS/Net <span class="filter-cnt">{{ ns.dns }}</span></button>{% endif %}
+                        {% if ns.ftp  > 0 %}<button class="filter-btn f-cat" onclick="filterFindings('cat','ftp',this)">FTP <span class="filter-cnt">{{ ns.ftp }}</span></button>{% endif %}
+                        {% if ns.fw   > 0 %}<button class="filter-btn f-cat" onclick="filterFindings('cat','fw',this)">Firewall <span class="filter-cnt">{{ ns.fw }}</span></button>{% endif %}
+                        {% if ns.win  > 0 %}<button class="filter-btn f-cat" onclick="filterFindings('cat','win',this)">Windows <span class="filter-cnt">{{ ns.win }}</span></button>{% endif %}
+                        {% if ns.priv > 0 %}<button class="filter-btn f-cat" onclick="filterFindings('cat','priv',this)">PrivEsc <span class="filter-cnt">{{ ns.priv }}</span></button>{% endif %}
+                        {% if ns.ssh  > 0 %}<button class="filter-btn f-cat" onclick="filterFindings('cat','ssh',this)">SSH <span class="filter-cnt">{{ ns.ssh }}</span></button>{% endif %}
+                        {% if ns.nfs  > 0 %}<button class="filter-btn f-cat" onclick="filterFindings('cat','nfs',this)">NFS/Samba <span class="filter-cnt">{{ ns.nfs }}</span></button>{% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <table id="findings">
+                <thead>
+                    <tr>
+                        <th style="width:9%">ID</th>
+                        <th style="width:37%">Finding</th>
+                        <th style="width:10%">Severity</th>
+                        <th style="width:10%">Confidence</th>
+                        <th style="width:34%">Recommendation</th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for finding in report.findings %}
+                {% set fid = finding.id %}
+
+                {# ── Category derivation ── #}
+                {% if fid.startswith('AST-SMB') %}{% set fcat = 'smb' %}
+                {% elif fid.startswith('AST-RDP') %}{% set fcat = 'rdp' %}
+                {% elif fid.startswith('AST-LDAP') or fid.startswith('AST-AD') or fid.startswith('AST-KRB') %}{% set fcat = 'ad' %}
+                {% elif fid.startswith('AST-SNMP') %}{% set fcat = 'snmp' %}
+                {% elif fid.startswith('AST-NET') or fid.startswith('AST-DNS') %}{% set fcat = 'dns' %}
+                {% elif fid.startswith('AST-FTP') %}{% set fcat = 'ftp' %}
+                {% elif fid.startswith('AST-FW') or fid.startswith('AST-LNX') %}{% set fcat = 'fw' %}
+                {% elif fid.startswith('AST-WIN') or fid.startswith('AST-REG') or fid.startswith('AST-IIS') or fid.startswith('AST-SQL') %}{% set fcat = 'win' %}
+                {% elif fid.startswith('AST-PRV') or fid.startswith('AST-PRIV') %}{% set fcat = 'priv' %}
+                {% elif fid.startswith('AST-SSH') %}{% set fcat = 'ssh' %}
+                {% elif fid.startswith('AST-NFS') or fid.startswith('AST-SAMBA') %}{% set fcat = 'nfs' %}
+                {% else %}{% set fcat = 'other' %}{% endif %}
+
+                <tr data-severity="{{ finding.severity }}" data-category="{{ fcat }}">
+
+                    {# ID cell #}
+                    <td style="font-family:'Courier New',monospace;font-size:11px;color:var(--mino-purple);font-weight:600;">{{ fid }}</td>
+
+                    {# Finding details cell #}
+                    <td>
+                        <strong style="font-size:14px;">{{ finding.title }}</strong>
+
+                        {% if finding.description %}
+                        <p style="margin-top:7px;font-size:12px;color:var(--text-light);line-height:1.55;">{{ finding.description | truncate(200) }}</p>
+                        {% endif %}
+
+                        {% if finding.affectedComponent %}
+                        <div style="margin-top:5px;font-size:12px;"><strong>🎯</strong> <code style="font-size:11px;">{{ finding.affectedComponent }}</code></div>
+                        {% endif %}
+
+                        {% if finding.evidence %}
+                        <div class="evidence-box">{{ finding.evidence.type }}: {{ finding.evidence.value }}{% if finding.evidence.context %}
+{{ finding.evidence.context }}{% endif %}</div>
+                        {% endif %}
+
+                        {# ── OWASP Top 10 badge ── #}
+                        {% if finding.owasp %}
+                        <div class="badge-row" style="margin-top:7px;">
+                            <span class="badge-label">OWASP:</span>
+                            <a class="owasp-badge"
+                               href="https://owasp.org/Top10/{{ finding.owasp.id }}_2021-{{ finding.owasp.name | replace(' ', '_') }}/"
+                               target="_blank" rel="noopener noreferrer">
+                               {{ finding.owasp.id }}: {{ finding.owasp.name }}
+                            </a>
+                        </div>
+                        {% endif %}
+
+                        {# ── Compliance badges (CIS / NIST / PCI) ── #}
+                        {% if finding.compliance %}
+                        <div class="badge-row" style="margin-top:5px;">
+                            <span class="badge-label">Compliance:</span>
+                            {% if finding.compliance.cis %}
+                            <span style="display:inline-block;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:700;background:#e8f5e9;color:#2e7d32;border:1px solid #a5d6a7;" title="{{ finding.compliance.cis.name }}">{{ finding.compliance.cis.id }}</span>
+                            {% endif %}
+                            {% if finding.compliance.nist %}
+                            <span style="display:inline-block;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:700;background:#e3f2fd;color:#1565c0;border:1px solid #90caf9;" title="{{ finding.compliance.nist.name }}">NIST {{ finding.compliance.nist.id }}</span>
+                            {% endif %}
+                            {% if finding.compliance.pci %}
+                            <span style="display:inline-block;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:700;background:#fce4ec;color:#880e4f;border:1px solid #f48fb1;" title="{{ finding.compliance.pci.name }}">{{ finding.compliance.pci.id }}</span>
+                            {% endif %}
+                        </div>
+                        {% endif %}
+
+                        {# ── CVSS score badge ── #}
+                        {% if finding.cvss %}
+                        {% set cs = finding.cvss %}
+                        {% if cs >= 9.0 %}{% set cbg='#fee2e2' %}{% set cc='#991b1b' %}{% set cbo='#fca5a5' %}
+                        {% elif cs >= 7.0 %}{% set cbg='#ffedd5' %}{% set cc='#9a3412' %}{% set cbo='#fdba74' %}
+                        {% elif cs >= 4.0 %}{% set cbg='#fef9c3' %}{% set cc='#713f12' %}{% set cbo='#fde047' %}
+                        {% else %}{% set cbg='#d1fae5' %}{% set cc='#065f46' %}{% set cbo='#6ee7b7' %}{% endif %}
+                        <div class="badge-row">
+                            <span class="badge-label">CVSS:</span>
+                            <span class="cvss-badge" style="background:{{ cbg }};color:{{ cc }};border-color:{{ cbo }};">{{ cs }}</span>
+                        </div>
+                        {% endif %}
+
+                        {# ── CVE badges ── #}
+                        {% if finding.cve %}
+                        <div class="badge-row">
+                            <span class="badge-label">CVE:</span>
+                            {% for cve_id in finding.cve %}
+                            <a href="https://nvd.nist.gov/vuln/detail/{{ cve_id }}" target="_blank" class="cve-badge">{{ cve_id }}</a>
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+
+                        {# ── CWE badges (unique from vulnerabilities[]) ── #}
+                        {% if finding.vulnerabilities %}
+                        {% set ns2 = namespace(cwes=[]) %}
+                        {% for v in finding.vulnerabilities %}
+                            {% if v.cwe_id and v.cwe_id not in ns2.cwes %}{% set ns2.cwes = ns2.cwes + [v.cwe_id] %}{% endif %}
+                        {% endfor %}
+                        {% if ns2.cwes %}
+                        <div class="badge-row">
+                            <span class="badge-label">CWE:</span>
+                            {% for cwe_id in ns2.cwes %}
+                            {% set ns3 = namespace(cwe_name='') %}
+                            {% for v in finding.vulnerabilities %}{% if v.cwe_id == cwe_id and v.cwe_name %}{% set ns3.cwe_name = v.cwe_name %}{% endif %}{% endfor %}
+                            <span class="cwe-badge">{{ cwe_id }}{% if ns3.cwe_name %}: {{ ns3.cwe_name }}{% endif %}</span>
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+
+                        {# ── Expandable CVE detail panel ── #}
+                        <div style="margin-top:8px;">
+                            <button class="expand-toggle" onclick="togglePanel('vuln-{{ loop.index }}')">
+                                <span class="expand-arrow">▶</span>
+                                {{ finding.vulnerabilities | length }} CVE record{{ 's' if finding.vulnerabilities | length != 1 else '' }}
+                            </button>
+                            <div class="expand-panel" id="vuln-{{ loop.index }}">
+                                {% for v in finding.vulnerabilities %}
+                                <div class="vuln-item">
+                                    <div class="vuln-header">
+                                        {% if v.cve_id %}<a href="https://nvd.nist.gov/vuln/detail/{{ v.cve_id }}" target="_blank" class="cve-badge" style="font-size:10px;">{{ v.cve_id }}</a>{% endif %}
+                                        {% if v.cvss_score %}
+                                        {% set vs = v.cvss_score %}
+                                        {% if vs >= 9.0 %}{% set vbg='#fee2e2' %}{% set vc='#991b1b' %}{% set vbo='#fca5a5' %}
+                                        {% elif vs >= 7.0 %}{% set vbg='#ffedd5' %}{% set vc='#9a3412' %}{% set vbo='#fdba74' %}
+                                        {% elif vs >= 4.0 %}{% set vbg='#fef9c3' %}{% set vc='#713f12' %}{% set vbo='#fde047' %}
+                                        {% else %}{% set vbg='#d1fae5' %}{% set vc='#065f46' %}{% set vbo='#6ee7b7' %}{% endif %}
+                                        <span style="display:inline-block;padding:1px 6px;border-radius:3px;font-size:10px;font-weight:700;background:{{ vbg }};color:{{ vc }};border:1px solid {{ vbo }};">CVSS {{ vs }}</span>
+                                        {% endif %}
+                                        {% if v.cvss_severity %}<span style="font-size:10px;font-weight:600;color:var(--text-light);">{{ v.cvss_severity }}</span>{% endif %}
+                                        {% if v.cwe_id %}<span class="cwe-badge" style="font-size:10px;">{{ v.cwe_id }}</span>{% endif %}
+                                        <span class="vuln-title-text">{{ v.title }}</span>
+                                    </div>
+                                    {% if v.description %}<div class="vuln-desc">{{ v.description }}</div>{% endif %}
+                                    {% if v.link %}<div class="vuln-link"><a href="{{ v.link }}" target="_blank">🔗 NVD Source</a></div>{% endif %}
+                                    {% if v.published %}<div style="font-size:11px;color:var(--text-light);margin-top:2px;">Published: {{ v.published }}</div>{% endif %}
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        {% endif %}
+
+                        {# ── Config Snippet (Asterion-specific) ── #}
+                        {% set has_snippet = fid in [
+                            'AST-SMB-001','AST-SMB-002','AST-SMB-003','AST-SMB-004',
+                            'AST-RDP-001','AST-RDP-002','AST-RDP-003',
+                            'AST-LDAP-001','AST-LDAP-002','AST-AD-001','AST-AD-002',
+                            'AST-KRB-001','AST-KRB-002','AST-KRB-003',
+                            'AST-SNMP-001','AST-SNMP-002','AST-SNMP-003',
+                            'AST-NET-001','AST-DNS-001','AST-NET-002',
+                            'AST-FTP-001','AST-FTP-002','AST-FTP-003',
+                            'AST-FW-001','AST-FW-WIN-001','AST-LNX-001','AST-FW-LNX-001',
+                            'AST-FW-003','AST-FW-WIN-003','AST-FW-LNX-004',
+                            'AST-WIN-001','AST-REG-WIN-001','AST-WIN-002','AST-WIN-003','AST-WIN-004',
+                            'AST-PRV-001','AST-PRIV-WIN-001','AST-PRV-002','AST-PRIV-WIN-002',
+                            'AST-PRV-003','AST-PRIV-WIN-005',
+                            'AST-SSH-001','AST-SSH-LNX-001','AST-SSH-002','AST-SSH-LNX-003',
+                            'AST-SSH-003','AST-SSH-LNX-002','AST-SSH-004','AST-SSH-LNX-004',
+                            'AST-NFS-001','AST-NFS-LNX-001','AST-NFS-002','AST-NFS-LNX-002','AST-NFS-003',
+                            'AST-PRV-005','AST-PRIV-LNX-001','AST-PRV-007','AST-PRIV-LNX-003',
+                            'AST-PRV-008','AST-PRIV-LNX-004','AST-SAMBA-LNX-002'
+                        ] %}
+                        {% if has_snippet %}
+                        <div style="margin-top:8px;">
+                            <button class="expand-toggle" onclick="togglePanel('snip-{{ loop.index }}')">
+                                <span class="expand-arrow">▶</span> Show remediation config
+                            </button>
+                            <div class="expand-panel snippet-panel" id="snip-{{ loop.index }}">
+                                {# SMB #}
+                                {% if fid in ['AST-SMB-003','AST-SAMBA-LNX-002'] %}
+                                <div class="snip-label">PowerShell (Windows Server)</div>
+                                <pre class="snip-code">Set-SmbServerConfiguration -EnableSMB1Protocol $false -Force
+Set-SmbServerConfiguration -EnableSMB2Protocol $true -Force</pre>
+                                <div class="snip-label">Samba (/etc/samba/smb.conf)</div>
+                                <pre class="snip-code">[global]
+    min protocol = SMB2
+    server min protocol = SMB2</pre>
+                                {% elif fid == 'AST-SMB-002' %}
+                                <div class="snip-label">PowerShell (Windows Server)</div>
+                                <pre class="snip-code">Set-SmbServerConfiguration -RequireSecuritySignature $true -Force
+Set-SmbClientConfiguration -RequireSecuritySignature $true -Force</pre>
+                                <div class="snip-label">GPO Path</div>
+                                <pre class="snip-code">Computer Configuration → Windows Settings → Security Settings →
+Local Policies → Security Options →
+  "Microsoft network server: Digitally sign communications (always)" → Enabled
+  "Microsoft network client: Digitally sign communications (always)" → Enabled</pre>
+                                <div class="snip-label">Samba (/etc/samba/smb.conf)</div>
+                                <pre class="snip-code">[global]
+    server signing = mandatory
+    client signing = mandatory</pre>
+                                {% elif fid == 'AST-SMB-001' %}
+                                <div class="snip-label">PowerShell</div>
+                                <pre class="snip-code">net user guest /active:no
+Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Lsa" -Name "RestrictAnonymous" -Value 2
+Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Lsa" -Name "RestrictAnonymousSAM" -Value 1</pre>
+                                <div class="snip-label">Samba (/etc/samba/smb.conf)</div>
+                                <pre class="snip-code">[global]
+    map to guest = Never
+    restrict anonymous = 2</pre>
+                                {% elif fid == 'AST-SMB-004' %}
+                                <div class="snip-label">Registry (PowerShell)</div>
+                                <pre class="snip-code">Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Lsa" `
+    -Name "LmCompatibilityLevel" -Value 5
+# 5 = NTLMv2 only, refuse LM & NTLM</pre>
+                                <div class="snip-label">GPO Path</div>
+                                <pre class="snip-code">Computer Configuration → Windows Settings → Security Settings →
+Local Policies → Security Options →
+  "Network security: LAN Manager authentication level"
+  → Send NTLMv2 response only. Refuse LM & NTLM</pre>
+
+                                {# RDP #}
+                                {% elif fid == 'AST-RDP-001' %}
+                                <div class="snip-label">PowerShell — Enable NLA</div>
+                                <pre class="snip-code">$path = "HKLM:\SYSTEM\CurrentControlSet\Control\Terminal Server\WinStations\RDP-Tcp"
+Set-ItemProperty -Path $path -Name "UserAuthentication" -Value 1
+Set-ItemProperty -Path $path -Name "SecurityLayer" -Value 2</pre>
+                                <div class="snip-label">GPO Path</div>
+                                <pre class="snip-code">Computer Configuration → Administrative Templates →
+Windows Components → Remote Desktop Services →
+Remote Desktop Session Host → Security →
+  "Require user authentication for remote connections by using NLA" → Enabled
+  "Require use of specific security layer for RDP connections" → SSL</pre>
+                                {% elif fid == 'AST-RDP-002' %}
+                                <div class="snip-label">PowerShell — Force TLS</div>
+                                <pre class="snip-code">$path = "HKLM:\SYSTEM\CurrentControlSet\Control\Terminal Server\WinStations\RDP-Tcp"
+Set-ItemProperty -Path $path -Name "SecurityLayer" -Value 2
+# Disable RC4
+$rc4 = "HKLM:\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\Ciphers\RC4 128/128"
+Set-ItemProperty -Path $rc4 -Name "Enabled" -Value 0 -Force</pre>
+                                {% elif fid == 'AST-RDP-003' %}
+                                <div class="snip-label">Windows Update (PowerShell)</div>
+                                <pre class="snip-code"># Apply BlueKeep patch (KB4499175)
+Install-Module PSWindowsUpdate -Force
+Get-WindowsUpdate -KBArticleID KB4499175 -Install
+# Mitigation if patch unavailable:
+netsh advfirewall firewall add rule name="Block RDP ext" dir=in protocol=tcp localport=3389 action=block</pre>
+
+                                {# LDAP/AD #}
+                                {% elif fid == 'AST-LDAP-001' %}
+                                <div class="snip-label">PowerShell — Require LDAP Signing</div>
+                                <pre class="snip-code">Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Services\NTDS\Parameters" `
+    -Name "LDAPServerIntegrity" -Value 2</pre>
+                                <div class="snip-label">GPO Path</div>
+                                <pre class="snip-code">Computer Configuration → Windows Settings → Security Settings →
+Local Policies → Security Options →
+  "Domain controller: LDAP server signing requirements" → Require signing
+  "Network security: LDAP client signing requirements" → Require signing</pre>
+                                {% elif fid == 'AST-LDAP-002' %}
+                                <div class="snip-label">Enable LDAPS (port 636)</div>
+                                <pre class="snip-code"># Install a certificate with Server Authentication EKU on the DC
+# Then verify LDAPS is available:
+Test-NetConnection -ComputerName dc01.corp.local -Port 636</pre>
+                                <div class="snip-label">GPO Path — Channel Binding</div>
+                                <pre class="snip-code">Computer Configuration → Windows Settings → Security Settings →
+Local Policies → Security Options →
+  "Domain controller: LDAP server channel binding token requirements" → Always</pre>
+                                {% elif fid == 'AST-AD-001' %}
+                                <div class="snip-label">PowerShell</div>
+                                <pre class="snip-code">Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Services\NTDS\Parameters" `
+    -Name "LDAPServerIntegrity" -Value 2</pre>
+                                <div class="snip-label">GPO Path</div>
+                                <pre class="snip-code">Computer Configuration → Windows Settings → Security Settings →
+Local Policies → Security Options →
+  "Domain controller: LDAP server signing requirements" → Require signing</pre>
+                                {% elif fid == 'AST-AD-002' %}
+                                <div class="snip-label">PowerShell — Password Policy</div>
+                                <pre class="snip-code">Set-ADDefaultDomainPasswordPolicy `
+    -MinPasswordLength 14 -MaxPasswordAge 90.00:00:00 `
+    -MinPasswordAge 1.00:00:00 -PasswordHistoryCount 24 `
+    -ComplexityEnabled $true</pre>
+                                <div class="snip-label">GPO Path</div>
+                                <pre class="snip-code">Computer Configuration → Windows Settings → Security Settings →
+Account Policies → Password Policy →
+  Minimum password length: 14
+  Maximum password age: 90 days
+  Enforce password history: 24
+  Password must meet complexity requirements: Enabled</pre>
+
+                                {# Kerberos #}
+                                {% elif fid == 'AST-KRB-001' %}
+                                <div class="snip-label">PowerShell — Fix AS-REP Roasting</div>
+                                <pre class="snip-code"># Find accounts with DONT_REQ_PREAUTH
+Get-ADUser -Filter {DoesNotRequirePreAuth -eq $true} -Properties DoesNotRequirePreAuth
+# Fix all:
+Get-ADUser -Filter {DoesNotRequirePreAuth -eq $true} | `
+    Set-ADAccountControl -DoesNotRequirePreAuth $false</pre>
+                                {% elif fid == 'AST-KRB-002' %}
+                                <div class="snip-label">GPO Path — Kerberos Policy</div>
+                                <pre class="snip-code">Computer Configuration → Windows Settings → Security Settings →
+Account Policies → Kerberos Policy →
+  Maximum lifetime for user ticket: 10 hours
+  Maximum lifetime for service ticket: 600 minutes
+  Maximum lifetime for user ticket renewal: 7 days</pre>
+                                {% elif fid == 'AST-KRB-003' %}
+                                <div class="snip-label">PowerShell — Kerberoast Remediation</div>
+                                <pre class="snip-code"># List Kerberoastable accounts (SPNs on user accounts)
+Get-ADUser -Filter {ServicePrincipalName -ne "$null"} -Properties ServicePrincipalName
+# Migrate to Group Managed Service Accounts (gMSA):
+New-ADServiceAccount -Name "svc_app" -DNSHostName "app.corp.local" `
+    -PrincipalsAllowedToRetrieveManagedPassword "Domain Computers"
+# Ensure existing service accounts have 30+ char passwords</pre>
+
+                                {# SNMP #}
+                                {% elif fid == 'AST-SNMP-001' %}
+                                <div class="snip-label">Linux (/etc/snmp/snmpd.conf)</div>
+                                <pre class="snip-code"># Remove default community strings and restrict access
+# Comment out: rocommunity public default
+# Add restricted:
+rocommunity  secure_ro_string  192.168.1.0/24</pre>
+                                <div class="snip-label">Windows (PowerShell)</div>
+                                <pre class="snip-code">Remove-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Services\SNMP\Parameters\ValidCommunities" -Name "public"
+Remove-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Services\SNMP\Parameters\ValidCommunities" -Name "private"</pre>
+                                {% elif fid == 'AST-SNMP-002' %}
+                                <div class="snip-label">Migrate to SNMPv3 (/etc/snmp/snmpd.conf)</div>
+                                <pre class="snip-code">createUser snmpv3admin SHA "auth_password_here" AES "priv_password_here"
+rouser snmpv3admin authPriv
+# Disable v1/v2c:
+# Remove all rocommunity / rwcommunity lines</pre>
+                                {% elif fid == 'AST-SNMP-003' %}
+                                <div class="snip-label">Linux (/etc/snmp/snmpd.conf)</div>
+                                <pre class="snip-code"># Change rwcommunity to rocommunity or remove entirely
+# rwcommunity private → remove this line
+rocommunity  secure_string  127.0.0.1</pre>
+
+                                {# DNS/Network #}
+                                {% elif fid in ['AST-NET-001','AST-DNS-001'] %}
+                                <div class="snip-label">BIND9 (named.conf)</div>
+                                <pre class="snip-code">zone "example.com" {
+    type master;
+    allow-transfer { 192.168.1.10; };  // secondary only
+    // allow-transfer { none; };       // or disable
+};</pre>
+                                <div class="snip-label">Windows DNS (PowerShell)</div>
+                                <pre class="snip-code">Set-DnsServerPrimaryZone -Name "corp.local" `
+    -SecondaryServers @("192.168.1.10") `
+    -SecureSecondaries TransferToZoneNameServer</pre>
+                                {% elif fid == 'AST-NET-002' %}
+                                <div class="snip-label">PowerShell — Disable LLMNR/NetBIOS</div>
+                                <pre class="snip-code"># Disable LLMNR
+Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows NT\DNSClient" `
+    -Name "EnableMulticast" -Value 0
+# Disable NetBIOS over TCP/IP (all adapters)
+Get-WmiObject Win32_NetworkAdapterConfiguration | `
+    ForEach-Object { $_.SetTcpipNetbios(2) }</pre>
+                                <div class="snip-label">GPO Path</div>
+                                <pre class="snip-code">Computer Configuration → Administrative Templates →
+Network → DNS Client →
+  "Turn off multicast name resolution" → Enabled</pre>
+
+                                {# FTP #}
+                                {% elif fid == 'AST-FTP-001' %}
+                                <div class="snip-label">vsftpd (/etc/vsftpd.conf)</div>
+                                <pre class="snip-code">anonymous_enable=NO
+local_enable=YES
+write_enable=NO
+chroot_local_user=YES</pre>
+                                <div class="snip-label">ProFTPD (/etc/proftpd.conf)</div>
+                                <pre class="snip-code"># Remove or comment out the Anonymous block:
+# &lt;Anonymous ~ftp&gt; ... &lt;/Anonymous&gt;</pre>
+                                {% elif fid in ['AST-FTP-002','AST-FTP-003'] %}
+                                <div class="snip-label">vsftpd — Enable Explicit FTPS</div>
+                                <pre class="snip-code">ssl_enable=YES
+force_local_logins_ssl=YES
+force_local_data_ssl=YES
+ssl_tlsv1=YES
+ssl_sslv2=NO
+ssl_sslv3=NO
+rsa_cert_file=/etc/ssl/certs/vsftpd.pem
+rsa_private_key_file=/etc/ssl/private/vsftpd.key</pre>
+                                <div class="snip-label">ProFTPD — Enable TLS</div>
+                                <pre class="snip-code">LoadModule mod_tls.c
+TLSEngine on
+TLSProtocol TLSv1.2 TLSv1.3
+TLSRequired on
+TLSRSACertificateFile /etc/ssl/certs/proftpd.crt
+TLSRSACertificateKeyFile /etc/ssl/private/proftpd.key</pre>
+
+                                {# Firewall #}
+                                {% elif fid in ['AST-FW-001','AST-FW-WIN-001'] %}
+                                <div class="snip-label">PowerShell — Enable Windows Firewall</div>
+                                <pre class="snip-code">Set-NetFirewallProfile -Profile Domain,Public,Private -Enabled True
+Set-NetFirewallProfile -Profile Domain,Public,Private `
+    -DefaultInboundAction Block -DefaultOutboundAction Allow</pre>
+                                {% elif fid in ['AST-LNX-001','AST-FW-LNX-001'] %}
+                                <div class="snip-label">UFW (Ubuntu/Debian)</div>
+                                <pre class="snip-code">ufw enable
+ufw default deny incoming
+ufw default allow outgoing
+ufw allow ssh
+ufw status verbose</pre>
+                                <div class="snip-label">iptables</div>
+                                <pre class="snip-code">iptables -P INPUT DROP
+iptables -P FORWARD DROP
+iptables -A INPUT -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT
+iptables -A INPUT -i lo -j ACCEPT
+iptables -A INPUT -p tcp --dport 22 -j ACCEPT
+iptables-save > /etc/iptables/rules.v4</pre>
+                                {% elif fid in ['AST-FW-003','AST-FW-WIN-003','AST-FW-LNX-004'] %}
+                                <div class="snip-label">PowerShell — Enable Firewall Logging</div>
+                                <pre class="snip-code">Set-NetFirewallProfile -Profile Domain,Public,Private `
+    -LogAllowed True -LogBlocked True `
+    -LogFileName "%systemroot%\system32\LogFiles\Firewall\pfirewall.log" `
+    -LogMaxSizeKilobytes 4096</pre>
+                                <div class="snip-label">UFW (Linux)</div>
+                                <pre class="snip-code">ufw logging on
+ufw logging medium</pre>
+
+                                {# Windows Registry #}
+                                {% elif fid in ['AST-WIN-001','AST-REG-WIN-001'] %}
+                                <div class="snip-label">Registry (PowerShell) — NTLMv2 Only</div>
+                                <pre class="snip-code">Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Lsa" `
+    -Name "LmCompatibilityLevel" -Value 5</pre>
+                                <div class="snip-label">GPO Path</div>
+                                <pre class="snip-code">Computer Configuration → Windows Settings → Security Settings →
+Local Policies → Security Options →
+  "Network security: LAN Manager authentication level"
+  → Send NTLMv2 response only. Refuse LM & NTLM</pre>
+                                {% elif fid == 'AST-WIN-002' %}
+                                <div class="snip-label">Registry (PowerShell) — Enable UAC</div>
+                                <pre class="snip-code">Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System" `
+    -Name "EnableLUA" -Value 1
+Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System" `
+    -Name "ConsentPromptBehaviorAdmin" -Value 2</pre>
+                                {% elif fid == 'AST-WIN-003' %}
+                                <div class="snip-label">Registry (PowerShell) — Remove AutoAdminLogon</div>
+                                <pre class="snip-code">$logon = "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon"
+Remove-ItemProperty -Path $logon -Name "AutoAdminLogon" -ErrorAction SilentlyContinue
+Remove-ItemProperty -Path $logon -Name "DefaultPassword" -ErrorAction SilentlyContinue
+Set-ItemProperty -Path $logon -Name "AutoAdminLogon" -Value "0"</pre>
+                                {% elif fid == 'AST-WIN-004' %}
+                                <div class="snip-label">Registry (PowerShell) — Enable LSA Protection</div>
+                                <pre class="snip-code">Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Lsa" `
+    -Name "RunAsPPL" -Value 1
+# Requires reboot
+# Also consider Credential Guard:
+Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\DeviceGuard" `
+    -Name "EnableVirtualizationBasedSecurity" -Value 1</pre>
+
+                                {# Windows PrivEsc #}
+                                {% elif fid in ['AST-PRV-001','AST-PRIV-WIN-001'] %}
+                                <div class="snip-label">PowerShell — Fix Service Executable Permissions</div>
+                                <pre class="snip-code">$svcPath = "C:\path\to\vulnerable\service.exe"
+$acl = Get-Acl $svcPath
+$acl.SetAccessRuleProtection($true, $false)
+$adminRule = New-Object System.Security.AccessControl.FileSystemAccessRule(
+    "Administrators","FullControl","Allow")
+$acl.AddAccessRule($adminRule)
+Set-Acl -Path $svcPath -AclObject $acl</pre>
+                                {% elif fid in ['AST-PRV-002','AST-PRIV-WIN-002'] %}
+                                <div class="snip-label">PowerShell — Fix Unquoted Service Path</div>
+                                <pre class="snip-code"># Find unquoted paths:
+Get-WmiObject Win32_Service | Where-Object {
+    $_.PathName -match ' ' -and $_.PathName -notmatch '"'
+} | Select-Object Name, PathName
+# Fix via sc.exe:
+sc config "ServiceName" binpath= '"C:\Program Files\Service\service.exe"'</pre>
+                                {% elif fid in ['AST-PRV-003','AST-PRIV-WIN-005'] %}
+                                <div class="snip-label">Registry (PowerShell) — Disable AlwaysInstallElevated</div>
+                                <pre class="snip-code">Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\Installer" `
+    -Name "AlwaysInstallElevated" -Value 0
+Set-ItemProperty -Path "HKCU:\SOFTWARE\Policies\Microsoft\Windows\Installer" `
+    -Name "AlwaysInstallElevated" -Value 0</pre>
+                                <div class="snip-label">GPO Path</div>
+                                <pre class="snip-code">Computer Configuration → Administrative Templates →
+Windows Components → Windows Installer →
+  "Always install with elevated privileges" → Disabled
+User Configuration → Administrative Templates →
+Windows Components → Windows Installer →
+  "Always install with elevated privileges" → Disabled</pre>
+
+                                {# SSH #}
+                                {% elif fid in ['AST-SSH-001','AST-SSH-LNX-001'] %}
+                                <div class="snip-label">/etc/ssh/sshd_config</div>
+                                <pre class="snip-code">PermitRootLogin no
+# Then restart: systemctl restart sshd</pre>
+                                {% elif fid in ['AST-SSH-002','AST-SSH-LNX-003'] %}
+                                <div class="snip-label">/etc/ssh/sshd_config</div>
+                                <pre class="snip-code">PasswordAuthentication no
+PubkeyAuthentication yes
+AuthorizedKeysFile .ssh/authorized_keys
+# Ensure SSH keys are in place before disabling passwords
+# systemctl restart sshd</pre>
+                                {% elif fid in ['AST-SSH-003','AST-SSH-LNX-002'] %}
+                                <div class="snip-label">/etc/ssh/sshd_config — Strong Ciphers/MACs</div>
+                                <pre class="snip-code">Ciphers aes256-gcm@openssh.com,aes128-gcm@openssh.com,chacha20-poly1305@openssh.com
+MACs hmac-sha2-512-etm@openssh.com,hmac-sha2-256-etm@openssh.com
+KexAlgorithms curve25519-sha256,diffie-hellman-group14-sha256
+HostKeyAlgorithms ssh-ed25519,rsa-sha2-512,rsa-sha2-256
+# systemctl restart sshd</pre>
+                                {% elif fid in ['AST-SSH-004','AST-SSH-LNX-004'] %}
+                                <div class="snip-label">/etc/ssh/sshd_config</div>
+                                <pre class="snip-code">PermitEmptyPasswords no
+# systemctl restart sshd</pre>
+
+                                {# NFS #}
+                                {% elif fid in ['AST-NFS-001','AST-NFS-LNX-001'] %}
+                                <div class="snip-label">/etc/exports — Remove no_root_squash</div>
+                                <pre class="snip-code"># Change:
+# /export *(rw,no_root_squash)
+# To (with restricted client and root_squash):
+/export 192.168.1.0/24(rw,root_squash,no_subtree_check,sync)
+# Apply: exportfs -ra</pre>
+                                {% elif fid in ['AST-NFS-002','AST-NFS-LNX-002'] %}
+                                <div class="snip-label">/etc/exports — Restrict World Access</div>
+                                <pre class="snip-code"># Change:
+# /export *(rw)
+# To (specific subnet only):
+/export 192.168.1.0/24(ro,root_squash,no_subtree_check,sync)
+# Apply: exportfs -ra && systemctl restart nfs-server</pre>
+                                {% elif fid == 'AST-NFS-003' %}
+                                <div class="snip-label">Migrate to NFSv4 + Kerberos</div>
+                                <pre class="snip-code"># /etc/exports — krb5p (privacy + integrity)
+/export 192.168.1.0/24(rw,sec=krb5p,root_squash,no_subtree_check,sync)
+# /etc/nfs.conf
+[nfsd]
+vers3=n
+vers4=y
+vers4.1=y
+vers4.2=y</pre>
+
+                                {# Linux PrivEsc #}
+                                {% elif fid in ['AST-PRV-005','AST-PRIV-LNX-001'] %}
+                                <div class="snip-label">Bash — Remove Dangerous SUID Bits</div>
+                                <pre class="snip-code"># Find all SUID binaries:
+find / -perm -4000 -type f 2>/dev/null
+# Remove SUID from non-essential binaries:
+chmod u-s /path/to/dangerous/binary
+# Common offenders: nmap, vim, find, bash, python, perl, ncat</pre>
+                                {% elif fid in ['AST-PRV-007','AST-PRIV-LNX-003'] %}
+                                <div class="snip-label">visudo — Remove NOPASSWD</div>
+                                <pre class="snip-code"># Run: sudo visudo
+# Change:
+#   user ALL=(ALL) NOPASSWD: ALL
+# To (specific commands only):
+#   user ALL=(ALL) /usr/bin/specific_command
+# Or remove NOPASSWD entirely:
+#   user ALL=(ALL) ALL</pre>
+                                {% elif fid in ['AST-PRV-008','AST-PRIV-LNX-004'] %}
+                                <div class="snip-label">Bash — Fix /etc/shadow Permissions</div>
+                                <pre class="snip-code">chmod 640 /etc/shadow
+chown root:shadow /etc/shadow
+ls -la /etc/shadow  # verify</pre>
+                                {% endif %}
+                            </div>
+                        </div>
+                        {% endif %}
+
+                    </td>
+
+                    {# Severity cell #}
+                    <td>
+                        <span class="severity-badge severity-{{ finding.severity }}">{{ finding.severity }}</span>
+                    </td>
+
+                    {# Confidence cell #}
+                    <td>
+                        <span class="confidence-badge">{{ finding.confidence }}</span>
+                    </td>
+
+                    {# Recommendation cell (expandable) #}
+                    <td>
+                        {% set rec = finding.recommendation %}
+                        {% if rec | length > 200 %}
+                        <div class="rec-short" style="font-size:13px;line-height:1.6;">{{ rec[:200] | replace('\n',' ') }}…</div>
+                        <div class="rec-full" style="display:none;font-size:13px;line-height:1.6;white-space:pre-wrap;word-break:break-word;overflow-wrap:anywhere;max-height:280px;overflow-y:auto;">{{ rec }}</div>
+                        <button class="expand-rec-btn" onclick="toggleRec(this)">Show more ▼</button>
+                        {% else %}
+                        <div style="font-size:13px;line-height:1.6;white-space:pre-wrap;word-break:break-word;overflow-wrap:anywhere;">{{ rec }}</div>
+                        {% endif %}
+
+                        {% if finding.references %}
+                        <div style="margin-top:9px;font-size:12px;">
+                            <strong style="color:var(--text-light);">References:</strong><br>
+                            {% for ref in finding.references %}
+                            <a href="{{ ref }}" target="_blank" style="color:var(--mino-orange);text-decoration:none;display:block;margin-top:3px;">
+                                🔗 {{ ref | truncate(55) }}
+                            </a>
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+                    </td>
+
+                </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+
+            {% else %}
+            <p style="text-align:center;color:var(--text-light);padding:3rem;font-size:16px;">
+                ✅ No security findings detected. Target appears secure.
+            </p>
             {% endif %}
         </div>
 
-        <!-- FOOTER -->
-        <footer>
-            <p><strong>Asterion Network Security Auditor</strong> — Navigating the Network Labyrinth 🐂</p>
-            <p style="margin-top: 12px;">
-                Part of the <strong>Argos Security Suite</strong> | Generated on {{ report.date | datetime }}
+        <!-- DIFF REPORT -->
+        {% if report.diff %}
+        {% set diff = report.diff %}
+        <div style="margin:0 0 38px 0;padding:28px;border-radius:8px;border:2px solid var(--border);background:var(--mino-bg);">
+            <h2 style="font-size:22px;margin-bottom:6px;color:var(--mino-dark);">📈 Scan Comparison</h2>
+            <p style="font-size:13px;color:var(--text-light);margin-bottom:{% if diff.mode_mismatch %}12{% else %}20{% endif %}px;">
+                Compared against scan #{{ diff.ref_scan_id }}
+                {% if diff.ref_date %} &mdash; {{ diff.ref_date[:10] }}{% endif %}
+                {% if diff.ref_target %} &mdash; {{ diff.ref_target }}{% endif %}
+                {% if diff.ref_mode %} &mdash; <strong>{{ diff.ref_mode }} mode</strong>{% endif %}
             </p>
-            <p style="margin-top: 20px; font-size: 12px; opacity: 0.8;">
-                © 2025 <a href="https://rodhnin.com">Rodney Dhavid Jimenez Chacin (rodhnin)</a> — MIT License<br>
-                <a href="https://github.com/rodhnin/asterion-network-minotaur" target="_blank">GitHub: asterion-network-minotaur</a>
-            </p>
-            <p style="margin-top: 15px; font-size: 12px;">
-                ⚠️ {{ report.notes.false_positive_disclaimer if report.notes else 'Manual verification recommended for all findings before remediation.' }}
-            </p>
-        </footer>
-    </div>
 
-    <!-- JAVASCRIPT -->
-    <script>
-        function showAiTab(tab) {
-            document.querySelectorAll('.ai-content').forEach(el => el.classList.remove('active'));
-            document.querySelectorAll('.ai-tab').forEach(el => el.classList.remove('active'));
-            document.getElementById(tab + '-tab').classList.add('active');
-            event.target.classList.add('active');
+            {% if diff.mode_mismatch %}
+            <div style="margin-bottom:20px;padding:12px 16px;border-radius:6px;background:#fff8e1;border:1px solid #ffe082;display:flex;align-items:flex-start;gap:10px;">
+                <span style="font-size:18px;line-height:1.4;">⚠️</span>
+                <div>
+                    <strong style="color:#e65100;font-size:13px;">Mode mismatch: {{ diff.ref_mode }} vs {{ diff.current_mode }}</strong>
+                    <p style="margin:4px 0 0;font-size:12px;color:var(--text-light);line-height:1.5;">
+                        Reference scan ran in <strong>{{ diff.ref_mode }}</strong> mode, current in <strong>{{ diff.current_mode }}</strong> mode.
+                        Differences may reflect checks exclusive to one mode — verify manually before marking issues as resolved.
+                    </p>
+                </div>
+            </div>
+            {% endif %}
+
+            <div style="display:flex;gap:16px;flex-wrap:wrap;margin-bottom:20px;">
+                <div style="flex:1;min-width:130px;padding:14px 18px;border-radius:6px;background:#fff3f3;border:1px solid #f5c6cb;text-align:center;">
+                    <div style="font-size:28px;font-weight:700;color:var(--critical);">{{ diff.new | length }}</div>
+                    <div style="font-size:12px;font-weight:600;color:var(--critical);text-transform:uppercase;letter-spacing:0.5px;">New</div>
+                    <div style="font-size:11px;color:var(--text-light);margin-top:2px;">appeared since last scan</div>
+                </div>
+                <div style="flex:1;min-width:130px;padding:14px 18px;border-radius:6px;background:#f0fff4;border:1px solid #c3e6cb;text-align:center;">
+                    <div style="font-size:28px;font-weight:700;color:#28a745;">{{ diff.fixed | length }}</div>
+                    <div style="font-size:12px;font-weight:600;color:#28a745;text-transform:uppercase;letter-spacing:0.5px;">Fixed</div>
+                    <div style="font-size:11px;color:var(--text-light);margin-top:2px;">remediated since last scan</div>
+                </div>
+                <div style="flex:1;min-width:130px;padding:14px 18px;border-radius:6px;background:#f5f5f5;border:1px solid #dee2e6;text-align:center;">
+                    <div style="font-size:28px;font-weight:700;color:var(--text-light);">{{ diff.persisting | length }}</div>
+                    <div style="font-size:12px;font-weight:600;color:var(--text-light);text-transform:uppercase;letter-spacing:0.5px;">Persisting</div>
+                    <div style="font-size:11px;color:var(--text-light);margin-top:2px;">present in both scans</div>
+                </div>
+            </div>
+
+            {% macro sev_badge(sev) %}
+            <span style="display:inline-block;padding:2px 7px;border-radius:3px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.4px;white-space:nowrap;
+                background:{% if sev=='critical' %}#dc3545{% elif sev=='high' %}#fd7e14{% elif sev=='medium' %}#ffc107{% elif sev=='low' %}#17a2b8{% else %}#6c757d{% endif %};
+                color:{% if sev=='medium' %}#212529{% else %}#fff{% endif %};">{{ sev }}</span>
+            {% endmacro %}
+
+            {% if diff.new %}
+            <h3 style="font-size:13px;font-weight:700;color:var(--critical);margin-bottom:8px;text-transform:uppercase;letter-spacing:0.5px;">🔴 New findings ({{ diff.new | length }})</h3>
+            <table style="width:100%;border-collapse:collapse;margin-bottom:18px;font-size:13px;">
+                <thead><tr style="background:#fff3f3;border-bottom:2px solid #f5c6cb;">
+                    <th style="padding:8px 12px;text-align:left;color:var(--text-light);font-weight:600;width:15%;">ID</th>
+                    <th style="padding:8px 12px;text-align:left;color:var(--text-light);font-weight:600;">Title</th>
+                    <th style="padding:8px 12px;text-align:left;color:var(--text-light);font-weight:600;width:12%;">Severity</th>
+                </tr></thead>
+                <tbody>
+                {% for f in diff.new %}
+                <tr style="border-bottom:1px solid #f5c6cb;">
+                    <td style="padding:7px 12px;font-family:monospace;color:var(--critical);font-size:11px;">{{ f.id }}</td>
+                    <td style="padding:7px 12px;">{{ f.title }}</td>
+                    <td style="padding:7px 12px;">{{ sev_badge(f.severity) }}</td>
+                </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+            {% endif %}
+
+            {% if diff.fixed %}
+            <h3 style="font-size:13px;font-weight:700;color:#28a745;margin-bottom:8px;text-transform:uppercase;letter-spacing:0.5px;">✅ Fixed findings ({{ diff.fixed | length }})</h3>
+            <table style="width:100%;border-collapse:collapse;margin-bottom:18px;font-size:13px;">
+                <thead><tr style="background:#f0fff4;border-bottom:2px solid #c3e6cb;">
+                    <th style="padding:8px 12px;text-align:left;color:var(--text-light);font-weight:600;width:15%;">ID</th>
+                    <th style="padding:8px 12px;text-align:left;color:var(--text-light);font-weight:600;">Title</th>
+                    <th style="padding:8px 12px;text-align:left;color:var(--text-light);font-weight:600;width:12%;">Severity</th>
+                </tr></thead>
+                <tbody>
+                {% for f in diff.fixed %}
+                <tr style="border-bottom:1px solid #c3e6cb;text-decoration:line-through;opacity:0.7;">
+                    <td style="padding:7px 12px;font-family:monospace;color:#28a745;font-size:11px;">{{ f.id }}</td>
+                    <td style="padding:7px 12px;">{{ f.title }}</td>
+                    <td style="padding:7px 12px;">{{ sev_badge(f.severity) }}</td>
+                </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+            {% endif %}
+
+            {% if diff.persisting %}
+            <details>
+                <summary style="font-size:13px;font-weight:600;color:var(--text-light);cursor:pointer;margin-bottom:8px;user-select:none;">
+                    ⏳ Persisting findings ({{ diff.persisting | length }}) — click to expand
+                </summary>
+                <table style="width:100%;border-collapse:collapse;margin-top:8px;font-size:13px;">
+                    <thead><tr style="background:#f5f5f5;border-bottom:2px solid #dee2e6;">
+                        <th style="padding:8px 12px;text-align:left;color:var(--text-light);font-weight:600;width:15%;">ID</th>
+                        <th style="padding:8px 12px;text-align:left;color:var(--text-light);font-weight:600;">Title</th>
+                        <th style="padding:8px 12px;text-align:left;color:var(--text-light);font-weight:600;width:12%;">Severity</th>
+                    </tr></thead>
+                    <tbody>
+                    {% for f in diff.persisting %}
+                    <tr style="border-bottom:1px solid #dee2e6;">
+                        <td style="padding:7px 12px;font-family:monospace;color:var(--text-light);font-size:11px;">{{ f.id }}</td>
+                        <td style="padding:7px 12px;color:var(--text-light);">{{ f.title }}</td>
+                        <td style="padding:7px 12px;">{{ sev_badge(f.severity) }}</td>
+                    </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </details>
+            {% endif %}
+        </div>
+        {% endif %}
+
+        <!-- NOTES -->
+        {% if report.notes %}
+        <div class="notes">
+            <h2>📝 Scan Notes</h2>
+            <table>
+                {% if report.notes.scan_duration_seconds %}
+                <tr><td style="width:30%;font-weight:600;">⏱️ Duration</td><td>{{ report.notes.scan_duration_seconds }} seconds</td></tr>
+                {% endif %}
+                {% if report.notes.requests_sent %}
+                <tr><td style="font-weight:600;">📡 Checks performed</td><td>{{ report.notes.requests_sent }}</td></tr>
+                {% endif %}
+                {% if report.notes.scope_limitations %}
+                <tr><td style="font-weight:600;">🔍 Scope</td><td>{{ report.notes.scope_limitations }}</td></tr>
+                {% endif %}
+                {% if report.notes.false_positive_disclaimer %}
+                <tr><td style="font-weight:600;">⚠️ Disclaimer</td><td>{{ report.notes.false_positive_disclaimer }}</td></tr>
+                {% endif %}
+            </table>
+        </div>
+        {% endif %}
+
+    </div><!-- /.content -->
+
+    <!-- FOOTER -->
+    <footer>
+        <p><strong>Asterion Network Security Auditor</strong> — Navigating the Network Labyrinth 🐂</p>
+        <p style="margin-top:12px;">Part of the <strong>Argos Security Suite</strong> | Generated on {{ report.date | datetime }}</p>
+        <p style="margin-top:18px;font-size:12px;opacity:0.8;">
+            © 2025–2026 <a href="https://github.com/rodhnin" target="_blank">Rodney Dhavid Jimenez Chacin (rodhnin)</a> — MIT License<br>
+            <a href="https://github.com/rodhnin/asterion-network-minotaur" target="_blank">GitHub: asterion-network-minotaur</a>
+        </p>
+        <p style="margin-top:14px;font-size:12px;">
+            ⚠️ {{ report.notes.false_positive_disclaimer if report.notes and report.notes.false_positive_disclaimer else 'Manual verification recommended for all findings before remediation. Use only on authorized targets.' }}
+        </p>
+    </footer>
+
+</div><!-- /.container -->
+
+<!-- JAVASCRIPT -->
+<script>
+    // ── AI analysis tabs ──────────────────────────────────────────────────────
+    function showAiTab(tab, btn) {
+        document.querySelectorAll('.ai-content').forEach(el => el.classList.remove('active'));
+        document.querySelectorAll('.ai-tab').forEach(el => el.classList.remove('active'));
+        const el = document.getElementById(tab + '-tab');
+        if (el) el.classList.add('active');
+        if (btn) btn.classList.add('active');
+    }
+
+    // ── Dual filter: severity + category ─────────────────────────────────────
+    var _activeSev = 'all';
+    var _activeCat = 'all';
+
+    function filterFindings(type, val, btn) {
+        if (type === 'sev') {
+            _activeSev = val;
+            document.querySelectorAll('.filter-btn:not(.f-cat)').forEach(b => b.classList.remove('active'));
+        } else {
+            _activeCat = val;
+            document.querySelectorAll('.filter-btn.f-cat').forEach(b => b.classList.remove('active'));
         }
-
-        window.addEventListener('keydown', function(e) {
-            if ((e.ctrlKey || e.metaKey) && e.key === 'p') {
-                window.print();
-            }
+        btn.classList.add('active');
+        document.querySelectorAll('#findings tbody tr').forEach(row => {
+            var sevOk = _activeSev === 'all' || row.dataset.severity === _activeSev;
+            var catOk = _activeCat === 'all' || row.dataset.category === _activeCat;
+            row.style.display = (sevOk && catOk) ? '' : 'none';
         });
-    </script>
+    }
+
+    // ── Expandable panels (CVE list / config snippets) ────────────────────────
+    function togglePanel(id) {
+        const panel = document.getElementById(id);
+        const btn   = panel.previousElementSibling;
+        const open  = panel.style.display === 'block';
+        panel.style.display = open ? 'none' : 'block';
+        if (btn) btn.classList.toggle('open', !open);
+    }
+
+    // ── Expandable recommendation ─────────────────────────────────────────────
+    function toggleRec(btn) {
+        const c  = btn.parentElement;
+        const sh = c.querySelector('.rec-short');
+        const fu = c.querySelector('.rec-full');
+        const open = fu.style.display === 'block';
+        if (sh) sh.style.display = open ? 'block' : 'none';
+        if (fu) fu.style.display = open ? 'none'  : 'block';
+        btn.textContent = open ? 'Show more ▼' : 'Show less ▲';
+    }
+
+    // ── Print shortcut ────────────────────────────────────────────────────────
+    window.addEventListener('keydown', function(e) {
+        if ((e.ctrlKey || e.metaKey) && e.key === 'p') { window.print(); }
+    });
+</script>
 </body>
 </html>

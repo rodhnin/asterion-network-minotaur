@@ -99,6 +99,8 @@ def _markdown_to_html(text: str) -> str:
       - nl2br: converts \n to <br> where applicable
       - sane_lists: tolerant lists
       - codehilite: code blocks
+    Sanitizes the resulting HTML fragment (not the full document) via bleach,
+    protecting against XSS in AI-generated or user-provided markdown content.
     """
     if not text:
         return ""
@@ -107,7 +109,7 @@ def _markdown_to_html(text: str) -> str:
         text,
         extensions=["extra", "nl2br", "sane_lists", "codehilite"]
     )
-    return html
+    return sanitize_html(html)
 
 # -------------------------------
 # Sanitization (optional)
@@ -177,15 +179,14 @@ def render_html_report(report_json: str, template_path: str, output_path: str, u
     template = env.get_template(template_file.name)
     
     # Render
+    # Note: sanitization of user/AI-generated content is applied per-fragment
+    # inside the `markdown` Jinja2 filter (see _markdown_to_html). Do NOT
+    # run bleach on the full document — it escapes structural tags like
+    # <html>, <style>, <script> that are not in the allowed list.
+    if not _BLEACH_AVAILABLE and not unsafe_no_sanitize:
+        print("WARN: 'bleach' not available; markdown content will not be sanitized. Install with: pip install bleach", file=sys.stderr)
     html = template.render(report=report)
-    
-    # Sanitize if applicable
-    if not unsafe_no_sanitize:
-        if not _BLEACH_AVAILABLE:
-            print("WARN: 'bleach' not available; HTML will not be sanitized. Install with: pip install bleach", file=sys.stderr)
-        else:
-            html = sanitize_html(html)
-    
+
     # Save
     out = Path(output_path)
     out.parent.mkdir(parents=True, exist_ok=True)

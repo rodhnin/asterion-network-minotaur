@@ -347,26 +347,26 @@ namespace Asterion.Checks.CrossPlatform
                     // AUTHENTICATED LOGIN
                     // ================================================================
                     status = client.Login(domain, username, password);
-                    
+
                     if (status != NTStatus.STATUS_SUCCESS)
                     {
                         if (status == NTStatus.STATUS_LOGON_FAILURE)
                         {
-                            Log.Warning("[{CheckName}] Authenticated SMB login failed on {Target}: Invalid credentials", 
+                            Log.Warning("[{CheckName}] Authenticated SMB login failed on {Target}: Invalid credentials",
                                 Name, target);
                         }
                         else
                         {
-                            Log.Debug("[{CheckName}] SMB login failed on {Target} (status: {Status})", 
+                            Log.Debug("[{CheckName}] SMB login failed on {Target} (status: {Status})",
                                 Name, target, status);
                         }
                         return;
                     }
-                    
+
                     try
                     {
                         var testShares = client.ListShares(out NTStatus testStatus);
-                        
+
                         if (testStatus == NTStatus.STATUS_SUCCESS)
                         {
                             sessionEstablished = true;
@@ -374,7 +374,7 @@ namespace Asterion.Checks.CrossPlatform
                         }
                         else
                         {
-                            Log.Warning("[{CheckName}] Authenticated login succeeded but share enum blocked on {Target} (status: {Status})", 
+                            Log.Warning("[{CheckName}] Authenticated login succeeded but share enum blocked on {Target} (status: {Status})",
                                 Name, target, testStatus);
                             return;
                         }
@@ -383,6 +383,41 @@ namespace Asterion.Checks.CrossPlatform
                     {
                         Log.Warning("[{CheckName}] Authenticated login succeeded but session not usable on {Target}", Name, target);
                         return;
+                    }
+
+                    // ================================================================
+                    // GUEST CHECK — always probe even when --auth is provided.
+                    // Guest access is orthogonal to having valid credentials.
+                    // A separate connection is used to avoid disrupting the auth session.
+                    // ================================================================
+                    Log.Debug("[{CheckName}] Probing Guest account on {Target} (separate from auth session)", Name, target);
+                    var guestClient = new SMB2Client();
+                    if (guestClient.Connect(ipAddress, SMBTransportType.DirectTCPTransport))
+                    {
+                        var guestNames = new[] { "Guest", "Invitado", "Gast", "Invite", "Ospite", "Convidado" };
+                        foreach (var guestName in guestNames)
+                        {
+                            try
+                            {
+                                var guestStatus = guestClient.Login(string.Empty, guestName, string.Empty);
+                                if (guestStatus == NTStatus.STATUS_SUCCESS)
+                                {
+                                    guestClient.ListShares(out NTStatus guestShareStatus);
+                                    if (guestShareStatus == NTStatus.STATUS_SUCCESS)
+                                    {
+                                        detectedGuestName = guestName;
+                                        Log.Warning("[{CheckName}] CRITICAL: Guest account '{GuestName}' is active on {Target}!", Name, guestName, target);
+                                        break;
+                                    }
+                                }
+                                else if (guestStatus == NTStatus.STATUS_ACCOUNT_DISABLED)
+                                {
+                                    Log.Debug("[{CheckName}] Guest '{GuestName}' disabled on {Target} ✓", Name, guestName, target);
+                                }
+                            }
+                            catch { /* ignore per-attempt errors */ }
+                        }
+                        try { guestClient.Logoff(); guestClient.Disconnect(); } catch { }
                     }
                 }
                 
@@ -418,7 +453,7 @@ namespace Asterion.Checks.CrossPlatform
                 // ================================================================
                 // CREATE FINDING (if anonymous/guest access)
                 // ================================================================
-                if (isAnonymous && detectedGuestName != null && sessionEstablished)
+                if (detectedGuestName != null && (isAnonymous ? sessionEstablished : true))
                 {
                     var shareEvidence = shareList.Any()
                         ? $"Accessible shares: {string.Join(", ", shareList)}"

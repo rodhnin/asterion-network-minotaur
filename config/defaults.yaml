@@ -5,7 +5,7 @@
 # GENERAL SETTINGS
 # ============================================================================
 general:
-    version: "0.1.0"
+    version: "0.2.0"
     author: "Rodney Dhavid Jimenez Chacin (rodhnin)"
     github: "https://github.com/rodhnin/asterion-network-minotaur"
     contact: "https://rodhnin.com"
@@ -44,7 +44,7 @@ scan:
         read: 30
 
     # User-Agent string for HTTP requests
-    user_agent: "Asterion/0.1.0 (Network Security Auditor)"
+    user_agent: "Asterion/0.2.0 (Network Security Auditor)"
 
     # Follow redirects
     follow_redirects: true
@@ -236,13 +236,13 @@ ai:
         provider: "openai"
 
         # Model selection
-        model: "gpt-4-turbo-preview"
+        model: "gpt-4o-mini-2024-07-18"
 
         # Temperature (0.0 = deterministic, 1.0 = creative)
         temperature: 0.3
 
         # Max tokens for response
-        max_tokens: 2000
+        max_tokens: 6144
 
         # Agent type (zero-shot-react-description, conversational, etc.)
         agent_type: "zero-shot-react-description"

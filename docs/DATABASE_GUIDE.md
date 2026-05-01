@@ -991,6 +991,46 @@ tail -f ~/.argos/logs/asterion.log
 
 ---
 
+## ai_costs Table (v0.2.0+)
+
+Stores per-analysis AI cost records from the Python bridge.
+
+```sql
+CREATE TABLE IF NOT EXISTS ai_costs (
+    cost_id       INTEGER PRIMARY KEY AUTOINCREMENT,
+    scan_id       INTEGER DEFAULT NULL,
+    provider      TEXT NOT NULL,
+    model         TEXT NOT NULL,
+    analysis_type TEXT NOT NULL,
+    input_tokens  INTEGER NOT NULL DEFAULT 0,
+    output_tokens INTEGER NOT NULL DEFAULT 0,
+    total_tokens  INTEGER NOT NULL DEFAULT 0,
+    cost_usd      REAL NOT NULL DEFAULT 0.0,
+    duration_s    REAL,
+    created_at    TEXT NOT NULL DEFAULT (datetime('now', 'utc')),
+    FOREIGN KEY (scan_id) REFERENCES scans(scan_id) ON DELETE CASCADE
+);
+```
+
+**Example queries:**
+
+```sql
+-- Total AI spend by provider
+SELECT provider, model, COUNT(*) as analyses, SUM(cost_usd) as total_usd
+FROM ai_costs GROUP BY provider, model ORDER BY total_usd DESC;
+
+-- AI costs for a specific scan
+SELECT analysis_type, input_tokens, output_tokens, cost_usd, duration_s
+FROM ai_costs WHERE scan_id = 42;
+
+-- All-time total AI spend across Argos Suite
+SELECT SUM(cost_usd) as grand_total FROM ai_costs;
+```
+
+**Note:** Also written to `~/.argos/costs.json` (shared Argos Suite file).
+
+---
+
 ## Related Documentation
 
 -   **ROADMAP.md** - Future database features:
@@ -1051,6 +1091,6 @@ sqlite3 ~/.argos/argos.db "DELETE FROM scans WHERE started_at < datetime('now', 
 
 ---
 
-**Schema Version:** 1.0  
+**Schema Version:** 1.1
 **Next Update:** v0.3.0 (Interactive CLI - IMPROV-011)
-**Tool Version:** Asterion v0.1.0
+**Tool Version:** Asterion v0.2.0
